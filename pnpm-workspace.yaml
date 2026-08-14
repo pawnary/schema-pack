@@ -1,0 +1,8 @@
+packages:
+  - packages/*
+allowBuilds:
+  esbuild: true
+  msgpackr-extract: true
+  unrs-resolver: true
+minimumReleaseAgeExclude:
+  - '@pawnary/prettier-config@0.0.1-d82501d.0'

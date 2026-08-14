@@ -1,0 +1,44 @@
+{
+  "exclude": [
+    "src",
+    "./packages/schema-pack",
+    "./packages/benchmark/__bench__"
+  ],
+  "compilerOptions": {
+    "target": "esnext",
+    "lib": ["ESNext", "DOM"],
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "composite": true,
+    "noEmit": true,
+    "allowImportingTsExtensions": true,
+    "incremental": true,
+    "declaration": true,
+    "declarationMap": true,
+    "verbatimModuleSyntax": true,
+    "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "erasableSyntaxOnly": false,
+    "noImplicitThis": true,
+    "alwaysStrict": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": false,
+    "inlineSourceMap": true,
+    "inlineSources": true,
+    "strictPropertyInitialization": false,
+    "isolatedModules": true,
+    "skipLibCheck": true,
+    "allowUnusedLabels": false,
+    "allowUnreachableCode": false,
+    "types": ["node", "bun", "vitest", "./packages/vitest/src/extensions.d.ts"],
+    "paths": {
+      "@schema-pack/benchmark": ["./packages/benchmark/src/index.ts"],
+      "@schema-pack/debugger": ["./packages/debugger/src/index.ts"],
+      "@schema-pack/message-pack": ["./packages/message-pack/src/index.ts"],
+      "@schema-pack/vitest": ["./packages/vitest/src/index.ts"]
+    }
+  }
+}

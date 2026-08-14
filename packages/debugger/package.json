@@ -1,0 +1,64 @@
+{
+  "name": "@schema-pack/debugger",
+  "version": "0.0.0",
+  "description": "Serialization symbols debugger",
+  "type": "module",
+  "files": [
+    "./dist"
+  ],
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/"
+  },
+  "keywords": [
+    "debug",
+    "debugger",
+    "serialization",
+    "symbols",
+    "message-pack",
+    "schema-pack"
+  ],
+  "author": "Elvis Muñoz <elvis.munoz.f@gmail.com>",
+  "license": "MIT",
+  "sideEffects": false,
+  "dependencies": {
+    "@schema-pack/message-pack": "workspace:*"
+  },
+  "main": "./dist/cjs/index.cjs",
+  "module": "./dist/esm/index.mjs",
+  "types": "./dist/cjs/index.d.cts",
+  "exports": {
+    ".": {
+      "import": "./dist/esm/index.mjs",
+      "require": "./dist/cjs/index.cjs"
+    },
+    "./debugger": {
+      "import": "./dist/esm/debugger.mjs",
+      "require": "./dist/cjs/debugger.cjs"
+    },
+    "./debugSymbols": {
+      "import": "./dist/esm/debugSymbols/index.mjs",
+      "require": "./dist/cjs/debugSymbols/index.cjs"
+    },
+    "./debugSymbols/messagePack": {
+      "import": "./dist/esm/debugSymbols/messagePack.mjs",
+      "require": "./dist/cjs/debugSymbols/messagePack.cjs"
+    },
+    "./types": {
+      "import": "./dist/esm/types.mjs",
+      "require": "./dist/cjs/types.cjs"
+    },
+    "./utils/bytesToString": {
+      "import": "./dist/esm/utils/bytesToString.mjs",
+      "require": "./dist/cjs/utils/bytesToString.cjs"
+    },
+    "./utils/byteToString": {
+      "import": "./dist/esm/utils/byteToString.mjs",
+      "require": "./dist/cjs/utils/byteToString.cjs"
+    },
+    "./utils/chunkToString": {
+      "import": "./dist/esm/utils/chunkToString.mjs",
+      "require": "./dist/cjs/utils/chunkToString.cjs"
+    },
+    "./package.json": "./package.json"
+  }
+}

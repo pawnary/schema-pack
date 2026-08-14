@@ -1,0 +1,1 @@
+export const DEFAULT_ALLOCATION_SIZE = 1024;

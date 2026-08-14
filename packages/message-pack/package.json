@@ -1,0 +1,196 @@
+{
+  "name": "@schema-pack/message-pack",
+  "version": "0.0.0",
+  "description": "MessagePack implementation",
+  "type": "module",
+  "files": [
+    "./dist"
+  ],
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/"
+  },
+  "keywords": [
+    "MessagePack",
+    "msgpack",
+    "serialization",
+    "deserialization",
+    "binary",
+    "data",
+    "format"
+  ],
+  "author": "Elvis Muñoz <elvis.munoz.f@gmail.com>",
+  "license": "MIT",
+  "sideEffects": false,
+  "devDependencies": {
+    "@jsonjoy.com/json-pack": "^18.28.0",
+    "@msgpack/msgpack": "^3.1.3",
+    "@schema-pack/benchmark": "workspace:*",
+    "msgpackr": "^2.0.3"
+  },
+  "main": "./dist/cjs/index.cjs",
+  "module": "./dist/esm/index.mjs",
+  "types": "./dist/cjs/index.d.cts",
+  "exports": {
+    ".": {
+      "import": "./dist/esm/index.mjs",
+      "require": "./dist/cjs/index.cjs"
+    },
+    "./benchmark/decoderDataTypesFactory": {
+      "import": "./dist/esm/benchmark/decoderDataTypesFactory.mjs",
+      "require": "./dist/cjs/benchmark/decoderDataTypesFactory.cjs"
+    },
+    "./bufferWithExtensions": {
+      "import": "./dist/esm/bufferWithExtensions.mjs",
+      "require": "./dist/cjs/bufferWithExtensions.cjs"
+    },
+    "./constants": {
+      "import": "./dist/esm/constants.mjs",
+      "require": "./dist/cjs/constants.cjs"
+    },
+    "./decoder": {
+      "import": "./dist/esm/decoder/index.mjs",
+      "require": "./dist/cjs/decoder/index.cjs"
+    },
+    "./decoder/decoder": {
+      "import": "./dist/esm/decoder/decoder.mjs",
+      "require": "./dist/cjs/decoder/decoder.cjs"
+    },
+    "./decoder/decoderBuffer": {
+      "import": "./dist/esm/decoder/decoderBuffer.mjs",
+      "require": "./dist/cjs/decoder/decoderBuffer.cjs"
+    },
+    "./decoder/interfaces": {
+      "import": "./dist/esm/decoder/interfaces/index.mjs",
+      "require": "./dist/cjs/decoder/interfaces/index.cjs"
+    },
+    "./decoder/interfaces/messagePackDecoderBuffer": {
+      "import": "./dist/esm/decoder/interfaces/messagePackDecoderBuffer.mjs",
+      "require": "./dist/cjs/decoder/interfaces/messagePackDecoderBuffer.cjs"
+    },
+    "./decoder/interfaces/messagePackTextDecoder": {
+      "import": "./dist/esm/decoder/interfaces/messagePackTextDecoder.mjs",
+      "require": "./dist/cjs/decoder/interfaces/messagePackTextDecoder.cjs"
+    },
+    "./decoder/textDecoders/defaultTextDecoder": {
+      "import": "./dist/esm/decoder/textDecoders/defaultTextDecoder.mjs",
+      "require": "./dist/cjs/decoder/textDecoders/defaultTextDecoder.cjs"
+    },
+    "./encoder": {
+      "import": "./dist/esm/encoder/index.mjs",
+      "require": "./dist/cjs/encoder/index.cjs"
+    },
+    "./encoder/constants": {
+      "import": "./dist/esm/encoder/constants.mjs",
+      "require": "./dist/cjs/encoder/constants.cjs"
+    },
+    "./encoder/encoder": {
+      "import": "./dist/esm/encoder/encoder.mjs",
+      "require": "./dist/cjs/encoder/encoder.cjs"
+    },
+    "./encoder/encoderBuffer": {
+      "import": "./dist/esm/encoder/encoderBuffer.mjs",
+      "require": "./dist/cjs/encoder/encoderBuffer.cjs"
+    },
+    "./encoder/interfaces": {
+      "import": "./dist/esm/encoder/interfaces/index.mjs",
+      "require": "./dist/cjs/encoder/interfaces/index.cjs"
+    },
+    "./encoder/interfaces/messagePackEncoderBuffer": {
+      "import": "./dist/esm/encoder/interfaces/messagePackEncoderBuffer.mjs",
+      "require": "./dist/cjs/encoder/interfaces/messagePackEncoderBuffer.cjs"
+    },
+    "./encoder/interfaces/messagePackTextEncoder": {
+      "import": "./dist/esm/encoder/interfaces/messagePackTextEncoder.mjs",
+      "require": "./dist/cjs/encoder/interfaces/messagePackTextEncoder.cjs"
+    },
+    "./encoder/textEncoders": {
+      "import": "./dist/esm/encoder/textEncoders/index.mjs",
+      "require": "./dist/cjs/encoder/textEncoders/index.cjs"
+    },
+    "./encoder/textEncoders/defaultTextEncoder": {
+      "import": "./dist/esm/encoder/textEncoders/defaultTextEncoder.mjs",
+      "require": "./dist/cjs/encoder/textEncoders/defaultTextEncoder.cjs"
+    },
+    "./encoder/textEncoders/nodeTextEncoder": {
+      "import": "./dist/esm/encoder/textEncoders/nodeTextEncoder.mjs",
+      "require": "./dist/cjs/encoder/textEncoders/nodeTextEncoder.cjs"
+    },
+    "./encoder/types": {
+      "import": "./dist/esm/encoder/types.mjs",
+      "require": "./dist/cjs/encoder/types.cjs"
+    },
+    "./extensions": {
+      "import": "./dist/esm/extensions/index.mjs",
+      "require": "./dist/cjs/extensions/index.cjs"
+    },
+    "./extensions/bigint": {
+      "import": "./dist/esm/extensions/bigint/index.mjs",
+      "require": "./dist/cjs/extensions/bigint/index.cjs"
+    },
+    "./extensions/bigint/bigInt": {
+      "import": "./dist/esm/extensions/bigint/bigInt.mjs",
+      "require": "./dist/cjs/extensions/bigint/bigInt.cjs"
+    },
+    "./extensions/bigint/constants": {
+      "import": "./dist/esm/extensions/bigint/constants.mjs",
+      "require": "./dist/cjs/extensions/bigint/constants.cjs"
+    },
+    "./extensions/interfaces": {
+      "import": "./dist/esm/extensions/interfaces/index.mjs",
+      "require": "./dist/cjs/extensions/interfaces/index.cjs"
+    },
+    "./extensions/interfaces/messagePackExtension": {
+      "import": "./dist/esm/extensions/interfaces/messagePackExtension.mjs",
+      "require": "./dist/cjs/extensions/interfaces/messagePackExtension.cjs"
+    },
+    "./extensions/timestampDate": {
+      "import": "./dist/esm/extensions/timestampDate.mjs",
+      "require": "./dist/cjs/extensions/timestampDate.cjs"
+    },
+    "./interfaces": {
+      "import": "./dist/esm/interfaces/index.mjs",
+      "require": "./dist/cjs/interfaces/index.cjs"
+    },
+    "./interfaces/messagePackBufferWithExtensions": {
+      "import": "./dist/esm/interfaces/messagePackBufferWithExtensions.mjs",
+      "require": "./dist/cjs/interfaces/messagePackBufferWithExtensions.cjs"
+    },
+    "./symbols": {
+      "import": "./dist/esm/symbols.mjs",
+      "require": "./dist/cjs/symbols.cjs"
+    },
+    "./types": {
+      "import": "./dist/esm/types.mjs",
+      "require": "./dist/cjs/types.cjs"
+    },
+    "./untypedExtension": {
+      "import": "./dist/esm/untypedExtension.mjs",
+      "require": "./dist/cjs/untypedExtension.cjs"
+    },
+    "./utils": {
+      "import": "./dist/esm/utils/index.mjs",
+      "require": "./dist/cjs/utils/index.cjs"
+    },
+    "./utils/fitIn16Bits": {
+      "import": "./dist/esm/utils/fitIn16Bits.mjs",
+      "require": "./dist/cjs/utils/fitIn16Bits.cjs"
+    },
+    "./utils/fitIn32Bits": {
+      "import": "./dist/esm/utils/fitIn32Bits.mjs",
+      "require": "./dist/cjs/utils/fitIn32Bits.cjs"
+    },
+    "./utils/fitIn7Bits": {
+      "import": "./dist/esm/utils/fitIn7Bits.mjs",
+      "require": "./dist/cjs/utils/fitIn7Bits.cjs"
+    },
+    "./utils/fitIn8Bits": {
+      "import": "./dist/esm/utils/fitIn8Bits.mjs",
+      "require": "./dist/cjs/utils/fitIn8Bits.cjs"
+    },
+    "./utils/fitInt64Bits": {
+      "import": "./dist/esm/utils/fitInt64Bits.mjs",
+      "require": "./dist/cjs/utils/fitInt64Bits.cjs"
+    },
+    "./package.json": "./package.json"
+  }
+}

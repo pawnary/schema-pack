@@ -1,0 +1,46 @@
+const Symbols = {
+  POSITIVE_FIXINT_START: 0x00, // 0
+  POSITIVE_FIXINT_END: 0x7f, // 127
+  FIXMAP_START: 0x80, // 128
+  FIXMAP_END: 0x8f, // 143
+  FIXARRAY_START: 0x90, // 144
+  FIXARRAY_END: 0x9f, // 159
+  FIXSTR_START: 0xa0, // 160
+  FIXSTR_END: 0xbf, // 191
+  NIL: 0xc0, // 192
+  NEVER_USED: 0xc1, // 193
+  FALSE: 0xc2, // 194
+  TRUE: 0xc3, // 195
+  BIN8: 0xc4, // 196
+  BIN16: 0xc5, // 197
+  BIN32: 0xc6, // 198
+  EXT8: 0xc7, // 199
+  EXT16: 0xc8, // 200
+  EXT32: 0xc9, // 201
+  FLOAT32: 0xca, // 202
+  FLOAT64: 0xcb, // 203
+  UINT8: 0xcc, // 204
+  UINT16: 0xcd, // 205
+  UINT32: 0xce, // 206
+  UINT64: 0xcf, // 207
+  INT8: 0xd0, // 208
+  INT16: 0xd1, // 209
+  INT32: 0xd2, // 210
+  INT64: 0xd3, // 211
+  FIXEXT1: 0xd4, // 212
+  FIXEXT2: 0xd5, // 213
+  FIXEXT4: 0xd6, // 214
+  FIXEXT8: 0xd7, // 215
+  FIXEXT16: 0xd8, // 216
+  STR8: 0xd9, // 217
+  STR16: 0xda, // 218
+  STR32: 0xdb, // 219
+  ARRAY16: 0xdc, // 220
+  ARRAY32: 0xdd, // 221
+  MAP16: 0xde, // 222
+  MAP32: 0xdf, // 223
+  NEGATIVE_FIXINT_START: 0xe0, // 224
+  NEGATIVE_FIXINT_END: 0xff, // 255
+} as const;
+
+export default Symbols;

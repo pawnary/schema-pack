@@ -1,0 +1,20 @@
+on:
+  workflow_call:
+permissions:
+  contents: read
+  packages: read
+jobs:
+  reusable_dependencies:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - id: setup
+        uses: ./.github/actions/setup
+      - name: Setup private GitHub registry via .npmrc
+        run: |
+          pnpm config set @pawnary:registry https://npm.pkg.github.com
+          pnpm config set -- "//npm.pkg.github.com/:_authToken" "${{ secrets.GITHUB_TOKEN }}"
+      - name: install dependencies
+        if: steps.setup.outputs.node-modules-cache != 'true'
+        run: |
+          pnpm install --frozen-lockfile

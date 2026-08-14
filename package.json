@@ -1,0 +1,30 @@
+{
+  "name": "schema-pack",
+  "version": "0.0.0",
+  "description": "",
+  "license": "MIT",
+  "author": "Elvis Muñoz <elvis.munoz.f@gmail.com>",
+  "type": "module",
+  "scripts": {
+    "build": "tsdown",
+    "clean": "git clean -dfqX -- packages/**/dist packages/**/tsconfig*tsbuildinfo node_modules packages/**/node_modules",
+    "prettier:check": "prettier --check .",
+    "prettier:fix": "prettier --write .",
+    "test:ci": "vitest run",
+    "test": "vitest",
+    "tsc": "tsc",
+    "watch": "tsdown --watch"
+  },
+  "devDependencies": {
+    "@arethetypeswrong/core": "^0.18.5",
+    "@pawnary/prettier-config": "0.0.1-d82501d.0",
+    "@types/bun": "^1.3.14",
+    "@types/node": "^26.2.0",
+    "jsdom": "^30.0.1",
+    "prettier": "^3.9.6",
+    "publint": "^0.3.23",
+    "tsdown": "^0.22.14",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.10"
+  }
+}
