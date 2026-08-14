@@ -3,7 +3,7 @@ import DefaultTextDecoder from './textDecoders/defaultTextDecoder.ts';
 import Symbols from '../symbols.ts';
 import type MessagePackDecoderBuffer from './interfaces/messagePackDecoderBuffer.ts';
 
-export type DecoderBufferOptions = {};
+// export interface DecoderBufferOptions {}
 
 class DecoderBuffer<TBuffer extends Uint8Array = Uint8Array>
   extends BufferWithExtensions<TBuffer>
@@ -294,7 +294,7 @@ class DecoderBuffer<TBuffer extends Uint8Array = Uint8Array>
   // Kept deliberately tiny (unlike a single flat 32-case switch) so V8's inliner can fold
   // it into readArray's loop; everything rare/unimplemented is deferred to decodeControlSlow
   // so it doesn't bloat this function's inlining budget.
-  nextValue<T extends any = unknown>(): T {
+  nextValue<T = unknown>(): T {
     const buffer = this.buffer;
     const headerByte = buffer[this.offset++];
 

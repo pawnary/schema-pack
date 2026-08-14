@@ -2,8 +2,6 @@ import { describe, expect, it, test } from 'vitest';
 import Encoder from '../../../src/encoder/encoder.ts';
 import BigIntExtension from '../../../src/extensions/bigint/bigInt.ts';
 import Symbols from '../../../src/symbols.ts';
-import EncoderBuffer from '../../../src/encoder/encoderBuffer.ts';
-import DecoderBuffer from '../../../src/decoder/decoderBuffer.ts';
 import { INT64_MIN, UINT64_MAX } from '../../../src/constants.ts';
 import Decoder from '../../../src/decoder/decoder.ts';
 

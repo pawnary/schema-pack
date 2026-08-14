@@ -2,7 +2,7 @@ import type MessagePackDecoderBuffer from '../../decoder/interfaces/messagePackD
 import type MessagePackEncoderBuffer from '../../encoder/interfaces/messagePackEncoderBuffer.ts';
 
 export default interface MessagePackExtension<
-  TValue extends unknown = unknown,
+  TValue = unknown,
   TBuffer extends Uint8Array = Uint8Array,
 > {
   /**

@@ -5,7 +5,7 @@ export type NewBufferFn<TBuffer extends Uint8Array = Uint8Array> = (
   requiredSize: number,
 ) => TBuffer;
 
-export type EncoderBufferOptions<TBuffer extends Uint8Array = Uint8Array> = {
+export interface EncoderBufferOptions<TBuffer extends Uint8Array = Uint8Array> {
   /**
    * The initial size of the buffer used for encoding. If the buffer is not
    * large enough to hold the encoded data, it will be automatically resized.
@@ -55,7 +55,7 @@ export type EncoderBufferOptions<TBuffer extends Uint8Array = Uint8Array> = {
    * @default false
    */
   forceFloat32?: boolean;
-};
+}
 
 export type OmitByPattern<T, Pattern extends string> = {
   [K in keyof T as K extends Pattern ? never : K]: T[K];

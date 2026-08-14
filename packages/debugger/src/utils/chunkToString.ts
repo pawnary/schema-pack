@@ -37,11 +37,11 @@ import byteToString from './byteToString.ts';
 export default function chunkToString(
   buffer: Uint8Array,
   chunk: Chunk,
-  depth: number = 0,
+  depth = 0,
 ): string {
   let output = `${'  '.repeat(depth)}${byteToString(chunk.flag)} - ${chunk.description}\n`;
 
-  let newDepth = depth + 1;
+  const newDepth = depth + 1;
 
   if (chunk.additionalBytes) {
     for (const additionalByte of chunk.additionalBytes) {

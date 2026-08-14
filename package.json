@@ -13,18 +13,24 @@
     "test:ci": "vitest run",
     "test": "vitest",
     "tsc": "tsc",
-    "watch": "tsdown --watch"
+    "watch": "tsdown --watch",
+    "lint": "eslint ."
   },
   "devDependencies": {
     "@arethetypeswrong/core": "^0.18.5",
-    "@pawnary/prettier-config": "0.0.1-d82501d.0",
+    "@eslint/js": "^10.0.1",
+    "@pawnary/eslint-config-prettier": "0.0.1-9462ecb.0",
+    "@pawnary/eslint-config-typescript": "0.0.1-9462ecb.0",
     "@types/bun": "^1.3.14",
     "@types/node": "^26.2.0",
+    "eslint": "^10.8.1",
+    "jiti": "^2.7.0",
     "jsdom": "^30.0.1",
     "prettier": "^3.9.6",
     "publint": "^0.3.23",
     "tsdown": "^0.22.14",
     "typescript": "^6.0.3",
+    "typescript-eslint": "^8.67.0",
     "vitest": "^4.1.10"
   }
 }

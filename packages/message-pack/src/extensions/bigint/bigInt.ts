@@ -40,11 +40,7 @@ class BigIntExtension<
 
       while (magnitude > 0n) {
         buffer.ensureCapacity(8);
-        buffer.view.setBigUint64(
-          buffer.getOffset(),
-          magnitude & BIGINT_MASK,
-          false,
-        );
+        buffer.view.setBigUint64(buffer.offset, magnitude & BIGINT_MASK, false);
         buffer.offset += 8;
         magnitude >>= 64n;
       }

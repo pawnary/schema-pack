@@ -1,7 +1,7 @@
 import 'vitest';
 
 declare module 'vitest' {
-  interface Matchers<T = any> {
+  interface Matchers {
     toBeBytes(expectedBytes: number[]): void;
     toBeBytesBetween(start: number, end: number, expectedBytes: number[]): void;
     toBeByteAt(index: number, expectedByte: number): void;

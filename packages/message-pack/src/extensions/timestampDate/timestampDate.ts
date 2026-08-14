@@ -1,7 +1,7 @@
-import type MessagePackDecoderBuffer from '../decoder/interfaces/messagePackDecoderBuffer.ts';
-import type MessagePackEncoderBuffer from '../encoder/interfaces/messagePackEncoderBuffer.ts';
-import type { MessagePackTime } from '../types.ts';
-import type MessagePackExtension from './interfaces/messagePackExtension.ts';
+import type MessagePackDecoderBuffer from '../../decoder/interfaces/messagePackDecoderBuffer.ts';
+import type MessagePackEncoderBuffer from '../../encoder/interfaces/messagePackEncoderBuffer.ts';
+import type MessagePackExtension from '../interfaces/messagePackExtension.ts';
+import type { MessagePackTime } from './types.ts';
 
 const TIMESTAMP32_MAX_SEC = 0x100000000 - 1; // 32-bit unsigned int // 4_294_967_295
 const TIMESTAMP64_MAX_SEC = 0x400000000 - 1; // 34-bit unsigned int // 17_179_869_183
@@ -41,7 +41,10 @@ class TimestampDateExtension<
     };
   }
 
-  encode(value: Object, buffer: MessagePackEncoderBuffer<TBuffer>): void {
+  encode(
+    value: object | bigint,
+    buffer: MessagePackEncoderBuffer<TBuffer>,
+  ): void {
     if (value instanceof Date) {
       const time = this.parseToMessagePackTime(value);
 
@@ -63,7 +66,7 @@ class TimestampDateExtension<
     }
   }
 
-  decode(decoderBuffer: MessagePackDecoderBuffer, size: number): Date {
+  decode(decoderBuffer: MessagePackDecoderBuffer<TBuffer>, size: number): Date {
     const byteOffset = decoderBuffer.offset;
 
     switch (size) {

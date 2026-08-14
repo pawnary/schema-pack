@@ -8,5 +8,5 @@ export default interface MessagePackDecoderBuffer<
   textDecoder: MessagePackTextDecoder;
   offset: number;
 
-  nextValue<T extends any = unknown>(): T;
+  nextValue<T = unknown>(): T;
 }

@@ -3,7 +3,6 @@ import Debugger from '../../../src/debugger.ts';
 
 import { Encoder, Symbols } from '@schema-pack/message-pack';
 import messagePackDebugSymbols from '../../../src/debugSymbols/messagePack.ts';
-import { inspect } from 'node:util';
 
 const serializerDebugger = new Debugger(messagePackDebugSymbols);
 const encoder = new Encoder();

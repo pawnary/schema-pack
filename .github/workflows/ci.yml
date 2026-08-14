@@ -40,6 +40,16 @@ jobs:
       - *setup
       - name: run build
         run: pnpm run build
+  lint:
+    name: 'ci lint'
+    needs:
+      - dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - *checkout
+      - *setup
+      - name: run lint
+        run: pnpm run lint
   tests:
     name: 'ci tests'
     needs:

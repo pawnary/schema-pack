@@ -1,1 +1,1 @@
-export { prettier as default } from '@pawnary/prettier-config';
+export { prettier as default } from '@pawnary/eslint-config-prettier';

@@ -15,7 +15,7 @@ class Decoder<TBuffer extends Uint8Array = Uint8Array> {
   }
 
   // decode<T extends any = unknown>(value: ArrayLike<number> | ArrayBufferView | ArrayBufferLike): T {
-  decode<T extends any = unknown>(encodedBuffer: Uint8Array): T {
+  decode<T = unknown>(encodedBuffer: Uint8Array): T {
     // if (value instanceof Uint8Array) {
     //   this.buffer = value;
     // } else if (ArrayBuffer.isView(value)) {

@@ -165,7 +165,7 @@ class SerializerBenchSuite<TDataTypesFactory extends DataTypesFactory> {
     }, new Map<string, Task>());
 
     for (const task of tasks.values()) {
-      const row: Record<string, any> = {
+      const row: Record<string, unknown> = {
         Task: task.name,
       };
 

@@ -3,7 +3,7 @@ import type MessagePackEncoderBuffer from './encoder/interfaces/messagePackEncod
 import type MessagePackExtension from './extensions/interfaces/messagePackExtension.ts';
 
 abstract class UntypedExtension<
-  TValue extends unknown = unknown,
+  TValue = unknown,
   TBuffer extends Uint8Array = Uint8Array,
 > implements MessagePackExtension<TValue, TBuffer> {
   readonly type: number;
@@ -16,7 +16,7 @@ abstract class UntypedExtension<
   }
 
   abstract encode(
-    value: Object,
+    value: object | bigint,
     buffer: MessagePackEncoderBuffer<TBuffer>,
   ): void;
   abstract decode(

@@ -1,11 +1,11 @@
-import TimestampDate from '../../../src/extensions/timestampDate.ts';
 import Encoder from '../../../src/encoder/encoder.ts';
 import { describe, expect, it } from 'vitest';
 import FLAG from '../../../src/symbols.ts';
 import Decoder from '../../../src/decoder/decoder.ts';
+import TimestampDateExtension from '../../../src/extensions/timestampDate/timestampDate.ts';
 
 describe('encode and decode Date', () => {
-  const extension = new TimestampDate();
+  const extension = new TimestampDateExtension();
 
   const encoder = new Encoder();
   encoder.addInternalExtension(extension);

@@ -154,10 +154,6 @@ class EncoderBuffer<TBuffer extends Uint8Array = Uint8Array>
     return buffer;
   }
 
-  getOffset(): number {
-    return this.offset;
-  }
-
   writePositiveFixInt(value: number): this {
     this.writeUint8(value);
 
@@ -707,7 +703,7 @@ class EncoderBuffer<TBuffer extends Uint8Array = Uint8Array>
     return this;
   }
 
-  writeMap<K extends keyof any, T>(value: Record<K, T>): this {
+  writeMap<K extends string | number, T>(value: Record<K, T>): this {
     const keys = Object.keys(value);
 
     if (this.sortKeys) {
@@ -795,7 +791,7 @@ class EncoderBuffer<TBuffer extends Uint8Array = Uint8Array>
     extension: MessagePackExtension,
     buffer: ExtensionEncoderBuffer<TBuffer>,
   ): this {
-    const writtenBytes = buffer.getOffset();
+    const writtenBytes = buffer.offset;
 
     if (writtenBytes === 1) {
       this.ensureCapacity(3);
@@ -910,6 +906,9 @@ class EncoderBuffer<TBuffer extends Uint8Array = Uint8Array>
           case false:
             this.ensureCapacity(1);
             return this.writeFalseSymbol();
+          default:
+            // just for linting purposes, this case should never be reached
+            throw new Error(`Unexpected boolean value: ${value}`);
         }
       case 'undefined':
         this.ensureCapacity(1);

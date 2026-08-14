@@ -1,8 +1,10 @@
+export { default as BufferWithExtensions } from './bufferWithExtensions.ts';
 export { default as Symbols } from './symbols.ts';
+export { default as UntypedExtension } from './untypedExtension.ts';
+export * from './benchmark/index.ts';
+export * from './constants.ts';
 export * from './decoder/index.ts';
 export * from './encoder/index.ts';
-export { default as UntypedExtension } from './untypedExtension.ts';
-export * from './types.ts';
 export * from './extensions/index.ts';
 export * from './interfaces/index.ts';
 export * from './utils/index.ts';

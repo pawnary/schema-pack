@@ -56,9 +56,7 @@ abstract class BufferWithExtensions<
     return this;
   }
 
-  fetchExtension<T extends any = unknown>(
-    type: number,
-  ): MessagePackExtension<T, TBuffer> {
+  fetchExtension<T = unknown>(type: number): MessagePackExtension<T, TBuffer> {
     const extension = this.extensions.get(type);
 
     if (!extension) {

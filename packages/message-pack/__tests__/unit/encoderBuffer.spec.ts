@@ -22,7 +22,7 @@ describe('internal properties', () => {
 
     expect(buffer.buffer.length).toBe(DEFAULT_ALLOCATION_SIZE);
     expect(buffer.textEncoder).toBeInstanceOf(DefaultTextEncoder);
-    expect(buffer.getOffset()).toBe(0);
+    expect(buffer.offset).toBe(0);
     expect(buffer.getSortKeys()).toBe(false);
     expect(buffer.getSharedBuffer().length).toBe(DEFAULT_ALLOCATION_SIZE);
   });
@@ -64,15 +64,15 @@ describe('internal properties', () => {
   test('resetBuffer', () => {
     const buffer = new MockBuffer();
 
-    expect(buffer.getOffset()).toBe(0);
+    expect(buffer.offset).toBe(0);
 
     buffer.writeUint8(1);
 
-    expect(buffer.getOffset()).toBe(1);
+    expect(buffer.offset).toBe(1);
 
     buffer.resetBuffer();
 
-    expect(buffer.getOffset()).toBe(0);
+    expect(buffer.offset).toBe(0);
   });
 });
 
@@ -85,7 +85,7 @@ describe('write primitive types', () => {
     buffer.writePositiveFixInt(42);
 
     expect(buffer.buffer).toBeBytes([42]);
-    expect(buffer.getOffset()).toBe(1);
+    expect(buffer.offset).toBe(1);
   });
 
   test('writeNegativeFixInt', () => {
@@ -96,7 +96,7 @@ describe('write primitive types', () => {
     buffer.writeNegativeFixInt(-1);
 
     expect(buffer.buffer).toBeBytes([255]);
-    expect(buffer.getOffset()).toBe(1);
+    expect(buffer.offset).toBe(1);
   });
 
   test('writeBin', () => {
@@ -109,7 +109,7 @@ describe('write primitive types', () => {
     buffer.writeBin(new Uint8Array([1, 2, 3]));
 
     expect(buffer.buffer).toBeBytes([1, 2, 3]);
-    expect(buffer.getOffset()).toBe(3);
+    expect(buffer.offset).toBe(3);
   });
 
   test('writeFloat32', () => {
@@ -120,7 +120,7 @@ describe('write primitive types', () => {
     buffer.writeFloat32(1.5);
 
     expect(buffer.buffer).toBeBytes([63, 192, 0, 0]);
-    expect(buffer.getOffset()).toBe(4);
+    expect(buffer.offset).toBe(4);
   });
 
   test('writeFloat64', () => {
@@ -131,7 +131,7 @@ describe('write primitive types', () => {
     buffer.writeFloat64(1.5);
 
     expect(buffer.buffer).toBeBytes([63, 248, 0, 0, 0, 0, 0, 0]);
-    expect(buffer.getOffset()).toBe(8);
+    expect(buffer.offset).toBe(8);
   });
 
   test('writeUint8', () => {
@@ -142,7 +142,7 @@ describe('write primitive types', () => {
     buffer.writeUint8(128);
 
     expect(buffer.buffer).toBeBytes([128]);
-    expect(buffer.getOffset()).toBe(1);
+    expect(buffer.offset).toBe(1);
   });
 
   test('writeUint16', () => {
@@ -153,7 +153,7 @@ describe('write primitive types', () => {
     buffer.writeUint16(256);
 
     expect(buffer.buffer).toBeBytes([1, 0]);
-    expect(buffer.getOffset()).toBe(2);
+    expect(buffer.offset).toBe(2);
   });
 
   test('writeUint32', () => {
@@ -164,7 +164,7 @@ describe('write primitive types', () => {
     buffer.writeUint32(65536);
 
     expect(buffer.buffer).toBeBytes([0, 1, 0, 0]);
-    expect(buffer.getOffset()).toBe(4);
+    expect(buffer.offset).toBe(4);
   });
 
   test('writeUint64', () => {
@@ -179,7 +179,7 @@ describe('write primitive types', () => {
     buffer.writeUint64(UINT64_MAX);
 
     expect(buffer.buffer).toBeBytes([0, 31, 255, 255, 255, 255, 255, 255]);
-    expect(buffer.getOffset()).toBe(8);
+    expect(buffer.offset).toBe(8);
   });
 
   test('writeInt8', () => {
@@ -190,7 +190,7 @@ describe('write primitive types', () => {
     buffer.writeInt8(-33);
 
     expect(buffer.buffer).toBeBytes([223]);
-    expect(buffer.getOffset()).toBe(1);
+    expect(buffer.offset).toBe(1);
   });
 
   test('writeInt16', () => {
@@ -201,7 +201,7 @@ describe('write primitive types', () => {
     buffer.writeInt16(-129);
 
     expect(buffer.buffer).toBeBytes([255, 127]);
-    expect(buffer.getOffset()).toBe(2);
+    expect(buffer.offset).toBe(2);
   });
 
   test('writeInt32', () => {
@@ -212,7 +212,7 @@ describe('write primitive types', () => {
     buffer.writeInt32(-32769);
 
     expect(buffer.buffer).toBeBytes([255, 255, 127, 255]);
-    expect(buffer.getOffset()).toBe(4);
+    expect(buffer.offset).toBe(4);
   });
 
   test('writeInt64', () => {
@@ -227,7 +227,7 @@ describe('write primitive types', () => {
     buffer.writeInt64(INT64_MIN);
 
     expect(buffer.buffer).toBeBytes([255, 224, 0, 0, 0, 0, 0, 1]);
-    expect(buffer.getOffset()).toBe(8);
+    expect(buffer.offset).toBe(8);
   });
 
   test('writeStr', () => {
@@ -238,7 +238,7 @@ describe('write primitive types', () => {
     buffer.writeStr('foo');
 
     expect(buffer.buffer).toBeBytes([102, 111, 111]);
-    expect(buffer.getOffset()).toBe(3);
+    expect(buffer.offset).toBe(3);
   });
 });
 
@@ -251,7 +251,7 @@ describe('write symbols', () => {
     buffer.writeNilSymbol();
 
     expect(buffer.buffer).toBeBytes([Symbols.NIL]);
-    expect(buffer.getOffset()).toBe(1);
+    expect(buffer.offset).toBe(1);
   });
 
   test('writeFalseSymbol', () => {
@@ -262,7 +262,7 @@ describe('write symbols', () => {
     buffer.writeFalseSymbol();
 
     expect(buffer.buffer).toBeBytes([Symbols.FALSE]);
-    expect(buffer.getOffset()).toBe(1);
+    expect(buffer.offset).toBe(1);
   });
 
   test('writeTrueSymbol', () => {
@@ -273,7 +273,7 @@ describe('write symbols', () => {
     buffer.writeTrueSymbol();
 
     expect(buffer.buffer).toBeBytes([Symbols.TRUE]);
-    expect(buffer.getOffset()).toBe(1);
+    expect(buffer.offset).toBe(1);
   });
 
   test('writeFixMapSymbol', () => {
@@ -284,7 +284,7 @@ describe('write symbols', () => {
     buffer.writeFixMapSymbol(3);
 
     expect(buffer.buffer).toBeBytes([Symbols.FIXMAP_START | 3]);
-    expect(buffer.getOffset()).toBe(1);
+    expect(buffer.offset).toBe(1);
   });
 
   test('writeFixArraySymbol', () => {
@@ -295,7 +295,7 @@ describe('write symbols', () => {
     buffer.writeFixArraySymbol(3);
 
     expect(buffer.buffer).toBeBytes([Symbols.FIXARRAY_START | 3]);
-    expect(buffer.getOffset()).toBe(1);
+    expect(buffer.offset).toBe(1);
   });
 
   test('writeFixStrSymbol', () => {
@@ -306,7 +306,7 @@ describe('write symbols', () => {
     buffer.writeFixStrSymbol(3);
 
     expect(buffer.buffer).toBeBytes([Symbols.FIXSTR_START | 3]);
-    expect(buffer.getOffset()).toBe(1);
+    expect(buffer.offset).toBe(1);
   });
 
   test('writeBin8Symbol', () => {
@@ -317,7 +317,7 @@ describe('write symbols', () => {
     buffer.writeBin8Symbol(3);
 
     expect(buffer.buffer).toBeBytes([Symbols.BIN8, 3]);
-    expect(buffer.getOffset()).toBe(2);
+    expect(buffer.offset).toBe(2);
   });
 
   test('writeBin16Symbol', () => {
@@ -328,7 +328,7 @@ describe('write symbols', () => {
     buffer.writeBin16Symbol(3);
 
     expect(buffer.buffer).toBeBytes([Symbols.BIN16, 0, 3]);
-    expect(buffer.getOffset()).toBe(3);
+    expect(buffer.offset).toBe(3);
   });
 
   test('writeBin32Symbol', () => {
@@ -339,7 +339,7 @@ describe('write symbols', () => {
     buffer.writeBin32Symbol(3);
 
     expect(buffer.buffer).toBeBytes([Symbols.BIN32, 0, 0, 0, 3]);
-    expect(buffer.getOffset()).toBe(5);
+    expect(buffer.offset).toBe(5);
   });
 
   test('writeFloat32Symbol', () => {
@@ -350,7 +350,7 @@ describe('write symbols', () => {
     buffer.writeFloat32Symbol();
 
     expect(buffer.buffer).toBeBytes([Symbols.FLOAT32]);
-    expect(buffer.getOffset()).toBe(1);
+    expect(buffer.offset).toBe(1);
   });
 
   test('writeFloat64Symbol', () => {
@@ -361,7 +361,7 @@ describe('write symbols', () => {
     buffer.writeFloat64Symbol();
 
     expect(buffer.buffer).toBeBytes([Symbols.FLOAT64]);
-    expect(buffer.getOffset()).toBe(1);
+    expect(buffer.offset).toBe(1);
   });
 
   test('writeUint8Symbol', () => {
@@ -372,7 +372,7 @@ describe('write symbols', () => {
     buffer.writeUint8Symbol();
 
     expect(buffer.buffer).toBeBytes([Symbols.UINT8]);
-    expect(buffer.getOffset()).toBe(1);
+    expect(buffer.offset).toBe(1);
   });
 
   test('writeUint16Symbol', () => {
@@ -383,7 +383,7 @@ describe('write symbols', () => {
     buffer.writeUint16Symbol();
 
     expect(buffer.buffer).toBeBytes([Symbols.UINT16]);
-    expect(buffer.getOffset()).toBe(1);
+    expect(buffer.offset).toBe(1);
   });
 
   test('writeUint32Symbol', () => {
@@ -394,7 +394,7 @@ describe('write symbols', () => {
     buffer.writeUint32Symbol();
 
     expect(buffer.buffer).toBeBytes([Symbols.UINT32]);
-    expect(buffer.getOffset()).toBe(1);
+    expect(buffer.offset).toBe(1);
   });
 
   test('writeUint64Symbol', () => {
@@ -405,7 +405,7 @@ describe('write symbols', () => {
     buffer.writeUint64Symbol();
 
     expect(buffer.buffer).toBeBytes([Symbols.UINT64]);
-    expect(buffer.getOffset()).toBe(1);
+    expect(buffer.offset).toBe(1);
   });
 
   test('writeInt8Symbol', () => {
@@ -416,7 +416,7 @@ describe('write symbols', () => {
     buffer.writeInt8Symbol();
 
     expect(buffer.buffer).toBeBytes([Symbols.INT8]);
-    expect(buffer.getOffset()).toBe(1);
+    expect(buffer.offset).toBe(1);
   });
 
   test('writeInt16Symbol', () => {
@@ -427,7 +427,7 @@ describe('write symbols', () => {
     buffer.writeInt16Symbol();
 
     expect(buffer.buffer).toBeBytes([Symbols.INT16]);
-    expect(buffer.getOffset()).toBe(1);
+    expect(buffer.offset).toBe(1);
   });
 
   test('writeInt32Symbol', () => {
@@ -438,7 +438,7 @@ describe('write symbols', () => {
     buffer.writeInt32Symbol();
 
     expect(buffer.buffer).toBeBytes([Symbols.INT32]);
-    expect(buffer.getOffset()).toBe(1);
+    expect(buffer.offset).toBe(1);
   });
 
   test('writeInt64Symbol', () => {
@@ -449,7 +449,7 @@ describe('write symbols', () => {
     buffer.writeInt64Symbol();
 
     expect(buffer.buffer).toBeBytes([Symbols.INT64]);
-    expect(buffer.getOffset()).toBe(1);
+    expect(buffer.offset).toBe(1);
   });
 
   test('writeStr8Symbol', () => {
@@ -460,7 +460,7 @@ describe('write symbols', () => {
     buffer.writeStr8Symbol(3);
 
     expect(buffer.buffer).toBeBytes([Symbols.STR8, 3]);
-    expect(buffer.getOffset()).toBe(2);
+    expect(buffer.offset).toBe(2);
   });
 
   test('writeStr16Symbol', () => {
@@ -471,7 +471,7 @@ describe('write symbols', () => {
     buffer.writeStr16Symbol(4);
 
     expect(buffer.buffer).toBeBytes([Symbols.STR16, 0, 4]);
-    expect(buffer.getOffset()).toBe(3);
+    expect(buffer.offset).toBe(3);
   });
 
   test('writeStr32Symbol', () => {
@@ -482,7 +482,7 @@ describe('write symbols', () => {
     buffer.writeStr32Symbol(4);
 
     expect(buffer.buffer).toBeBytes([Symbols.STR32, 0, 0, 0, 4]);
-    expect(buffer.getOffset()).toBe(5);
+    expect(buffer.offset).toBe(5);
   });
 
   test('writeArray16Symbol', () => {
@@ -493,7 +493,7 @@ describe('write symbols', () => {
     buffer.writeArray16Symbol(4);
 
     expect(buffer.buffer).toBeBytes([Symbols.ARRAY16, 0, 4]);
-    expect(buffer.getOffset()).toBe(3);
+    expect(buffer.offset).toBe(3);
   });
 
   test('writeArray32Symbol', () => {
@@ -504,7 +504,7 @@ describe('write symbols', () => {
     buffer.writeArray32Symbol(4);
 
     expect(buffer.buffer).toBeBytes([Symbols.ARRAY32, 0, 0, 0, 4]);
-    expect(buffer.getOffset()).toBe(5);
+    expect(buffer.offset).toBe(5);
   });
 
   test('writeMap16Symbol', () => {
@@ -515,7 +515,7 @@ describe('write symbols', () => {
     buffer.writeMap16Symbol(4);
 
     expect(buffer.buffer).toBeBytes([Symbols.MAP16, 0, 4]);
-    expect(buffer.getOffset()).toBe(3);
+    expect(buffer.offset).toBe(3);
   });
 
   test('writeMap32Symbol', () => {
@@ -526,7 +526,7 @@ describe('write symbols', () => {
     buffer.writeMap32Symbol(4);
 
     expect(buffer.buffer).toBeBytes([Symbols.MAP32, 0, 0, 0, 4]);
-    expect(buffer.getOffset()).toBe(5);
+    expect(buffer.offset).toBe(5);
   });
 
   test('writeFixExt1Symbol', () => {
@@ -537,7 +537,7 @@ describe('write symbols', () => {
     buffer.writeFixExt1Symbol(1);
 
     expect(buffer.buffer).toBeBytes([Symbols.FIXEXT1, 1]);
-    expect(buffer.getOffset()).toBe(2);
+    expect(buffer.offset).toBe(2);
   });
 
   test('writeFixExt2Symbol', () => {
@@ -548,7 +548,7 @@ describe('write symbols', () => {
     buffer.writeFixExt2Symbol(1);
 
     expect(buffer.buffer).toBeBytes([Symbols.FIXEXT2, 1]);
-    expect(buffer.getOffset()).toBe(2);
+    expect(buffer.offset).toBe(2);
   });
 
   test('writeFixExt4Symbol', () => {
@@ -559,7 +559,7 @@ describe('write symbols', () => {
     buffer.writeFixExt4Symbol(1);
 
     expect(buffer.buffer).toBeBytes([Symbols.FIXEXT4, 1]);
-    expect(buffer.getOffset()).toBe(2);
+    expect(buffer.offset).toBe(2);
   });
 
   test('writeFixExt8Symbol', () => {
@@ -570,7 +570,7 @@ describe('write symbols', () => {
     buffer.writeFixExt8Symbol(1);
 
     expect(buffer.buffer).toBeBytes([Symbols.FIXEXT8, 1]);
-    expect(buffer.getOffset()).toBe(2);
+    expect(buffer.offset).toBe(2);
   });
 
   test('writeFixExt16Symbol', () => {
@@ -581,7 +581,7 @@ describe('write symbols', () => {
     buffer.writeFixExt16Symbol(1);
 
     expect(buffer.buffer).toBeBytes([Symbols.FIXEXT16, 1]);
-    expect(buffer.getOffset()).toBe(2);
+    expect(buffer.offset).toBe(2);
   });
 
   test('writeExt8Symbol', () => {
@@ -592,7 +592,7 @@ describe('write symbols', () => {
     buffer.writeExt8Symbol(1, 2);
 
     expect(buffer.buffer).toBeBytes([Symbols.EXT8, 2, 1]);
-    expect(buffer.getOffset()).toBe(3);
+    expect(buffer.offset).toBe(3);
   });
 
   test('writeExt16Symbol', () => {
@@ -603,7 +603,7 @@ describe('write symbols', () => {
     buffer.writeExt16Symbol(1, 2);
 
     expect(buffer.buffer).toBeBytes([Symbols.EXT16, 0, 2, 1]);
-    expect(buffer.getOffset()).toBe(4);
+    expect(buffer.offset).toBe(4);
   });
 
   test('writeExt32Symbol', () => {
@@ -614,7 +614,7 @@ describe('write symbols', () => {
     buffer.writeExt32Symbol(1, 2);
 
     expect(buffer.buffer).toBeBytes([Symbols.EXT32, 0, 0, 0, 2, 1]);
-    expect(buffer.getOffset()).toBe(6);
+    expect(buffer.offset).toBe(6);
   });
 });
 
@@ -627,7 +627,7 @@ describe('general writing', () => {
 
       buffer.writeString('a'.repeat(31));
 
-      expect(buffer.buffer.slice(0, buffer.getOffset())).toBeBytes([
+      expect(buffer.buffer.slice(0, buffer.offset)).toBeBytes([
         Symbols.FIXSTR_START | 31,
         ...new Array(31).fill(97),
       ]);
@@ -640,7 +640,7 @@ describe('general writing', () => {
 
       buffer.writeString('a'.repeat(32));
 
-      expect(buffer.buffer.slice(0, buffer.getOffset())).toBeBytes([
+      expect(buffer.buffer.slice(0, buffer.offset)).toBeBytes([
         Symbols.STR8,
         32,
         ...new Array(32).fill(97),
@@ -654,7 +654,7 @@ describe('general writing', () => {
 
       buffer.writeString('á'.repeat(32));
 
-      expect(buffer.buffer.slice(0, buffer.getOffset())).toBeBytes([
+      expect(buffer.buffer.slice(0, buffer.offset)).toBeBytes([
         Symbols.STR8,
         64,
         ...new Array(32).fill([195, 161]).flat(),
@@ -668,7 +668,7 @@ describe('general writing', () => {
 
       buffer.writeString('a'.repeat(51));
 
-      expect(buffer.buffer.slice(0, buffer.getOffset())).toBeBytes([
+      expect(buffer.buffer.slice(0, buffer.offset)).toBeBytes([
         Symbols.STR8,
         51,
         ...new Array(51).fill(97),
@@ -682,7 +682,7 @@ describe('general writing', () => {
 
       buffer.writeString('á'.repeat(256));
 
-      expect(buffer.buffer.slice(0, buffer.getOffset())).toBeBytes([
+      expect(buffer.buffer.slice(0, buffer.offset)).toBeBytes([
         Symbols.STR16,
         2,
         0,
@@ -697,7 +697,7 @@ describe('general writing', () => {
 
       buffer.writeString('á'.repeat(65536));
 
-      expect(buffer.buffer.slice(0, buffer.getOffset())).toBeBytes([
+      expect(buffer.buffer.slice(0, buffer.offset)).toBeBytes([
         Symbols.STR32,
         0,
         2,
@@ -716,7 +716,7 @@ describe('general writing', () => {
 
       buffer.writeNumber(-10);
 
-      expect(buffer.buffer.slice(0, buffer.getOffset())).toBeBytes([
+      expect(buffer.buffer.slice(0, buffer.offset)).toBeBytes([
         Symbols.NEGATIVE_FIXINT_START | (-10 + 32),
       ]);
     });
@@ -728,7 +728,7 @@ describe('general writing', () => {
 
       buffer.writeNumber(-128);
 
-      expect(buffer.buffer.slice(0, buffer.getOffset())).toBeBytes([
+      expect(buffer.buffer.slice(0, buffer.offset)).toBeBytes([
         Symbols.INT8,
         128,
       ]);
@@ -741,7 +741,7 @@ describe('general writing', () => {
 
       buffer.writeNumber(-32768);
 
-      expect(buffer.buffer.slice(0, buffer.getOffset())).toBeBytes([
+      expect(buffer.buffer.slice(0, buffer.offset)).toBeBytes([
         Symbols.INT16,
         128,
         0,
@@ -755,7 +755,7 @@ describe('general writing', () => {
 
       buffer.writeNumber(-2147483648);
 
-      expect(buffer.buffer.slice(0, buffer.getOffset())).toBeBytes([
+      expect(buffer.buffer.slice(0, buffer.offset)).toBeBytes([
         Symbols.INT32,
         128,
         0,
@@ -771,7 +771,7 @@ describe('general writing', () => {
 
       buffer.writeNumber(-2147483649);
 
-      expect(buffer.buffer.slice(0, buffer.getOffset())).toBeBytes([
+      expect(buffer.buffer.slice(0, buffer.offset)).toBeBytes([
         Symbols.INT64,
         255,
         255,
@@ -791,7 +791,7 @@ describe('general writing', () => {
 
       buffer.writeNumber(127);
 
-      expect(buffer.buffer.slice(0, buffer.getOffset())).toBeBytes([127]);
+      expect(buffer.buffer.slice(0, buffer.offset)).toBeBytes([127]);
     });
 
     it('should encode a uint 8', () => {
@@ -801,7 +801,7 @@ describe('general writing', () => {
 
       buffer.writeNumber(255);
 
-      expect(buffer.buffer.slice(0, buffer.getOffset())).toBeBytes([
+      expect(buffer.buffer.slice(0, buffer.offset)).toBeBytes([
         Symbols.UINT8,
         255,
       ]);
@@ -814,7 +814,7 @@ describe('general writing', () => {
 
       buffer.writeNumber(65535);
 
-      expect(buffer.buffer.slice(0, buffer.getOffset())).toBeBytes([
+      expect(buffer.buffer.slice(0, buffer.offset)).toBeBytes([
         Symbols.UINT16,
         255,
         255,
@@ -828,7 +828,7 @@ describe('general writing', () => {
 
       buffer.writeNumber(4294967295);
 
-      expect(buffer.buffer.slice(0, buffer.getOffset())).toBeBytes([
+      expect(buffer.buffer.slice(0, buffer.offset)).toBeBytes([
         Symbols.UINT32,
         255,
         255,
@@ -844,7 +844,7 @@ describe('general writing', () => {
 
       buffer.writeNumber(Number.MAX_SAFE_INTEGER);
 
-      expect(buffer.buffer.slice(0, buffer.getOffset())).toBeBytes([
+      expect(buffer.buffer.slice(0, buffer.offset)).toBeBytes([
         Symbols.UINT64,
         0,
         31,
@@ -864,7 +864,7 @@ describe('general writing', () => {
 
       buffer.writeNumber(1.1);
 
-      expect(buffer.buffer.slice(0, buffer.getOffset())).toBeBytes([
+      expect(buffer.buffer.slice(0, buffer.offset)).toBeBytes([
         Symbols.FLOAT64,
         63,
         241,
@@ -904,7 +904,7 @@ describe('general writing', () => {
 
       buffer.writeMap(object);
 
-      expect(buffer.buffer.slice(0, buffer.getOffset())).toBeBytes([
+      expect(buffer.buffer.slice(0, buffer.offset)).toBeBytes([
         Symbols.FIXMAP_START | 15,
         Symbols.FIXSTR_START | 1,
         97,
@@ -980,7 +980,7 @@ describe('general writing', () => {
 
       buffer.writeMap(object);
 
-      expect(buffer.buffer.slice(0, buffer.getOffset())).toBeBytes([
+      expect(buffer.buffer.slice(0, buffer.offset)).toBeBytes([
         Symbols.MAP16,
         0,
         16,
@@ -1058,7 +1058,7 @@ describe('general writing', () => {
 
       buffer.writeMap(object);
 
-      expect(buffer.buffer.slice(0, buffer.getOffset())).toBeBytes(expected);
+      expect(buffer.buffer.slice(0, buffer.offset)).toBeBytes(expected);
     });
 
     it('should throw an error if the map is too big', () => {
@@ -1086,7 +1086,7 @@ describe('general writing', () => {
 
       buffer.writeArray(array);
 
-      expect(buffer.buffer.slice(0, buffer.getOffset())).toBeBytes([
+      expect(buffer.buffer.slice(0, buffer.offset)).toBeBytes([
         Symbols.FIXARRAY_START | 15,
         ...new Array(15).fill(0),
       ]);
@@ -1101,7 +1101,7 @@ describe('general writing', () => {
 
       buffer.writeArray(array);
 
-      expect(buffer.buffer.slice(0, buffer.getOffset())).toBeBytes([
+      expect(buffer.buffer.slice(0, buffer.offset)).toBeBytes([
         Symbols.ARRAY16,
         0,
         16,
@@ -1118,7 +1118,7 @@ describe('general writing', () => {
 
       buffer.writeArray(array);
 
-      expect(buffer.buffer.slice(0, buffer.getOffset())).toBeBytes([
+      expect(buffer.buffer.slice(0, buffer.offset)).toBeBytes([
         Symbols.ARRAY32,
         0,
         1,
@@ -1135,7 +1135,9 @@ describe('general writing', () => {
 
       const array = {
         length: 4294967296,
-        [Symbol.iterator]: function* () {},
+        [Symbol.iterator]: function* () {
+          // ... is a mock implementation to satisfy the type checker, it will never be called
+        },
       } as unknown as unknown[];
 
       expect(() => buffer.writeArray(array)).toThrow(
@@ -1143,48 +1145,6 @@ describe('general writing', () => {
       );
     });
   });
-
-  // describe('writeBigInt', () => {
-  //   it('should write an int 64', () => {
-  //     const buffer = new EncoderBuffer({
-  //       initialBufferSize: 1,
-  //     });
-
-  //     buffer.writeBigInt(-1n);
-
-  //     expect(buffer.buffer.slice(0, buffer.getOffset())).toBeBytes([
-  //       Symbols.INT64,
-  //       255,
-  //       255,
-  //       255,
-  //       255,
-  //       255,
-  //       255,
-  //       255,
-  //       255,
-  //     ]);
-  //   });
-
-  //   it('should write a uint 64', () => {
-  //     const buffer = new EncoderBuffer({
-  //       initialBufferSize: 1,
-  //     });
-
-  //     buffer.writeBigInt(1n);
-
-  //     expect(buffer.buffer.slice(0, buffer.getOffset())).toBeBytes([
-  //       Symbols.UINT64,
-  //       0,
-  //       0,
-  //       0,
-  //       0,
-  //       0,
-  //       0,
-  //       0,
-  //       1,
-  //     ]);
-  //   });
-  // });
 
   describe('writeUint8Array', () => {
     it('should write a bin 8', () => {
@@ -1196,7 +1156,7 @@ describe('general writing', () => {
 
       buffer.writeUint8Array(array);
 
-      expect(buffer.buffer.slice(0, buffer.getOffset())).toBeBytes([
+      expect(buffer.buffer.slice(0, buffer.offset)).toBeBytes([
         Symbols.BIN8,
         3,
         1,
@@ -1214,7 +1174,7 @@ describe('general writing', () => {
 
       buffer.writeUint8Array(array);
 
-      expect(buffer.buffer.slice(0, buffer.getOffset())).toBeBytes([
+      expect(buffer.buffer.slice(0, buffer.offset)).toBeBytes([
         Symbols.BIN16,
         1,
         0,
@@ -1231,7 +1191,7 @@ describe('general writing', () => {
 
       buffer.writeUint8Array(array);
 
-      expect(buffer.buffer.slice(0, buffer.getOffset())).toBeBytes([
+      expect(buffer.buffer.slice(0, buffer.offset)).toBeBytes([
         Symbols.BIN32,
         0,
         1,
@@ -1276,7 +1236,7 @@ describe('general writing', () => {
 
       buffer.writeExtension(extension, extensionBuffer);
 
-      expect(buffer.buffer.slice(0, buffer.getOffset())).toBeBytes([
+      expect(buffer.buffer.slice(0, buffer.offset)).toBeBytes([
         Symbols.FIXEXT1,
         1,
         42,
@@ -1302,7 +1262,7 @@ describe('general writing', () => {
 
       buffer.writeExtension(extension, extensionBuffer);
 
-      expect(buffer.buffer.slice(0, buffer.getOffset())).toBeBytes([
+      expect(buffer.buffer.slice(0, buffer.offset)).toBeBytes([
         Symbols.FIXEXT2,
         1,
         ...new Array(2).fill(42),
@@ -1328,7 +1288,7 @@ describe('general writing', () => {
 
       buffer.writeExtension(extension, extensionBuffer);
 
-      expect(buffer.buffer.slice(0, buffer.getOffset())).toBeBytes([
+      expect(buffer.buffer.slice(0, buffer.offset)).toBeBytes([
         Symbols.FIXEXT4,
         1,
         ...new Array(4).fill(42),
@@ -1354,7 +1314,7 @@ describe('general writing', () => {
 
       buffer.writeExtension(extension, extensionBuffer);
 
-      expect(buffer.buffer.slice(0, buffer.getOffset())).toBeBytes([
+      expect(buffer.buffer.slice(0, buffer.offset)).toBeBytes([
         Symbols.FIXEXT8,
         1,
         ...new Array(8).fill(42),
@@ -1380,7 +1340,7 @@ describe('general writing', () => {
 
       buffer.writeExtension(extension, extensionBuffer);
 
-      expect(buffer.buffer.slice(0, buffer.getOffset())).toBeBytes([
+      expect(buffer.buffer.slice(0, buffer.offset)).toBeBytes([
         Symbols.FIXEXT16,
         1,
         ...new Array(16).fill(42),
@@ -1406,7 +1366,7 @@ describe('general writing', () => {
 
       buffer.writeExtension(extension, extensionBuffer);
 
-      expect(buffer.buffer.slice(0, buffer.getOffset())).toBeBytes([
+      expect(buffer.buffer.slice(0, buffer.offset)).toBeBytes([
         Symbols.EXT8,
         3,
         1,
@@ -1433,7 +1393,7 @@ describe('general writing', () => {
 
       buffer.writeExtension(extension, extensionBuffer);
 
-      expect(buffer.buffer.slice(0, buffer.getOffset())).toBeBytes([
+      expect(buffer.buffer.slice(0, buffer.offset)).toBeBytes([
         Symbols.EXT16,
         1,
         0,
@@ -1461,7 +1421,7 @@ describe('general writing', () => {
 
       buffer.writeExtension(extension, extensionBuffer);
 
-      expect(buffer.buffer.slice(0, buffer.getOffset())).toBeBytes([
+      expect(buffer.buffer.slice(0, buffer.offset)).toBeBytes([
         Symbols.EXT32,
         0,
         1,
@@ -1481,7 +1441,9 @@ describe('general writing', () => {
         initialBufferSize: 1,
       });
 
-      vi.spyOn(extensionBuffer, 'getOffset').mockReturnValueOnce(4294967296);
+      vi.spyOn(extensionBuffer, 'offset', 'get').mockReturnValueOnce(
+        4294967296,
+      );
 
       const extension: MessagePackExtension = {
         type: 1,

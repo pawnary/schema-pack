@@ -1,11 +1,11 @@
 import type Debugger from './debugger.ts';
 
-export type Metadata = {
+export interface Metadata {
   startOffset: number;
   endOffset: number;
   description: string;
   warning?: string;
-};
+}
 
 export type Chunk = Metadata & {
   flag: number;

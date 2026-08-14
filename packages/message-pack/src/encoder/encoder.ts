@@ -47,9 +47,7 @@ class Encoder<TBuffer extends Uint8Array = Uint8Array> {
     return this;
   }
 
-  fetchExtension<T extends any = unknown>(
-    type: number,
-  ): MessagePackExtension<T, TBuffer> {
+  fetchExtension<T = unknown>(type: number): MessagePackExtension<T, TBuffer> {
     return this.buffer.fetchExtension(type);
   }
 }

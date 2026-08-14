@@ -5,4 +5,5 @@ allowBuilds:
   msgpackr-extract: true
   unrs-resolver: true
 minimumReleaseAgeExclude:
-  - '@pawnary/prettier-config@0.0.1-d82501d.0'
+  - '@pawnary/eslint-config-prettier@0.0.1-9462ecb.0'
+  - '@pawnary/eslint-config-typescript@0.0.1-9462ecb.0'

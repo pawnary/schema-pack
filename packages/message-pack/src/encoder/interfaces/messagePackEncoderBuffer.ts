@@ -21,7 +21,9 @@ export default interface MessagePackEncoderBuffer<
   buffer: TBuffer;
 
   /**
-   * The current offset in the buffer where the next write operation will occur.
+   * the current position in the buffer, which indicates where the next
+   * write operation will occur. This position is updated as data is written to
+   * the buffer.
    */
   offset: number;
 
@@ -79,13 +81,6 @@ export default interface MessagePackEncoderBuffer<
    * written to the buffer, and it provides access to the final encoded output.
    */
   flush(): TBuffer;
-
-  /**
-   * Returns the current position in the buffer, which indicates where the next
-   * write operation will occur. This position is updated as data is written to
-   * the buffer.
-   */
-  getOffset(): number;
 
   /************************************
    * MessagePack primitive data types *
@@ -813,7 +808,7 @@ export default interface MessagePackEncoderBuffer<
    * +--------+--------+--------+--------+--------+~~~~~~~~~~~~~~~~~+
    * ```
    */
-  writeMap<K extends keyof any, T>(value: Record<K, T>): this;
+  writeMap<K extends string | number, T>(value: Record<K, T>): this;
 
   /**
    * Writes an array using the MessagePack array format family.

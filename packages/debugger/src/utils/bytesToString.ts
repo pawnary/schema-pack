@@ -9,7 +9,7 @@ export default function bytesToString(
   endOffset: number,
   depth: number,
 ): string {
-  let totalBytes = endOffset - startOffset;
+  const totalBytes = endOffset - startOffset;
   let bytes = ' '.repeat(depth);
 
   if (totalBytes > STRING_DEBUG_BYTES_PAD_THRESHOLD) {
