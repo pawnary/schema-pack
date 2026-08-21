@@ -52,8 +52,7 @@ format-agnostic.
   `export type` for type-only imports and exports.
 - Relative imports use the explicit `.ts` extension
   (`import Encoder from './encoder.ts'`).
-- Formatting/linting via oxfmt/oxlint (`oxfmt.config.ts` / `oxlint.config.ts`) —
-  there's no ESLint or Prettier in this repo; don't add either.
+- Formatting/linting via oxfmt/oxlint (`oxfmt.config.ts` / `oxlint.config.ts`).
 - No dedicated error class hierarchy in `message-pack` — invalid usage throws
   plain `Error`.
 

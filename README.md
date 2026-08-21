@@ -1,3 +1,9 @@
+<!-- prettier-ignore-start -->
+> [!WARNING]
+> This is a Work In Progress, and the API is not stable yet. Breaking changes
+> may be introduced at any time.
+<!-- prettier-ignore-end -->
+
 # schema-pack
 
 A repository for building and testing serialization tooling in
@@ -17,7 +23,8 @@ See each package's README for installation and usage details specific to it.
 
 ## Contributing
 
-See [CONTRIBUTING.md](./CONTRIBUTING.md) for setting up the repo, available scripts, and the tooling used.
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for setting up the repo, available
+scripts, and the tooling used.
 
 ## License
 

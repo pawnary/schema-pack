@@ -1,3 +1,9 @@
+<!-- prettier-ignore-start -->
+> [!WARNING]
+> This is a Work In Progress, and the API is not stable yet. Breaking changes
+> may be introduced at any time.
+<!-- prettier-ignore-end -->
+
 # @schema-pack/message-pack
 
 A [MessagePack](https://github.com/msgpack/msgpack/blob/master/spec.md)

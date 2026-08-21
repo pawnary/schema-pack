@@ -1,6 +1,13 @@
+<!-- prettier-ignore-start -->
+> [!WARNING]
+> This is a Work In Progress, and the API is not stable yet. Breaking changes
+> may be introduced at any time.
+<!-- prettier-ignore-end -->
+
 # @schema-pack/vitest
 
-Custom [Vitest](https://vitest.dev) matchers for asserting on the contents of a `Uint8Array` — handy when testing binary or serialization code byte by byte.
+Custom [Vitest](https://vitest.dev) matchers for asserting on the contents of a
+`Uint8Array` — handy when testing binary or serialization code byte by byte.
 
 ## Installation
 
@@ -14,7 +21,8 @@ pnpm add -D @schema-pack/vitest
 
 ## Setup
 
-Import it once from your Vitest setup file so the matchers get registered (via `expect.extend`) before your tests run:
+Import it once from your Vitest setup file so the matchers get registered (via
+`expect.extend`) before your tests run:
 
 ```ts
 // vitest.setup.ts
@@ -32,7 +40,11 @@ export default defineConfig({
 });
 ```
 
-Importing `@schema-pack/vitest` from any file that's part of your TypeScript program — such as your Vitest setup file — is enough for TypeScript to also pick up the ambient `Matchers` type augmentation, so `expect(...)` recognizes the new matchers. If your setup file happens to live outside that program, add the package to your `tsconfig.json`'s `types` array instead:
+Importing `@schema-pack/vitest` from any file that's part of your TypeScript
+program — such as your Vitest setup file — is enough for TypeScript to also pick
+up the ambient `Matchers` type augmentation, so `expect(...)` recognizes the new
+matchers. If your setup file happens to live outside that program, add the
+package to your `tsconfig.json`'s `types` array instead:
 
 ```json
 {
@@ -46,12 +58,18 @@ Importing `@schema-pack/vitest` from any file that's part of your TypeScript pro
 
 All matchers operate on `Uint8Array` values passed to `expect(...)`:
 
-- **`toBeByteAt(index, expectedByte)`** — asserts the byte at `index` equals `expectedByte`.
-- **`toBeBytes(expectedBytes)`** — asserts the full byte sequence matches exactly, including length.
-- **`toBeBytesBetween(start, end, expectedBytes)`** — asserts the byte range `[start, end]` matches `expectedBytes`.
-- **`toBeBytesLength(expectedLength)`** — asserts `byteLength` equals `expectedLength`.
-- **`toHaveBytes(expectedBytes)`** — asserts the array's leading bytes match `expectedBytes` (a prefix match).
-- **`toHaveBytesFrom(start, expectedBytes)`** — asserts `expectedBytes` appear starting at offset `start`.
+- **`toBeByteAt(index, expectedByte)`** — asserts the byte at `index` equals
+  `expectedByte`.
+- **`toBeBytes(expectedBytes)`** — asserts the full byte sequence matches
+  exactly, including length.
+- **`toBeBytesBetween(start, end, expectedBytes)`** — asserts the byte range
+  `[start, end]` matches `expectedBytes`.
+- **`toBeBytesLength(expectedLength)`** — asserts `byteLength` equals
+  `expectedLength`.
+- **`toHaveBytes(expectedBytes)`** — asserts the array's leading bytes match
+  `expectedBytes` (a prefix match).
+- **`toHaveBytesFrom(start, expectedBytes)`** — asserts `expectedBytes` appear
+  starting at offset `start`.
 
 ```ts
 import { expect, test } from 'vitest';
