@@ -1,6 +1,6 @@
 {
   "name": "@schema-pack/vitest",
-  "version": "0.0.0",
+  "version": "0.0.0-commit.26afe064c7a56c37bf7fb74f67222a4decd06fd4",
   "description": "Vitest assertion library for serialization",
   "keywords": [
     "assertions",
@@ -37,9 +37,6 @@
       "require": "./dist/cjs/utils/isNot.cjs"
     },
     "./package.json": "./package.json"
-  },
-  "publishConfig": {
-    "registry": "https://npm.pkg.github.com/"
   },
   "dependencies": {
     "vitest": "catalog:"

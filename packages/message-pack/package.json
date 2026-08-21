@@ -1,6 +1,6 @@
 {
   "name": "@schema-pack/message-pack",
-  "version": "0.0.0",
+  "version": "0.0.0-commit.26afe064c7a56c37bf7fb74f67222a4decd06fd4",
   "description": "MessagePack implementation",
   "keywords": [
     "MessagePack",
@@ -191,9 +191,6 @@
       "require": "./dist/cjs/utils/fitInt64Bits.cjs"
     },
     "./package.json": "./package.json"
-  },
-  "publishConfig": {
-    "registry": "https://npm.pkg.github.com/"
   },
   "devDependencies": {
     "@jsonjoy.com/json-pack": "catalog:",
