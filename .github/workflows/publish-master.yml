@@ -1,0 +1,38 @@
+name: 'Publish master branch to NPM and GitHub Packages'
+on:
+  push:
+    branches:
+      - master
+    paths-ignore:
+      - '**/README.md'
+      - .vscode/**
+jobs:
+  publish:
+    name: 'Publish master branch to NPM and GitHub Packages'
+    permissions:
+      id-token: write
+      contents: read
+      packages: write
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: ./.github/actions/setup
+      - name: Build packages
+        run: pnpm run build
+      - name: Compute prerelease version
+        run: |
+          set -euo pipefail
+          BASE_VERSION=$(node -p "require('./package.json').version.split('-')[0]")
+          VERSION="${BASE_VERSION}-commit.${GITHUB_SHA}"
+          pnpm -r version "$VERSION" --no-git-tag-version
+      - name: Deploy to NPM registry
+        run: |
+          pnpm -r publish --provenance --access=public --tag next --no-git-checks
+      - name: Deploy to GitHub Packages registry
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "@pawnary:registry=https://npm.pkg.github.com" >> .npmrc
+          echo "//npm.pkg.github.com/:_authToken=${NODE_AUTH_TOKEN}" >> .npmrc
+          pnpm -r publish --access=public --tag next --no-git-checks
