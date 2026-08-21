@@ -29,10 +29,3 @@ jobs:
       - name: Deploy to NPM registry
         run: |
           pnpm -r publish --provenance --access=public --tag next --no-git-checks
-      - name: Deploy to GitHub Packages registry
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          echo "@schema-pack:registry=https://npm.pkg.github.com" >> .npmrc
-          echo "//npm.pkg.github.com/:_authToken=${NODE_AUTH_TOKEN}" >> .npmrc
-          pnpm -r publish --access=public --tag next --no-git-checks
