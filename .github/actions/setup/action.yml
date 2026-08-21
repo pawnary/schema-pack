@@ -1,25 +1,11 @@
-name: 'setup'
-description: 'Setup node and cache node_modules'
-outputs:
-  node-modules-cache:
-    description: 'Whether the node_modules cache was hit'
-    value: ${{ steps.node-modules-cache.outputs.cache-hit }}
+name: 'Setup'
+description: 'Setup pnpm and node runtime'
 runs:
   using: 'composite'
   steps:
-    - uses: pnpm/setup@v2
+    - name: Setup pnpm
+      uses: pnpm/setup@84cb39b217b10273981911c288cd62326dc7c6d2 # v2.0.2
       with:
-        version: 11
         runtime: node@24
         cache: true
-        install: false
-    - uses: actions/cache@v6
-      id: node-modules-cache
-      with:
-        path: |
-          node_modules
-          packages/**/node_modules
-        key: |
-          ${{ runner.os }}-node-modules-${{ hashFiles('pnpm-lock.yaml') }}
-        restore-keys: |
-          ${{ runner.os }}-node-modules-${{ hashFiles('pnpm-lock.yaml') }}
+        install: true
