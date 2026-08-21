@@ -1,1 +1,76 @@
-TODO: complete readme
+# @schema-pack/debugger
+
+A format-agnostic, byte-level debugger for binary serialization formats. Given a table describing how to interpret each leading byte of a format, it walks a raw encoded buffer — without needing to decode it into a JS value first — and produces a structured breakdown of every byte: what it means, which format element it belongs to, and where it starts and ends. Useful for debugging encoding issues, understanding a wire format, or building visualization tooling on top of a serializer.
+
+MessagePack is the first format supported out of the box, via the bundled `messagePackDebugSymbols` table, but the `Debugger` class itself isn't tied to it — see [Supporting other formats](#supporting-other-formats) below.
+
+## Installation
+
+```bash
+pnpm add -D @schema-pack/debugger
+```
+
+Depends on `@schema-pack/message-pack`, used by the bundled `messagePackDebugSymbols` table.
+
+## Usage
+
+Using the built-in MessagePack support:
+
+```ts
+import { Encoder } from '@schema-pack/message-pack';
+import { Debugger, messagePackDebugSymbols } from '@schema-pack/debugger';
+
+const encoder = new Encoder();
+const bytes = encoder.encode({ a: 1, b: 2 });
+
+const serializerDebugger = new Debugger(messagePackDebugSymbols);
+
+// Structured output: an array of `Chunk`s (maps/arrays nest their children)
+const chunks = serializerDebugger.debug(bytes);
+
+// Human-readable, indented dump
+console.log(serializerDebugger.debugToString(bytes));
+```
+
+`debugToString` output for `{ a: 1, b: 2 }`:
+
+```
+130 - Message pack fix map flag (128) of length 2
+  161 - Map key: Message pack fix string flag (160) of length 1
+        97  - "a"
+    1 - Map value: Message pack fix positive int: 1
+  161 - Map key: Message pack fix string flag (160) of length 1
+        98  - "b"
+    2 - Map value: Message pack fix positive int: 2
+```
+
+Each parsed `Chunk` includes:
+
+- `flag` — the leading byte that was read.
+- `description` — a human-readable explanation of what this byte/segment represents.
+- `startOffset` / `endOffset` — the byte range this chunk covers in the buffer.
+- `additionalBytes` — metadata bytes, such as length prefixes or extension types.
+- `informationBytes` — the payload bytes (e.g. the string content, or a scalar value).
+- `children` — nested chunks, for maps and arrays.
+- `warning` — set when a value can't be represented exactly in JavaScript (e.g. `float32` precision loss).
+
+## How it works
+
+`Debugger` has no built-in knowledge of any serialization format — it's driven entirely by a `DebugSymbols` table passed to its constructor:
+
+```ts
+type DebugSymbolFn = (debuggerInstance: Debugger) => PartialChunk;
+type DebugSymbols = Record<number, DebugSymbolFn>;
+```
+
+A `DebugSymbols` table maps every possible leading byte (`0`-`255`) to a function that reads that byte's payload from the debugger's internal `buffer`/`view`/`offset` and returns a `PartialChunk` describing it. `messagePackDebugSymbols` is one such table, covering the full MessagePack spec (ints, maps, arrays, strings, bin, ext, floats, and their fixed-size variants).
+
+## Supporting other formats
+
+To debug a different binary format, write your own `DebugSymbols` table instead of (or in addition to) `messagePackDebugSymbols`, and pass it to `new Debugger(...)`. The constructor validates that every byte from `0` to `255` has an entry, so the table must be exhaustive — even if that just means pointing unused bytes at a shared "unrecognized flag" handler.
+
+For composite/nested formats, a symbol function can call `debuggerInstance.nextValue()` recursively and attach the results as `children`, the same way `messagePackDebugSymbols` does for maps and arrays — see [`debugSymbols/messagePack.ts`](./src/debugSymbols/messagePack.ts) for a complete reference implementation.
+
+## License
+
+MIT
