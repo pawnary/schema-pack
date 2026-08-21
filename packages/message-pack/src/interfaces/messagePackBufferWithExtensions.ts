@@ -7,6 +7,7 @@ export default interface MessagePackBufferWithExtensions<
    * Adds a MessagePack extension encoder.
    *
    * @param extension The extension to add.
+   *
    * @returns The current instance for chaining.
    */
   addExtension(extension: MessagePackExtension<unknown, TBuffer>): this;

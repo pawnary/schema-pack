@@ -1,18 +1,10 @@
+import type { BufferOptions } from '../types.ts';
 import type MessagePackEncoderBuffer from './interfaces/messagePackEncoderBuffer.ts';
 import type MessagePackTextEncoder from './interfaces/messagePackTextEncoder.ts';
 
-export type NewBufferFn<TBuffer extends Uint8Array = Uint8Array> = (
-  requiredSize: number,
-) => TBuffer;
-
-export interface EncoderBufferOptions<TBuffer extends Uint8Array = Uint8Array> {
-  /**
-   * The initial size of the buffer used for encoding. If the buffer is not
-   * large enough to hold the encoded data, it will be automatically resized.
-   *
-   * @default 1024
-   */
-  initialBufferSize?: number;
+export interface EncoderBufferOptions<
+  TBuffer extends Uint8Array = Uint8Array,
+> extends BufferOptions<TBuffer> {
   /**
    * The initial size of the shared buffer. Shared buffer is used to encode
    * strings, to avoid allocating a new buffer for each string. This helps to
@@ -37,14 +29,9 @@ export interface EncoderBufferOptions<TBuffer extends Uint8Array = Uint8Array> {
    */
   sortKeys?: boolean;
   /**
-   * A function that creates a new buffer of the specified size.
-   *
-   * @default (size) => new Uint8Array(size)
-   */
-  newBufferFn?: NewBufferFn<TBuffer>;
-  /**
    * If true, all floats will be encoded as float32, but it may result in loss
-   * of precision for some floats (like `1.2`), this is a JavaScript limitation.
+   * of precision for some floats (like `1.2`), this is a JavaScript
+   * limitation.
    *
    * If false, floats will be encoded as float64, which is more precise but
    * takes up more space.
@@ -57,8 +44,8 @@ export interface EncoderBufferOptions<TBuffer extends Uint8Array = Uint8Array> {
   forceFloat32?: boolean;
 }
 
-export type OmitByPattern<T, Pattern extends string> = {
-  [K in keyof T as K extends Pattern ? never : K]: T[K];
+export type OmitByPattern<TRecord, Pattern extends string> = {
+  [TKey in keyof TRecord as TKey extends Pattern ? never : TKey]: TRecord[TKey];
 };
 
 export type ExtensionEncoderBuffer<TBuffer extends Uint8Array = Uint8Array> =

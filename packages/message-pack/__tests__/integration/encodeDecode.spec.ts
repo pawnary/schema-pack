@@ -1,14 +1,15 @@
-import { describe, expect, test } from 'vitest';
-import Encoder from '../../src/encoder/encoder.ts';
-import Decoder from '../../src/decoder/decoder.ts';
-import Symbols from '../../src/symbols.ts';
-import type MessagePackExtension from '../../src/extensions/interfaces/messagePackExtension.ts';
+import { describe, expect, it, test } from 'vitest';
+
 import {
   INT32_MIN,
   INT64_MIN,
   UINT32_MAX,
   UINT64_MAX,
 } from '../../src/constants.ts';
+import Decoder from '../../src/decoder/decoder.ts';
+import Encoder from '../../src/encoder/encoder.ts';
+import type MessagePackExtension from '../../src/extensions/interfaces/messagePackExtension.ts';
+import Symbols from '../../src/symbols.ts';
 
 function encode(value: unknown): Uint8Array {
   const encoder = new Encoder();
@@ -23,22 +24,23 @@ function decode(buffer: Uint8Array): unknown {
 }
 
 describe('int', () => {
-  test('positive fixint', () => {
+  it('positive fixint', () => {
     for (
-      let i = Symbols.POSITIVE_FIXINT_START;
-      i <= Symbols.POSITIVE_FIXINT_END;
-      i++
+      let index = Symbols.POSITIVE_FIXINT_START;
+      // oxlint-disable-next-line typescript/no-unnecessary-condition
+      index <= Symbols.POSITIVE_FIXINT_END;
+      index++
     ) {
-      const encoded = encode(i);
+      const encoded = encode(index);
 
-      expect(encoded).toBeBytes([i]);
-      expect(decode(encoded)).toBe(i);
+      expect(encoded).toBeBytes([index]);
+      expect(decode(encoded)).toBe(index);
     }
 
     expect.assertions(256);
   });
 
-  test('uint 8', () => {
+  it('uint 8', () => {
     const uint8 = 255;
 
     const encoded = encode(uint8);
@@ -47,8 +49,8 @@ describe('int', () => {
     expect(decode(encoded)).toBe(uint8);
   });
 
-  test('uint 16', () => {
-    const uint16 = 65535;
+  it('uint 16', () => {
+    const uint16 = 65_535;
 
     const encoded = encode(uint16);
 
@@ -56,7 +58,7 @@ describe('int', () => {
     expect(decode(encoded)).toBe(uint16);
   });
 
-  test('uint 32', () => {
+  it('uint 32', () => {
     const encoded = encode(UINT32_MAX);
 
     expect(encoded).toBeByteAt(0, Symbols.UINT32);
@@ -64,14 +66,14 @@ describe('int', () => {
   });
 
   describe('uint 64', () => {
-    test('max uint 64', () => {
+    it('max uint 64', () => {
       const encoded = encode(UINT64_MAX);
 
       expect(encoded).toBeByteAt(0, Symbols.UINT64);
       expect(decode(encoded)).toBe(UINT64_MAX);
     });
 
-    test('min uint 64', () => {
+    it('min uint 64', () => {
       const encoded = encode(UINT32_MAX + 1);
 
       expect(encoded).toBeByteAt(0, Symbols.UINT64);
@@ -79,7 +81,7 @@ describe('int', () => {
     });
   });
 
-  test('int 8', () => {
+  it('int 8', () => {
     const int8 = -128;
 
     const encoded = encode(int8);
@@ -88,8 +90,8 @@ describe('int', () => {
     expect(decode(encoded)).toBe(int8);
   });
 
-  test('int 16', () => {
-    const int16 = -32768;
+  it('int 16', () => {
+    const int16 = -32_768;
 
     const encoded = encode(int16);
 
@@ -97,8 +99,8 @@ describe('int', () => {
     expect(decode(encoded)).toBe(int16);
   });
 
-  test('int 32', () => {
-    const int32 = -2147483648;
+  it('int 32', () => {
+    const int32 = -2_147_483_648;
 
     const encoded = encode(int32);
 
@@ -107,14 +109,14 @@ describe('int', () => {
   });
 
   describe('int 64', () => {
-    test('min signed int 64', () => {
+    it('min signed int 64', () => {
       const encoded = encode(INT64_MIN);
 
       expect(encoded).toBeByteAt(0, Symbols.INT64);
       expect(decode(encoded)).toBe(INT64_MIN);
     });
 
-    test('max signed int 64', () => {
+    it('max signed int 64', () => {
       const encoded = encode(INT32_MIN - 1);
 
       expect(encoded).toBeByteAt(0, Symbols.INT64);
@@ -122,12 +124,15 @@ describe('int', () => {
     });
   });
 
-  test('negative fixint', () => {
-    for (let i = -32; i < 0; i++) {
-      const encoded = encode(i);
+  it('negative fixint', () => {
+    for (let index = -32; index < 0; index++) {
+      const encoded = encode(index);
 
-      expect(encoded).toBeByteAt(0, Symbols.NEGATIVE_FIXINT_START + (i + 32));
-      expect(decode(encoded)).toBe(i);
+      expect(encoded).toBeByteAt(
+        0,
+        Symbols.NEGATIVE_FIXINT_START + (index + 32),
+      );
+      expect(decode(encoded)).toBe(index);
     }
 
     expect.hasAssertions();
@@ -135,97 +140,97 @@ describe('int', () => {
 });
 
 describe('map', () => {
-  test('fixmap', () => {
-    for (let i = 0; i <= 15; i++) {
+  it('fixmap', () => {
+    for (let itemIndex = 0; itemIndex <= 15; itemIndex++) {
       const fixmap: Record<string, number> = {};
 
-      for (let j = 0; j < i; j++) {
-        fixmap[`key${j}`] = j;
+      for (let index = 0; index < itemIndex; index++) {
+        fixmap[`key${index}`] = index;
       }
 
       const encoded = encode(fixmap);
 
-      expect(decode(encoded)).toEqual(fixmap);
+      expect(decode(encoded)).toStrictEqual(fixmap);
     }
 
     expect.assertions(16);
   });
 
-  test('map 16', () => {
+  it('map 16', () => {
     const map16: Record<string, number> = {};
 
-    for (let i = 0; i < 65535; i++) {
-      map16[`key${i}`] = i;
+    for (let index = 0; index < 65_535; index++) {
+      map16[`key${index}`] = index;
     }
 
     const encoded = encode(map16);
 
     expect(encoded).toBeByteAt(0, Symbols.MAP16);
-    expect(decode(encoded)).toEqual(map16);
+    expect(decode(encoded)).toStrictEqual(map16);
   });
 
-  test('map 32', () => {
+  it('map 32', () => {
     const map32: Record<string, number> = {};
 
-    for (let i = 0; i < 65536; i++) {
-      map32[`key${i}`] = i;
+    for (let index = 0; index < 65_536; index++) {
+      map32[`key${index}`] = index;
     }
 
     const encoded = encode(map32);
 
     expect(encoded).toBeByteAt(0, Symbols.MAP32);
-    expect(decode(encoded)).toEqual(map32);
+    expect(decode(encoded)).toStrictEqual(map32);
   });
 });
 
 describe('array', () => {
-  test('fixarray', () => {
-    for (let i = 0; i <= 15; i++) {
+  it('fixarray', () => {
+    for (let itemIndex = 0; itemIndex <= 15; itemIndex++) {
       const fixarray: number[] = [];
 
-      for (let j = 0; j < i; j++) {
-        fixarray.push(j);
+      for (let index = 0; index < itemIndex; index++) {
+        fixarray.push(index);
       }
 
       const encoded = encode(fixarray);
 
-      expect(decode(encoded)).toEqual(fixarray);
+      expect(decode(encoded)).toStrictEqual(fixarray);
     }
 
     expect.assertions(16);
   });
 
-  test('array 16', () => {
+  it('array 16', () => {
     const array16: number[] = [];
 
-    for (let i = 0; i < 65535; i++) {
-      array16.push(i);
+    for (let index = 0; index < 65_535; index++) {
+      array16.push(index);
     }
 
     const encoded = encode(array16);
 
     expect(encoded).toBeByteAt(0, Symbols.ARRAY16);
-    expect(decode(encoded)).toEqual(array16);
+    expect(decode(encoded)).toStrictEqual(array16);
   });
 
-  test('array 32', () => {
+  it('array 32', () => {
     const array32: number[] = [];
 
-    for (let i = 0; i < 65536; i++) {
-      array32.push(i);
+    for (let index = 0; index < 65_536; index++) {
+      array32.push(index);
     }
 
     const encoded = encode(array32);
 
     expect(encoded).toBeByteAt(0, Symbols.ARRAY32);
-    expect(decode(encoded)).toEqual(array32);
+    expect(decode(encoded)).toStrictEqual(array32);
   });
 });
 
 describe('string', () => {
-  test('fixstr', () => {
-    for (let i = 0; i <= 31; i++) {
-      const fixstr = 'a'.repeat(i);
+  it('fixstr', () => {
+    for (let index = 0; index <= 31; index++) {
+      const fixstr = 'a'.repeat(index);
 
       const encoded = encode(fixstr);
 
@@ -235,9 +240,9 @@ describe('string', () => {
     expect.hasAssertions();
   });
 
-  test('str 8', () => {
-    for (let i = 32; i <= 255; i++) {
-      const str8 = 'a'.repeat(i);
+  it('str 8', () => {
+    for (let index = 32; index <= 255; index++) {
+      const str8 = 'a'.repeat(index);
 
       const encoded = encode(str8);
 
@@ -248,8 +253,8 @@ describe('string', () => {
     expect.hasAssertions();
   });
 
-  test('str 16', () => {
-    const str16 = 'a'.repeat(65535);
+  it('str 16', () => {
+    const str16 = 'a'.repeat(65_535);
 
     const encoded = encode(str16);
 
@@ -257,8 +262,8 @@ describe('string', () => {
     expect(decode(encoded)).toBe(str16);
   });
 
-  test('str 32', () => {
-    const str32 = 'a'.repeat(65536);
+  it('str 32', () => {
+    const str32 = 'a'.repeat(65_536);
 
     const encoded = encode(str32);
 
@@ -271,7 +276,7 @@ test('nil', () => {
   const encoded = encode(null);
 
   expect(encoded).toBeBytes([Symbols.NIL]);
-  expect(decode(encoded)).toBe(null);
+  expect(decode(encoded)).toBeNull();
 });
 
 test('false', () => {
@@ -289,46 +294,44 @@ test('true', () => {
 });
 
 describe('bin', () => {
-  test('bin 8', () => {
+  it('bin 8', () => {
     const bin8 = new Uint8Array(255).fill(1);
 
     const encoded = encode(bin8);
 
     expect(encoded).toBeByteAt(0, Symbols.BIN8);
-    expect(decode(encoded)).toEqual(bin8);
+    expect(decode(encoded)).toStrictEqual(bin8);
   });
 
-  test('bin 16', () => {
-    const bin16 = new Uint8Array(65535).fill(1);
+  it('bin 16', () => {
+    const bin16 = new Uint8Array(65_535).fill(1);
 
     const encoded = encode(bin16);
 
     expect(encoded).toBeByteAt(0, Symbols.BIN16);
-    expect(decode(encoded)).toEqual(bin16);
+    expect(decode(encoded)).toStrictEqual(bin16);
   });
 
-  test('bin 32', () => {
-    const bin32 = new Uint8Array(65536).fill(1);
+  it('bin 32', () => {
+    const bin32 = new Uint8Array(65_536).fill(1);
 
     const encoded = encode(bin32);
 
     expect(encoded).toBeByteAt(0, Symbols.BIN32);
-    expect(decode(encoded)).toEqual(bin32);
+    expect(decode(encoded)).toStrictEqual(bin32);
   });
 });
 
 describe('ext', () => {
-  test('ext 8', () => {
+  it('ext 8', () => {
     const extension: MessagePackExtension = {
-      type: 1,
+      decode: () => ({}),
       encode: (_value, buffer) => {
-        for (let i = 0; i < 255; i++) {
-          buffer.writeUint8(i);
+        for (let index = 0; index < 255; index++) {
+          buffer.writeUint8(index);
         }
       },
-      decode: () => {
-        return {};
-      },
+      type: 1,
     };
 
     const encoder = new Encoder();
@@ -340,20 +343,18 @@ describe('ext', () => {
     const encoded = encoder.encode({});
 
     expect(encoded).toBeByteAt(0, Symbols.EXT8);
-    expect(decoder.decode(encoded)).toEqual({});
+    expect(decoder.decode(encoded)).toStrictEqual({});
   });
 
-  test('ext 16', () => {
+  it('ext 16', () => {
     const extension: MessagePackExtension = {
-      type: 1,
+      decode: () => ({}),
       encode: (_value, buffer) => {
-        for (let i = 0; i < 65535; i++) {
-          buffer.writeUint8(i % 255);
+        for (let index = 0; index < 65_535; index++) {
+          buffer.writeUint8(index % 255);
         }
       },
-      decode: () => {
-        return {};
-      },
+      type: 1,
     };
 
     const encoder = new Encoder();
@@ -365,20 +366,18 @@ describe('ext', () => {
     const encoded = encoder.encode({});
 
     expect(encoded).toBeByteAt(0, Symbols.EXT16);
-    expect(decoder.decode(encoded)).toEqual({});
+    expect(decoder.decode(encoded)).toStrictEqual({});
   });
 
-  test('ext 32', () => {
+  it('ext 32', () => {
     const extension: MessagePackExtension = {
-      type: 1,
+      decode: () => ({}),
       encode: (_value, buffer) => {
-        for (let i = 0; i < 65536; i++) {
-          buffer.writeUint8(i % 255);
+        for (let index = 0; index < 65_536; index++) {
+          buffer.writeUint8(index % 255);
         }
       },
-      decode: () => {
-        return {};
-      },
+      type: 1,
     };
 
     const encoder = new Encoder();
@@ -390,18 +389,16 @@ describe('ext', () => {
     const encoded = encoder.encode({});
 
     expect(encoded).toBeByteAt(0, Symbols.EXT32);
-    expect(decoder.decode(encoded)).toEqual({});
+    expect(decoder.decode(encoded)).toStrictEqual({});
   });
 
-  test('fixext 1', () => {
+  it('fixext 1', () => {
     const extension: MessagePackExtension = {
-      type: 1,
+      decode: () => ({}),
       encode: (_value, buffer) => {
         buffer.writeUint8(123);
       },
-      decode: () => {
-        return {};
-      },
+      type: 1,
     };
 
     const encoder = new Encoder();
@@ -413,19 +410,17 @@ describe('ext', () => {
     const encoded = encoder.encode({});
 
     expect(encoded).toBeByteAt(0, Symbols.FIXEXT1);
-    expect(decoder.decode(encoded)).toEqual({});
+    expect(decoder.decode(encoded)).toStrictEqual({});
   });
 
-  test('fixext 2', () => {
+  it('fixext 2', () => {
     const extension: MessagePackExtension = {
-      type: 1,
+      decode: () => ({}),
       encode: (_value, buffer) => {
         buffer.writeUint8(123);
         buffer.writeUint8(123);
       },
-      decode: () => {
-        return {};
-      },
+      type: 1,
     };
 
     const encoder = new Encoder();
@@ -437,21 +432,19 @@ describe('ext', () => {
     const encoded = encoder.encode({});
 
     expect(encoded).toBeByteAt(0, Symbols.FIXEXT2);
-    expect(decoder.decode(encoded)).toEqual({});
+    expect(decoder.decode(encoded)).toStrictEqual({});
   });
 
-  test('fixext 4', () => {
+  it('fixext 4', () => {
     const extension: MessagePackExtension = {
-      type: 1,
+      decode: () => ({}),
       encode: (_value, buffer) => {
         buffer.writeUint8(123);
         buffer.writeUint8(123);
         buffer.writeUint8(123);
         buffer.writeUint8(123);
       },
-      decode: () => {
-        return {};
-      },
+      type: 1,
     };
 
     const encoder = new Encoder();
@@ -463,20 +456,18 @@ describe('ext', () => {
     const encoded = encoder.encode({});
 
     expect(encoded).toBeByteAt(0, Symbols.FIXEXT4);
-    expect(decoder.decode(encoded)).toEqual({});
+    expect(decoder.decode(encoded)).toStrictEqual({});
   });
 
-  test('fixext 8', () => {
+  it('fixext 8', () => {
     const extension: MessagePackExtension = {
-      type: 1,
+      decode: () => ({}),
       encode: (_value, buffer) => {
-        for (let i = 0; i < 8; i++) {
+        for (let index = 0; index < 8; index++) {
           buffer.writeUint8(123);
         }
       },
-      decode: () => {
-        return {};
-      },
+      type: 1,
     };
 
     const encoder = new Encoder();
@@ -488,20 +479,18 @@ describe('ext', () => {
     const encoded = encoder.encode({});
 
     expect(encoded).toBeByteAt(0, Symbols.FIXEXT8);
-    expect(decoder.decode(encoded)).toEqual({});
+    expect(decoder.decode(encoded)).toStrictEqual({});
   });
 
-  test('fixext 16', () => {
+  it('fixext 16', () => {
     const extension: MessagePackExtension = {
-      type: 1,
+      decode: () => ({}),
       encode: (_value, buffer) => {
-        for (let i = 0; i < 16; i++) {
+        for (let index = 0; index < 16; index++) {
           buffer.writeUint8(123);
         }
       },
-      decode: () => {
-        return {};
-      },
+      type: 1,
     };
 
     const encoder = new Encoder();
@@ -513,12 +502,12 @@ describe('ext', () => {
     const encoded = encoder.encode({});
 
     expect(encoded).toBeByteAt(0, Symbols.FIXEXT16);
-    expect(decoder.decode(encoded)).toEqual({});
+    expect(decoder.decode(encoded)).toStrictEqual({});
   });
 });
 
 describe('float', () => {
-  test('float 32', () => {
+  it('float 32', () => {
     // WARNING: JavaScript only supports 64 bit floating point numbers, we must
     // enforce 32 bit floating point and find a float32 that fits in 32 bits,
     // otherwise the test will fail.
@@ -529,7 +518,7 @@ describe('float', () => {
     /**
      * 0.5 fits in 32 bits, but 1.2 loses precision.
      *
-     * 1.2 is decoded as 1.2000000476837158 using float32
+     * 1.2 is decoded as 1.2000000476837158 using float32.
      */
     const float32 = 0.5;
 
@@ -544,7 +533,7 @@ describe('float', () => {
     expect(decode(encoded)).toBe(float32);
   });
 
-  test('float 64', () => {
+  it('float 64', () => {
     const float64 = -1.2;
 
     const encoded = encode(float64);

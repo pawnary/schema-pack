@@ -1,4 +1,5 @@
 import { dataTypesFactory } from '@schema-pack/benchmark';
+
 import Encoder from '../encoder/encoder.ts';
 
 const encoder = new Encoder();
@@ -36,6 +37,7 @@ const decoderDataTypesFactory: Record<
   uint32: () => encoder.encode(dataTypesFactory.uint32()),
   uint64: () => encoder.encode(dataTypesFactory.uint64()),
   uint8: () => encoder.encode(dataTypesFactory.uint8()),
+  // oxlint-disable-next-line typescript/no-confusing-void-expression
   undefined: () => encoder.encode(dataTypesFactory.undefined()),
 };
 

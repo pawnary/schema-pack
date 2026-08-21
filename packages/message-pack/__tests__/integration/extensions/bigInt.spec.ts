@@ -1,9 +1,10 @@
-import { describe, expect, it, test } from 'vitest';
+import { beforeAll, describe, expect, it } from 'vitest';
+
+import { INT64_MIN, UINT64_MAX } from '../../../src/constants.ts';
+import Decoder from '../../../src/decoder/decoder.ts';
 import Encoder from '../../../src/encoder/encoder.ts';
 import BigIntExtension from '../../../src/extensions/bigint/bigInt.ts';
 import Symbols from '../../../src/symbols.ts';
-import { INT64_MIN, UINT64_MAX } from '../../../src/constants.ts';
-import Decoder from '../../../src/decoder/decoder.ts';
 
 const extension = new BigIntExtension(123);
 const encoder = new Encoder().addExtension(extension);
@@ -56,10 +57,13 @@ describe('encode', () => {
 
 describe('encode and decode', () => {
   const decoder = new Decoder();
-  decoder.addExtension(extension);
 
-  test('positive large bigint', () => {
-    const value = 123456789012345678901234567890n;
+  beforeAll(() => {
+    decoder.addExtension(extension);
+  });
+
+  it('positive large bigint', () => {
+    const value = 123_456_789_012_345_678_901_234_567_890n;
 
     const encoded = encoder.encode(value);
 
@@ -89,8 +93,8 @@ describe('encode and decode', () => {
     expect(decoded).toBe(value);
   });
 
-  test('negative large bigint', () => {
-    const value = -123456789012345678901234567890n;
+  it('negative large bigint', () => {
+    const value = -123_456_789_012_345_678_901_234_567_890n;
 
     const encoded = encoder.encode(value);
 

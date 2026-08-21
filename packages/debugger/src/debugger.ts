@@ -24,9 +24,9 @@ class Debugger {
     this.offset = 0;
     this.#internalOffset = 0;
 
-    for (let i = 0; i < 256; i++) {
-      if (!(i in this.debugSymbols)) {
-        throw new Error(`Missing debug symbol: ${i}`);
+    for (let symbol = 0; symbol < 256; symbol++) {
+      if (!(symbol in this.debugSymbols)) {
+        throw new Error(`Missing debug symbol: ${symbol}`);
       }
     }
   }
@@ -54,7 +54,13 @@ class Debugger {
     if (partialChunk.informationBytes) {
       endOffset = partialChunk.informationBytes.endOffset;
     } else if (partialChunk.children && partialChunk.children.length > 0) {
-      const lastChild = partialChunk.children[partialChunk.children.length - 1];
+      const lastChild = partialChunk.children.at(-1);
+
+      if (!lastChild) {
+        throw new Error(
+          `Expected last child to be defined, but got undefined. This indicates a logic error in the debug function for flag ${flag}.`,
+        );
+      }
 
       endOffset = lastChild.endOffset;
     } else {
@@ -69,8 +75,8 @@ class Debugger {
 
     const chunk = {
       ...partialChunk,
-      startOffset,
       endOffset,
+      startOffset,
     };
 
     return chunk;

@@ -1,10 +1,12 @@
-import { Bench, formatNumber, Task, type BenchOptions, mToNs } from 'tinybench';
+import { Table } from 'console-table-printer';
+import { Bench, formatNumber, mToNs, type Task } from 'tinybench';
+
 import type {
   DataTypeFactoryFn,
   DataTypesFactory,
+  SerializerDataTypeBenchOptions,
   SerializerTask,
 } from './types.ts';
-import { Table } from 'console-table-printer';
 
 function callGarbageCollector(): void {
   process.stdout.write(`Collecting garbage...`);
@@ -14,22 +16,13 @@ function callGarbageCollector(): void {
   } else if (typeof Bun !== 'undefined' && typeof Bun.gc === 'function') {
     Bun.gc();
   } else {
-    throw new Error(
+    throw new TypeError(
       'Garbage collector is not exposed. Please run the benchmark with the --expose-gc flag or use a runtime that exposes the garbage collector.',
     );
   }
 
   process.stdout.write(` done.\n`);
 }
-
-export type SerializerDataTypeBenchOptions<
-  TDataTypesFactory extends DataTypesFactory,
-  TDataType extends keyof TDataTypesFactory,
-> = BenchOptions & {
-  dataType: TDataType;
-  dataTypeFactory: TDataTypesFactory[TDataType] | DataTypeFactoryFn<unknown>;
-  tasks: Map<string, SerializerTask<TDataTypesFactory>>;
-};
 
 class SerializerDataTypeBench<
   TDataTypesFactory extends DataTypesFactory,
@@ -41,8 +34,7 @@ class SerializerDataTypeBench<
   >;
   protected inheritedTasks: Map<string, SerializerTask<TDataTypesFactory>>;
   readonly dataType: TDataType;
-  readonly dataTypeFactory:
-    TDataTypesFactory[TDataType] | DataTypeFactoryFn<unknown>;
+  readonly dataTypeFactory: TDataTypesFactory[TDataType] | DataTypeFactoryFn;
 
   constructor(
     options: SerializerDataTypeBenchOptions<TDataTypesFactory, TDataType>,
@@ -57,40 +49,15 @@ class SerializerDataTypeBench<
   }
 
   override runSync(): Task[] {
-    const dataType = this.dataType;
-    const dataTypeFactory = this.dataTypeFactory;
+    const { dataType } = this;
+    const { dataTypeFactory } = this;
 
     for (const [name, task] of this.inheritedTasks) {
       let data: ReturnType<TDataTypesFactory[TDataType]>;
 
       this.add(name, () => task.fn(data), {
         ...task.options,
-        beforeEach: function (this: Task) {
-          // always generate a new value for each task, to avoid libraries caching
-          // effects and ensure that each task is working with a fresh instance of
-          // the data type, like a real world scenario.
-          data = dataTypeFactory() as ReturnType<TDataTypesFactory[TDataType]>;
-
-          if (task.options?.beforeEach) {
-            task.options.beforeEach.call(this);
-          }
-        },
-        beforeAll: function (this: Task, mode) {
-          callGarbageCollector();
-
-          if (mode === 'warmup') {
-            process.stdout.write(
-              `warming up ${dataType as string} "${name}"... `,
-            );
-          } else {
-            process.stdout.write(`running ${dataType as string} "${name}"... `);
-          }
-
-          if (task.options?.beforeAll) {
-            task.options.beforeAll.call(this, mode);
-          }
-        },
-        afterAll: function (this: Task, mode) {
+        async afterAll(this: Task, mode) {
           if (mode === 'warmup') {
             process.stdout.write(`warmed up.\n`);
           } else {
@@ -98,7 +65,33 @@ class SerializerDataTypeBench<
           }
 
           if (task.options?.afterAll) {
-            task.options.afterAll.call(this, mode);
+            await task.options.afterAll.call(this, mode);
+          }
+        },
+        async beforeAll(this: Task, mode) {
+          callGarbageCollector();
+
+          const dataTypeName = String(dataType);
+
+          if (mode === 'warmup') {
+            process.stdout.write(`warming up ${dataTypeName} "${name}"... `);
+          } else {
+            process.stdout.write(`running ${dataTypeName} "${name}"... `);
+          }
+
+          if (task.options?.beforeAll) {
+            await task.options.beforeAll.call(this, mode);
+          }
+        },
+        async beforeEach(this: Task) {
+          // always generate a new value for each task, to avoid libraries caching
+          // effects and ensure that each task is working with a fresh instance of
+          // the data type, like a real world scenario.
+          // oxlint-disable-next-line typescript/no-unsafe-type-assertion
+          data = dataTypeFactory() as ReturnType<TDataTypesFactory[TDataType]>;
+
+          if (task.options?.beforeEach) {
+            await task.options.beforeEach.call(this);
           }
         },
       });
@@ -115,7 +108,7 @@ class SerializerDataTypeBench<
     const places = new WeakMap<Task, number>();
 
     for (const task of this.tasks) {
-      const state = task.result.state;
+      const { state } = task.result;
 
       if (state !== 'aborted-with-statistics' && state !== 'completed') {
         continue;
@@ -155,29 +148,29 @@ class SerializerDataTypeBench<
   printTable(): void {
     const table = new Table({
       columns: [
-        { name: 'Task name', alignment: 'left' },
-        { name: 'Latency avg (ns)', alignment: 'center' },
-        { name: 'Latency med (ns)', alignment: 'center' },
-        { name: 'Throughput avg (ops/s)', alignment: 'center' },
-        { name: 'Throughput med (ops/s)', alignment: 'center' },
-        { name: 'Samples', alignment: 'center' },
+        { alignment: 'left', name: 'Task name' },
+        { alignment: 'center', name: 'Latency avg (ns)' },
+        { alignment: 'center', name: 'Latency med (ns)' },
+        { alignment: 'center', name: 'Throughput avg (ops/s)' },
+        { alignment: 'center', name: 'Throughput med (ops/s)' },
+        { alignment: 'center', name: 'Samples' },
       ],
     });
 
     const places = this.fetchPlaces();
 
     for (const task of this.tasks) {
-      const state = task.result.state;
+      const { state } = task.result;
 
       if (state !== 'aborted-with-statistics' && state !== 'completed') {
         table.addRow(
           {
-            'Task name': task.name,
             'Latency avg (ns)': 'N/A',
             'Latency med (ns)': 'N/A',
+            Samples: 'N/A',
+            'Task name': task.name,
             'Throughput avg (ops/s)': 'N/A',
             'Throughput med (ops/s)': 'N/A',
-            'Samples': 'N/A',
           },
           { color: 'red' },
         );
@@ -186,24 +179,27 @@ class SerializerDataTypeBench<
 
       const place = places.get(task);
 
+      let color: string | undefined;
+
+      if (place === 1) {
+        color = 'green';
+      } else if (place === 2) {
+        color = 'yellow';
+      } else if (place === 3) {
+        color = 'blue';
+      }
+
       table.addRow(
         {
+          'Latency avg (ns)': `${formatNumber(mToNs(task.result.latency.mean))} \u00B1 ${task.result.latency.rme.toFixed(2)}%`,
+          'Latency med (ns)': `${formatNumber(mToNs(task.result.latency.p50))} \u00B1 ${formatNumber(mToNs(task.result.latency.mad))}`,
+          Samples: task.result.latency.samplesCount.toLocaleString(),
           'Task name': task.name,
-          'Latency avg (ns)': `${formatNumber(mToNs(task.result.latency.mean))} \xb1 ${task.result.latency.rme.toFixed(2)}%`,
-          'Latency med (ns)': `${formatNumber(mToNs(task.result.latency.p50))} \xb1 ${formatNumber(mToNs(task.result.latency.mad))}`,
-          'Throughput avg (ops/s)': `${Math.round(task.result.throughput.mean).toString()} \xb1 ${task.result.throughput.rme.toFixed(2)}%`,
-          'Throughput med (ops/s)': `${Math.round(task.result.throughput.p50).toString()} \xb1 ${Math.round(task.result.throughput.mad).toString()}`,
-          'Samples': task.result.latency.samplesCount.toLocaleString(),
+          'Throughput avg (ops/s)': `${Math.round(task.result.throughput.mean).toString()} \u00B1 ${task.result.throughput.rme.toFixed(2)}%`,
+          'Throughput med (ops/s)': `${Math.round(task.result.throughput.p50).toString()} \u00B1 ${Math.round(task.result.throughput.mad).toString()}`,
         },
         {
-          color:
-            place === 1
-              ? 'green'
-              : place === 2
-                ? 'yellow'
-                : place === 3
-                  ? 'blue'
-                  : undefined,
+          color,
         },
       );
     }

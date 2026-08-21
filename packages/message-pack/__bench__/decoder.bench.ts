@@ -1,17 +1,18 @@
-import { Unpackr } from 'msgpackr';
-import { Decoder as MsgpackDecoder } from '@msgpack/msgpack';
 import { MessagePackDecoder } from '@jsonjoy.com/json-pack/lib/msgpack/index.js';
-import Decoder from '../src/decoder/decoder.ts';
+import { Decoder as MsgpackDecoder } from '@msgpack/msgpack';
 import { SerializerBenchSuite } from '@schema-pack/benchmark';
+import { Unpackr } from 'msgpackr';
+
 import decoderDataTypesFactory from '../src/benchmark/decoderDataTypesFactory.ts';
+import Decoder from '../src/decoder/decoder.ts';
 
 // -- msgpackr --
 const sharedMsgpackrUnpackr = new Unpackr({
   // keep same conditions for other decoders
-  useRecords: false,
-  useBigIntExtension: false,
   encodeUndefinedAsNil: true,
   mapsAsObjects: true,
+  useBigIntExtension: false,
+  useRecords: false,
 });
 
 const sharedMsgpackrUnpackrWithRecords = new Unpackr({
@@ -44,6 +45,7 @@ suite
     sharedMsgpackDecoder.decode(value),
   )
   .add('@jsonjoy.com/json-pack shared MsgpackDecoder.decode', (value) =>
+    // oxlint-disable-next-line typescript/no-deprecated
     sharedJsonJoyMsgpackDecoder.decode(value),
   )
   .add('@schema-pack/message-pack shared Decoder.decode', (value) =>

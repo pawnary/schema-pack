@@ -2,27 +2,21 @@
   "name": "@schema-pack/debugger",
   "version": "0.0.0",
   "description": "Serialization symbols debugger",
-  "type": "module",
-  "files": [
-    "./dist"
-  ],
-  "publishConfig": {
-    "registry": "https://npm.pkg.github.com/"
-  },
   "keywords": [
     "debug",
     "debugger",
-    "serialization",
-    "symbols",
     "message-pack",
-    "schema-pack"
+    "schema-pack",
+    "serialization",
+    "symbols"
   ],
-  "author": "Elvis Muñoz <elvis.munoz.f@gmail.com>",
   "license": "MIT",
+  "author": "Elvis Muñoz <elvis.munoz.f@gmail.com>",
+  "files": [
+    "./dist"
+  ],
+  "type": "module",
   "sideEffects": false,
-  "dependencies": {
-    "@schema-pack/message-pack": "workspace:*"
-  },
   "main": "./dist/cjs/index.cjs",
   "module": "./dist/esm/index.mjs",
   "types": "./dist/cjs/index.d.cts",
@@ -34,10 +28,6 @@
     "./debugger": {
       "import": "./dist/esm/debugger.mjs",
       "require": "./dist/cjs/debugger.cjs"
-    },
-    "./debugSymbols": {
-      "import": "./dist/esm/debugSymbols/index.mjs",
-      "require": "./dist/cjs/debugSymbols/index.cjs"
     },
     "./debugSymbols/messagePack": {
       "import": "./dist/esm/debugSymbols/messagePack.mjs",
@@ -60,5 +50,8 @@
       "require": "./dist/cjs/utils/chunkToString.cjs"
     },
     "./package.json": "./package.json"
+  },
+  "dependencies": {
+    "@schema-pack/message-pack": "workspace:*"
   }
 }

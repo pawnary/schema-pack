@@ -2,31 +2,22 @@
   "name": "@schema-pack/message-pack",
   "version": "0.0.0",
   "description": "MessagePack implementation",
-  "type": "module",
+  "keywords": [
+    "MessagePack",
+    "binary",
+    "data",
+    "deserialization",
+    "format",
+    "msgpack",
+    "serialization"
+  ],
+  "license": "MIT",
+  "author": "Elvis Muñoz <elvis.munoz.f@gmail.com>",
   "files": [
     "./dist"
   ],
-  "publishConfig": {
-    "registry": "https://npm.pkg.github.com/"
-  },
-  "keywords": [
-    "MessagePack",
-    "msgpack",
-    "serialization",
-    "deserialization",
-    "binary",
-    "data",
-    "format"
-  ],
-  "author": "Elvis Muñoz <elvis.munoz.f@gmail.com>",
-  "license": "MIT",
+  "type": "module",
   "sideEffects": false,
-  "devDependencies": {
-    "@jsonjoy.com/json-pack": "^18.28.0",
-    "@msgpack/msgpack": "^3.1.3",
-    "@schema-pack/benchmark": "workspace:*",
-    "msgpackr": "^2.0.3"
-  },
   "main": "./dist/cjs/index.cjs",
   "module": "./dist/esm/index.mjs",
   "types": "./dist/cjs/index.d.cts",
@@ -75,13 +66,17 @@
       "import": "./dist/esm/decoder/textDecoders/defaultTextDecoder.mjs",
       "require": "./dist/cjs/decoder/textDecoders/defaultTextDecoder.cjs"
     },
+    "./decoder/types": {
+      "import": "./dist/esm/decoder/types.mjs",
+      "require": "./dist/cjs/decoder/types.cjs"
+    },
+    "./defaultNewBufferFn": {
+      "import": "./dist/esm/defaultNewBufferFn.mjs",
+      "require": "./dist/cjs/defaultNewBufferFn.cjs"
+    },
     "./encoder": {
       "import": "./dist/esm/encoder/index.mjs",
       "require": "./dist/cjs/encoder/index.cjs"
-    },
-    "./encoder/constants": {
-      "import": "./dist/esm/encoder/constants.mjs",
-      "require": "./dist/cjs/encoder/constants.cjs"
     },
     "./encoder/encoder": {
       "import": "./dist/esm/encoder/encoder.mjs",
@@ -131,10 +126,6 @@
       "import": "./dist/esm/extensions/bigint/bigInt.mjs",
       "require": "./dist/cjs/extensions/bigint/bigInt.cjs"
     },
-    "./extensions/bigint/constants": {
-      "import": "./dist/esm/extensions/bigint/constants.mjs",
-      "require": "./dist/cjs/extensions/bigint/constants.cjs"
-    },
     "./extensions/interfaces": {
       "import": "./dist/esm/extensions/interfaces/index.mjs",
       "require": "./dist/cjs/extensions/interfaces/index.cjs"
@@ -144,8 +135,16 @@
       "require": "./dist/cjs/extensions/interfaces/messagePackExtension.cjs"
     },
     "./extensions/timestampDate": {
-      "import": "./dist/esm/extensions/timestampDate.mjs",
-      "require": "./dist/cjs/extensions/timestampDate.cjs"
+      "import": "./dist/esm/extensions/timestampDate/index.mjs",
+      "require": "./dist/cjs/extensions/timestampDate/index.cjs"
+    },
+    "./extensions/timestampDate/timestampDate": {
+      "import": "./dist/esm/extensions/timestampDate/timestampDate.mjs",
+      "require": "./dist/cjs/extensions/timestampDate/timestampDate.cjs"
+    },
+    "./extensions/timestampDate/types": {
+      "import": "./dist/esm/extensions/timestampDate/types.mjs",
+      "require": "./dist/cjs/extensions/timestampDate/types.cjs"
     },
     "./interfaces": {
       "import": "./dist/esm/interfaces/index.mjs",
@@ -192,5 +191,13 @@
       "require": "./dist/cjs/utils/fitInt64Bits.cjs"
     },
     "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/"
+  },
+  "devDependencies": {
+    "@jsonjoy.com/json-pack": "catalog:",
+    "@msgpack/msgpack": "catalog:",
+    "msgpackr": "catalog:"
   }
 }

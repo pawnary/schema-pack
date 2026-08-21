@@ -2,29 +2,20 @@
   "name": "@schema-pack/vitest",
   "version": "0.0.0",
   "description": "Vitest assertion library for serialization",
-  "type": "module",
+  "keywords": [
+    "assertions",
+    "message-pack",
+    "schema-pack",
+    "serialization",
+    "vitest"
+  ],
+  "license": "MIT",
+  "author": "Elvis Muñoz <elvis.munoz.f@gmail.com>",
   "files": [
     "./dist"
   ],
-  "publishConfig": {
-    "registry": "https://npm.pkg.github.com/"
-  },
-  "keywords": [
-    "vitest",
-    "assertions",
-    "serialization",
-    "message-pack",
-    "schema-pack"
-  ],
-  "author": "Elvis Muñoz <elvis.munoz.f@gmail.com>",
-  "license": "MIT",
+  "type": "module",
   "sideEffects": true,
-  "devDependencies": {
-    "vitest": "^4.1.10"
-  },
-  "peerDependencies": {
-    "vitest": "^4.1.10"
-  },
   "main": "./dist/cjs/index.cjs",
   "module": "./dist/esm/index.mjs",
   "types": "./dist/cjs/index.d.cts",
@@ -33,10 +24,24 @@
       "import": "./dist/esm/index.mjs",
       "require": "./dist/cjs/index.cjs"
     },
-    "./bytes-assertions": {
-      "import": "./dist/esm/bytes-assertions.mjs",
-      "require": "./dist/cjs/bytes-assertions.cjs"
+    "./bytesAssertions": {
+      "import": "./dist/esm/bytesAssertions.mjs",
+      "require": "./dist/cjs/bytesAssertions.cjs"
+    },
+    "./utils/extractDisplayBytes": {
+      "import": "./dist/esm/utils/extractDisplayBytes.mjs",
+      "require": "./dist/cjs/utils/extractDisplayBytes.cjs"
+    },
+    "./utils/isNot": {
+      "import": "./dist/esm/utils/isNot.mjs",
+      "require": "./dist/cjs/utils/isNot.cjs"
     },
     "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/"
+  },
+  "dependencies": {
+    "vitest": "catalog:"
   }
 }

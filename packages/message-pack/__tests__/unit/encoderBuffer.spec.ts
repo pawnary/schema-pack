@@ -1,10 +1,15 @@
-import { describe, expect, it, test, vi } from 'vitest';
+// oxlint-disable unicorn/prefer-code-point
+import { describe, expect, it, vi } from 'vitest';
+
+import {
+  DEFAULT_ALLOCATION_SIZE,
+  INT64_MIN,
+  UINT64_MAX,
+} from '../../src/constants.ts';
 import EncoderBuffer from '../../src/encoder/encoderBuffer.ts';
-import Symbols from '../../src/symbols.ts';
 import DefaultTextEncoder from '../../src/encoder/textEncoders/defaultTextEncoder.ts';
 import type MessagePackExtension from '../../src/extensions/interfaces/messagePackExtension.ts';
-import { UINT64_MAX, INT64_MIN } from '../../src/constants.ts';
-import { DEFAULT_ALLOCATION_SIZE } from '../../src/encoder/constants.ts';
+import Symbols from '../../src/symbols.ts';
 
 describe('internal properties', () => {
   class MockBuffer extends EncoderBuffer {
@@ -17,17 +22,17 @@ describe('internal properties', () => {
     }
   }
 
-  test('default options', () => {
+  it('default options', () => {
     const buffer = new MockBuffer();
 
-    expect(buffer.buffer.length).toBe(DEFAULT_ALLOCATION_SIZE);
+    expect(buffer.buffer).toHaveLength(DEFAULT_ALLOCATION_SIZE);
     expect(buffer.textEncoder).toBeInstanceOf(DefaultTextEncoder);
     expect(buffer.offset).toBe(0);
     expect(buffer.getSortKeys()).toBe(false);
-    expect(buffer.getSharedBuffer().length).toBe(DEFAULT_ALLOCATION_SIZE);
+    expect(buffer.getSharedBuffer()).toHaveLength(DEFAULT_ALLOCATION_SIZE);
   });
 
-  test('getExtensionBuffer', () => {
+  it('getExtensionBuffer', () => {
     const buffer = new MockBuffer();
 
     const extensionBuffer = buffer.getExtensionBuffer();
@@ -37,31 +42,31 @@ describe('internal properties', () => {
     expect(extensionBuffer.textEncoder).toBe(buffer.textEncoder);
   });
 
-  test('resizeBuffer', () => {
+  it('resizeBuffer', () => {
     const buffer = new MockBuffer({
       initialBufferSize: 1,
     });
 
-    expect(buffer.buffer.length).toBe(1);
+    expect(buffer.buffer).toHaveLength(1);
 
     buffer.resizeBuffer(2);
 
-    expect(buffer.buffer.length).toBe(2);
+    expect(buffer.buffer).toHaveLength(2);
   });
 
-  test('ensureCapacity', () => {
+  it('ensureCapacity', () => {
     const buffer = new MockBuffer({
       initialBufferSize: 1,
     });
 
-    expect(buffer.buffer.length).toBe(1);
+    expect(buffer.buffer).toHaveLength(1);
 
     buffer.ensureCapacity(2);
 
-    expect(buffer.buffer.length).toBe(4);
+    expect(buffer.buffer).toHaveLength(4);
   });
 
-  test('resetBuffer', () => {
+  it('resetBuffer', () => {
     const buffer = new MockBuffer();
 
     expect(buffer.offset).toBe(0);
@@ -77,7 +82,7 @@ describe('internal properties', () => {
 });
 
 describe('write primitive types', () => {
-  test('writePositiveFixInt', () => {
+  it('writePositiveFixInt', () => {
     const buffer = new EncoderBuffer({
       initialBufferSize: 1,
     });
@@ -88,7 +93,7 @@ describe('write primitive types', () => {
     expect(buffer.offset).toBe(1);
   });
 
-  test('writeNegativeFixInt', () => {
+  it('writeNegativeFixInt', () => {
     const buffer = new EncoderBuffer({
       initialBufferSize: 1,
     });
@@ -99,7 +104,7 @@ describe('write primitive types', () => {
     expect(buffer.offset).toBe(1);
   });
 
-  test('writeBin', () => {
+  it('writeBin', () => {
     const buffer = new EncoderBuffer({
       initialBufferSize: 3,
     });
@@ -112,7 +117,7 @@ describe('write primitive types', () => {
     expect(buffer.offset).toBe(3);
   });
 
-  test('writeFloat32', () => {
+  it('writeFloat32', () => {
     const buffer = new EncoderBuffer({
       initialBufferSize: 4,
     });
@@ -123,7 +128,7 @@ describe('write primitive types', () => {
     expect(buffer.offset).toBe(4);
   });
 
-  test('writeFloat64', () => {
+  it('writeFloat64', () => {
     const buffer = new EncoderBuffer({
       initialBufferSize: 8,
     });
@@ -134,7 +139,7 @@ describe('write primitive types', () => {
     expect(buffer.offset).toBe(8);
   });
 
-  test('writeUint8', () => {
+  it('writeUint8', () => {
     const buffer = new EncoderBuffer({
       initialBufferSize: 1,
     });
@@ -145,7 +150,7 @@ describe('write primitive types', () => {
     expect(buffer.offset).toBe(1);
   });
 
-  test('writeUint16', () => {
+  it('writeUint16', () => {
     const buffer = new EncoderBuffer({
       initialBufferSize: 2,
     });
@@ -156,18 +161,18 @@ describe('write primitive types', () => {
     expect(buffer.offset).toBe(2);
   });
 
-  test('writeUint32', () => {
+  it('writeUint32', () => {
     const buffer = new EncoderBuffer({
       initialBufferSize: 4,
     });
 
-    buffer.writeUint32(65536);
+    buffer.writeUint32(65_536);
 
     expect(buffer.buffer).toBeBytes([0, 1, 0, 0]);
     expect(buffer.offset).toBe(4);
   });
 
-  test('writeUint64', () => {
+  it('writeUint64', () => {
     const buffer = new EncoderBuffer({
       initialBufferSize: 8,
     });
@@ -182,7 +187,7 @@ describe('write primitive types', () => {
     expect(buffer.offset).toBe(8);
   });
 
-  test('writeInt8', () => {
+  it('writeInt8', () => {
     const buffer = new EncoderBuffer({
       initialBufferSize: 1,
     });
@@ -193,7 +198,7 @@ describe('write primitive types', () => {
     expect(buffer.offset).toBe(1);
   });
 
-  test('writeInt16', () => {
+  it('writeInt16', () => {
     const buffer = new EncoderBuffer({
       initialBufferSize: 2,
     });
@@ -204,18 +209,18 @@ describe('write primitive types', () => {
     expect(buffer.offset).toBe(2);
   });
 
-  test('writeInt32', () => {
+  it('writeInt32', () => {
     const buffer = new EncoderBuffer({
       initialBufferSize: 4,
     });
 
-    buffer.writeInt32(-32769);
+    buffer.writeInt32(-32_769);
 
     expect(buffer.buffer).toBeBytes([255, 255, 127, 255]);
     expect(buffer.offset).toBe(4);
   });
 
-  test('writeInt64', () => {
+  it('writeInt64', () => {
     const buffer = new EncoderBuffer({
       initialBufferSize: 8,
     });
@@ -230,7 +235,7 @@ describe('write primitive types', () => {
     expect(buffer.offset).toBe(8);
   });
 
-  test('writeStr', () => {
+  it('writeStr', () => {
     const buffer = new EncoderBuffer({
       initialBufferSize: 3,
     });
@@ -243,7 +248,7 @@ describe('write primitive types', () => {
 });
 
 describe('write symbols', () => {
-  test('writeNilSymbol', () => {
+  it('writeNilSymbol', () => {
     const buffer = new EncoderBuffer({
       initialBufferSize: 1,
     });
@@ -254,7 +259,7 @@ describe('write symbols', () => {
     expect(buffer.offset).toBe(1);
   });
 
-  test('writeFalseSymbol', () => {
+  it('writeFalseSymbol', () => {
     const buffer = new EncoderBuffer({
       initialBufferSize: 1,
     });
@@ -265,7 +270,7 @@ describe('write symbols', () => {
     expect(buffer.offset).toBe(1);
   });
 
-  test('writeTrueSymbol', () => {
+  it('writeTrueSymbol', () => {
     const buffer = new EncoderBuffer({
       initialBufferSize: 1,
     });
@@ -276,7 +281,7 @@ describe('write symbols', () => {
     expect(buffer.offset).toBe(1);
   });
 
-  test('writeFixMapSymbol', () => {
+  it('writeFixMapSymbol', () => {
     const buffer = new EncoderBuffer({
       initialBufferSize: 1,
     });
@@ -287,7 +292,7 @@ describe('write symbols', () => {
     expect(buffer.offset).toBe(1);
   });
 
-  test('writeFixArraySymbol', () => {
+  it('writeFixArraySymbol', () => {
     const buffer = new EncoderBuffer({
       initialBufferSize: 1,
     });
@@ -298,7 +303,7 @@ describe('write symbols', () => {
     expect(buffer.offset).toBe(1);
   });
 
-  test('writeFixStrSymbol', () => {
+  it('writeFixStrSymbol', () => {
     const buffer = new EncoderBuffer({
       initialBufferSize: 1,
     });
@@ -309,7 +314,7 @@ describe('write symbols', () => {
     expect(buffer.offset).toBe(1);
   });
 
-  test('writeBin8Symbol', () => {
+  it('writeBin8Symbol', () => {
     const buffer = new EncoderBuffer({
       initialBufferSize: 2,
     });
@@ -320,7 +325,7 @@ describe('write symbols', () => {
     expect(buffer.offset).toBe(2);
   });
 
-  test('writeBin16Symbol', () => {
+  it('writeBin16Symbol', () => {
     const buffer = new EncoderBuffer({
       initialBufferSize: 3,
     });
@@ -331,7 +336,7 @@ describe('write symbols', () => {
     expect(buffer.offset).toBe(3);
   });
 
-  test('writeBin32Symbol', () => {
+  it('writeBin32Symbol', () => {
     const buffer = new EncoderBuffer({
       initialBufferSize: 5,
     });
@@ -342,7 +347,7 @@ describe('write symbols', () => {
     expect(buffer.offset).toBe(5);
   });
 
-  test('writeFloat32Symbol', () => {
+  it('writeFloat32Symbol', () => {
     const buffer = new EncoderBuffer({
       initialBufferSize: 1,
     });
@@ -353,7 +358,7 @@ describe('write symbols', () => {
     expect(buffer.offset).toBe(1);
   });
 
-  test('writeFloat64Symbol', () => {
+  it('writeFloat64Symbol', () => {
     const buffer = new EncoderBuffer({
       initialBufferSize: 1,
     });
@@ -364,7 +369,7 @@ describe('write symbols', () => {
     expect(buffer.offset).toBe(1);
   });
 
-  test('writeUint8Symbol', () => {
+  it('writeUint8Symbol', () => {
     const buffer = new EncoderBuffer({
       initialBufferSize: 1,
     });
@@ -375,7 +380,7 @@ describe('write symbols', () => {
     expect(buffer.offset).toBe(1);
   });
 
-  test('writeUint16Symbol', () => {
+  it('writeUint16Symbol', () => {
     const buffer = new EncoderBuffer({
       initialBufferSize: 1,
     });
@@ -386,7 +391,7 @@ describe('write symbols', () => {
     expect(buffer.offset).toBe(1);
   });
 
-  test('writeUint32Symbol', () => {
+  it('writeUint32Symbol', () => {
     const buffer = new EncoderBuffer({
       initialBufferSize: 1,
     });
@@ -397,7 +402,7 @@ describe('write symbols', () => {
     expect(buffer.offset).toBe(1);
   });
 
-  test('writeUint64Symbol', () => {
+  it('writeUint64Symbol', () => {
     const buffer = new EncoderBuffer({
       initialBufferSize: 1,
     });
@@ -408,7 +413,7 @@ describe('write symbols', () => {
     expect(buffer.offset).toBe(1);
   });
 
-  test('writeInt8Symbol', () => {
+  it('writeInt8Symbol', () => {
     const buffer = new EncoderBuffer({
       initialBufferSize: 1,
     });
@@ -419,7 +424,7 @@ describe('write symbols', () => {
     expect(buffer.offset).toBe(1);
   });
 
-  test('writeInt16Symbol', () => {
+  it('writeInt16Symbol', () => {
     const buffer = new EncoderBuffer({
       initialBufferSize: 1,
     });
@@ -430,7 +435,7 @@ describe('write symbols', () => {
     expect(buffer.offset).toBe(1);
   });
 
-  test('writeInt32Symbol', () => {
+  it('writeInt32Symbol', () => {
     const buffer = new EncoderBuffer({
       initialBufferSize: 1,
     });
@@ -441,7 +446,7 @@ describe('write symbols', () => {
     expect(buffer.offset).toBe(1);
   });
 
-  test('writeInt64Symbol', () => {
+  it('writeInt64Symbol', () => {
     const buffer = new EncoderBuffer({
       initialBufferSize: 1,
     });
@@ -452,7 +457,7 @@ describe('write symbols', () => {
     expect(buffer.offset).toBe(1);
   });
 
-  test('writeStr8Symbol', () => {
+  it('writeStr8Symbol', () => {
     const buffer = new EncoderBuffer({
       initialBufferSize: 2,
     });
@@ -463,7 +468,7 @@ describe('write symbols', () => {
     expect(buffer.offset).toBe(2);
   });
 
-  test('writeStr16Symbol', () => {
+  it('writeStr16Symbol', () => {
     const buffer = new EncoderBuffer({
       initialBufferSize: 3,
     });
@@ -474,7 +479,7 @@ describe('write symbols', () => {
     expect(buffer.offset).toBe(3);
   });
 
-  test('writeStr32Symbol', () => {
+  it('writeStr32Symbol', () => {
     const buffer = new EncoderBuffer({
       initialBufferSize: 5,
     });
@@ -485,7 +490,7 @@ describe('write symbols', () => {
     expect(buffer.offset).toBe(5);
   });
 
-  test('writeArray16Symbol', () => {
+  it('writeArray16Symbol', () => {
     const buffer = new EncoderBuffer({
       initialBufferSize: 3,
     });
@@ -496,7 +501,7 @@ describe('write symbols', () => {
     expect(buffer.offset).toBe(3);
   });
 
-  test('writeArray32Symbol', () => {
+  it('writeArray32Symbol', () => {
     const buffer = new EncoderBuffer({
       initialBufferSize: 5,
     });
@@ -507,7 +512,7 @@ describe('write symbols', () => {
     expect(buffer.offset).toBe(5);
   });
 
-  test('writeMap16Symbol', () => {
+  it('writeMap16Symbol', () => {
     const buffer = new EncoderBuffer({
       initialBufferSize: 3,
     });
@@ -518,7 +523,7 @@ describe('write symbols', () => {
     expect(buffer.offset).toBe(3);
   });
 
-  test('writeMap32Symbol', () => {
+  it('writeMap32Symbol', () => {
     const buffer = new EncoderBuffer({
       initialBufferSize: 5,
     });
@@ -529,7 +534,7 @@ describe('write symbols', () => {
     expect(buffer.offset).toBe(5);
   });
 
-  test('writeFixExt1Symbol', () => {
+  it('writeFixExt1Symbol', () => {
     const buffer = new EncoderBuffer({
       initialBufferSize: 2,
     });
@@ -540,7 +545,7 @@ describe('write symbols', () => {
     expect(buffer.offset).toBe(2);
   });
 
-  test('writeFixExt2Symbol', () => {
+  it('writeFixExt2Symbol', () => {
     const buffer = new EncoderBuffer({
       initialBufferSize: 2,
     });
@@ -551,7 +556,7 @@ describe('write symbols', () => {
     expect(buffer.offset).toBe(2);
   });
 
-  test('writeFixExt4Symbol', () => {
+  it('writeFixExt4Symbol', () => {
     const buffer = new EncoderBuffer({
       initialBufferSize: 2,
     });
@@ -562,7 +567,7 @@ describe('write symbols', () => {
     expect(buffer.offset).toBe(2);
   });
 
-  test('writeFixExt8Symbol', () => {
+  it('writeFixExt8Symbol', () => {
     const buffer = new EncoderBuffer({
       initialBufferSize: 2,
     });
@@ -573,7 +578,7 @@ describe('write symbols', () => {
     expect(buffer.offset).toBe(2);
   });
 
-  test('writeFixExt16Symbol', () => {
+  it('writeFixExt16Symbol', () => {
     const buffer = new EncoderBuffer({
       initialBufferSize: 2,
     });
@@ -584,7 +589,7 @@ describe('write symbols', () => {
     expect(buffer.offset).toBe(2);
   });
 
-  test('writeExt8Symbol', () => {
+  it('writeExt8Symbol', () => {
     const buffer = new EncoderBuffer({
       initialBufferSize: 3,
     });
@@ -595,7 +600,7 @@ describe('write symbols', () => {
     expect(buffer.offset).toBe(3);
   });
 
-  test('writeExt16Symbol', () => {
+  it('writeExt16Symbol', () => {
     const buffer = new EncoderBuffer({
       initialBufferSize: 4,
     });
@@ -606,7 +611,7 @@ describe('write symbols', () => {
     expect(buffer.offset).toBe(4);
   });
 
-  test('writeExt32Symbol', () => {
+  it('writeExt32Symbol', () => {
     const buffer = new EncoderBuffer({
       initialBufferSize: 6,
     });
@@ -629,7 +634,7 @@ describe('general writing', () => {
 
       expect(buffer.buffer.slice(0, buffer.offset)).toBeBytes([
         Symbols.FIXSTR_START | 31,
-        ...new Array(31).fill(97),
+        ...new Array<number>(31).fill(97),
       ]);
     });
 
@@ -643,7 +648,7 @@ describe('general writing', () => {
       expect(buffer.buffer.slice(0, buffer.offset)).toBeBytes([
         Symbols.STR8,
         32,
-        ...new Array(32).fill(97),
+        ...new Array<number>(32).fill(97),
       ]);
     });
 
@@ -657,7 +662,8 @@ describe('general writing', () => {
       expect(buffer.buffer.slice(0, buffer.offset)).toBeBytes([
         Symbols.STR8,
         64,
-        ...new Array(32).fill([195, 161]).flat(),
+        // oxlint-disable-next-line unicorn/no-array-fill-with-reference-type
+        ...new Array<number[]>(32).fill([195, 161]).flat(),
       ]);
     });
 
@@ -671,7 +677,7 @@ describe('general writing', () => {
       expect(buffer.buffer.slice(0, buffer.offset)).toBeBytes([
         Symbols.STR8,
         51,
-        ...new Array(51).fill(97),
+        ...new Array<number>(51).fill(97),
       ]);
     });
 
@@ -686,7 +692,8 @@ describe('general writing', () => {
         Symbols.STR16,
         2,
         0,
-        ...new Array(256).fill([195, 161]).flat(),
+        // oxlint-disable-next-line unicorn/no-array-fill-with-reference-type
+        ...new Array<number[]>(256).fill([195, 161]).flat(),
       ]);
     });
 
@@ -695,7 +702,7 @@ describe('general writing', () => {
         initialBufferSize: 1,
       });
 
-      buffer.writeString('á'.repeat(65536));
+      buffer.writeString('á'.repeat(65_536));
 
       expect(buffer.buffer.slice(0, buffer.offset)).toBeBytes([
         Symbols.STR32,
@@ -703,7 +710,8 @@ describe('general writing', () => {
         2,
         0,
         0,
-        ...new Array(65536).fill([195, 161]).flat(),
+        // oxlint-disable-next-line unicorn/no-array-fill-with-reference-type
+        ...new Array<number[]>(65_536).fill([195, 161]).flat(),
       ]);
     });
   });
@@ -739,7 +747,7 @@ describe('general writing', () => {
         initialBufferSize: 1,
       });
 
-      buffer.writeNumber(-32768);
+      buffer.writeNumber(-32_768);
 
       expect(buffer.buffer.slice(0, buffer.offset)).toBeBytes([
         Symbols.INT16,
@@ -753,7 +761,7 @@ describe('general writing', () => {
         initialBufferSize: 1,
       });
 
-      buffer.writeNumber(-2147483648);
+      buffer.writeNumber(-2_147_483_648);
 
       expect(buffer.buffer.slice(0, buffer.offset)).toBeBytes([
         Symbols.INT32,
@@ -769,7 +777,7 @@ describe('general writing', () => {
         initialBufferSize: 1,
       });
 
-      buffer.writeNumber(-2147483649);
+      buffer.writeNumber(-2_147_483_649);
 
       expect(buffer.buffer.slice(0, buffer.offset)).toBeBytes([
         Symbols.INT64,
@@ -812,7 +820,7 @@ describe('general writing', () => {
         initialBufferSize: 1,
       });
 
-      buffer.writeNumber(65535);
+      buffer.writeNumber(65_535);
 
       expect(buffer.buffer.slice(0, buffer.offset)).toBeBytes([
         Symbols.UINT16,
@@ -826,7 +834,7 @@ describe('general writing', () => {
         initialBufferSize: 1,
       });
 
-      buffer.writeNumber(4294967295);
+      buffer.writeNumber(4_294_967_295);
 
       expect(buffer.buffer.slice(0, buffer.offset)).toBeBytes([
         Symbols.UINT32,
@@ -884,6 +892,7 @@ describe('general writing', () => {
         initialBufferSize: 1,
       });
 
+      // oxlint-disable id-length
       const object = {
         a: 0,
         b: 0,
@@ -901,6 +910,7 @@ describe('general writing', () => {
         n: 0,
         o: 0,
       };
+      // oxlint-enable id-length
 
       buffer.writeMap(object);
 
@@ -959,6 +969,7 @@ describe('general writing', () => {
         initialBufferSize: 1,
       });
 
+      // oxlint-disable id-length
       const object = {
         a: 0,
         b: 0,
@@ -977,6 +988,7 @@ describe('general writing', () => {
         o: 0,
         p: 0,
       };
+      // oxlint-enable id-length
 
       buffer.writeMap(object);
 
@@ -1043,7 +1055,7 @@ describe('general writing', () => {
       const object: Record<string, number> = {};
       const expected: number[] = [Symbols.MAP32, 0, 1, 0, 0];
 
-      for (let index = 0; index < 65536; index++) {
+      for (let index = 0; index < 65_536; index++) {
         const key = `k${index}`;
 
         object[key] = 0;
@@ -1066,9 +1078,10 @@ describe('general writing', () => {
         initialBufferSize: 1,
       });
 
+      // @ts-expect-error - We are mocking the return value of Object.keys to simulate a large map
       vi.spyOn(Object, 'keys').mockReturnValueOnce({
-        length: 4294967296,
-      } as unknown as string[]);
+        length: 4_294_967_296,
+      });
 
       expect(() => buffer.writeMap({})).toThrow(
         'Map too large to encode: 4294967296 keys',
@@ -1088,7 +1101,7 @@ describe('general writing', () => {
 
       expect(buffer.buffer.slice(0, buffer.offset)).toBeBytes([
         Symbols.FIXARRAY_START | 15,
-        ...new Array(15).fill(0),
+        ...new Array<number>(15).fill(0),
       ]);
     });
 
@@ -1105,7 +1118,7 @@ describe('general writing', () => {
         Symbols.ARRAY16,
         0,
         16,
-        ...new Array(16).fill(0),
+        ...new Array<number>(16).fill(0),
       ]);
     });
 
@@ -1114,7 +1127,7 @@ describe('general writing', () => {
         initialBufferSize: 1,
       });
 
-      const array = new Array(65536).fill(0);
+      const array = new Array(65_536).fill(0);
 
       buffer.writeArray(array);
 
@@ -1124,7 +1137,7 @@ describe('general writing', () => {
         1,
         0,
         0,
-        ...new Array(65536).fill(0),
+        ...new Array<number>(65_536).fill(0),
       ]);
     });
 
@@ -1133,12 +1146,10 @@ describe('general writing', () => {
         initialBufferSize: 1,
       });
 
-      const array = {
-        length: 4294967296,
-        [Symbol.iterator]: function* () {
-          // ... is a mock implementation to satisfy the type checker, it will never be called
-        },
-      } as unknown as unknown[];
+      // @ts-expect-error - We are mocking the return value of Array.length to simulate a large array
+      const array: number[] = {
+        length: 4_294_967_296,
+      };
 
       expect(() => buffer.writeArray(array)).toThrow(
         'Array too large to encode: 4294967296',
@@ -1178,7 +1189,7 @@ describe('general writing', () => {
         Symbols.BIN16,
         1,
         0,
-        ...new Array(256).fill(0),
+        ...new Array<number>(256).fill(0),
       ]);
     });
 
@@ -1187,7 +1198,7 @@ describe('general writing', () => {
         initialBufferSize: 1,
       });
 
-      const array = new Uint8Array(65536);
+      const array = new Uint8Array(65_536);
 
       buffer.writeUint8Array(array);
 
@@ -1197,7 +1208,7 @@ describe('general writing', () => {
         1,
         0,
         0,
-        ...new Array(65536).fill(0),
+        ...new Array<number>(65_536).fill(0),
       ]);
     });
 
@@ -1206,9 +1217,10 @@ describe('general writing', () => {
         initialBufferSize: 1,
       });
 
-      const array = {
-        length: 4294967296,
-      } as unknown as Uint8Array;
+      // const array = {
+      //   length: 4_294_967_296,
+      // } as unknown as Uint8Array;
+      const array = new Uint8Array(4_294_967_296);
 
       expect(() => buffer.writeUint8Array(array)).toThrow(
         'Uint8Array too large to encode: 4294967296',
@@ -1229,9 +1241,9 @@ describe('general writing', () => {
       extensionBuffer.writeUint8(42);
 
       const extension: MessagePackExtension = {
+        decode: vi.fn<() => void>(),
+        encode: vi.fn<() => void>(),
         type: 1,
-        encode: vi.fn(),
-        decode: vi.fn(),
       };
 
       buffer.writeExtension(extension, extensionBuffer);
@@ -1255,9 +1267,9 @@ describe('general writing', () => {
       extensionBuffer.writeBin(new Uint8Array(2).fill(42));
 
       const extension: MessagePackExtension = {
+        decode: vi.fn<() => void>(),
+        encode: vi.fn<() => void>(),
         type: 1,
-        encode: vi.fn(),
-        decode: vi.fn(),
       };
 
       buffer.writeExtension(extension, extensionBuffer);
@@ -1265,7 +1277,7 @@ describe('general writing', () => {
       expect(buffer.buffer.slice(0, buffer.offset)).toBeBytes([
         Symbols.FIXEXT2,
         1,
-        ...new Array(2).fill(42),
+        ...new Array<number>(2).fill(42),
       ]);
     });
 
@@ -1281,9 +1293,9 @@ describe('general writing', () => {
       extensionBuffer.writeBin(new Uint8Array(4).fill(42));
 
       const extension: MessagePackExtension = {
+        decode: vi.fn<() => void>(),
+        encode: vi.fn<() => void>(),
         type: 1,
-        encode: vi.fn(),
-        decode: vi.fn(),
       };
 
       buffer.writeExtension(extension, extensionBuffer);
@@ -1291,7 +1303,7 @@ describe('general writing', () => {
       expect(buffer.buffer.slice(0, buffer.offset)).toBeBytes([
         Symbols.FIXEXT4,
         1,
-        ...new Array(4).fill(42),
+        ...new Array<number>(4).fill(42),
       ]);
     });
 
@@ -1307,9 +1319,9 @@ describe('general writing', () => {
       extensionBuffer.writeBin(new Uint8Array(8).fill(42));
 
       const extension: MessagePackExtension = {
+        decode: vi.fn<() => void>(),
+        encode: vi.fn<() => void>(),
         type: 1,
-        encode: vi.fn(),
-        decode: vi.fn(),
       };
 
       buffer.writeExtension(extension, extensionBuffer);
@@ -1317,7 +1329,7 @@ describe('general writing', () => {
       expect(buffer.buffer.slice(0, buffer.offset)).toBeBytes([
         Symbols.FIXEXT8,
         1,
-        ...new Array(8).fill(42),
+        ...new Array<number>(8).fill(42),
       ]);
     });
 
@@ -1333,9 +1345,9 @@ describe('general writing', () => {
       extensionBuffer.writeBin(new Uint8Array(16).fill(42));
 
       const extension: MessagePackExtension = {
+        decode: vi.fn<() => void>(),
+        encode: vi.fn<() => void>(),
         type: 1,
-        encode: vi.fn(),
-        decode: vi.fn(),
       };
 
       buffer.writeExtension(extension, extensionBuffer);
@@ -1343,7 +1355,7 @@ describe('general writing', () => {
       expect(buffer.buffer.slice(0, buffer.offset)).toBeBytes([
         Symbols.FIXEXT16,
         1,
-        ...new Array(16).fill(42),
+        ...new Array<number>(16).fill(42),
       ]);
     });
 
@@ -1359,9 +1371,9 @@ describe('general writing', () => {
       extensionBuffer.writeBin(new Uint8Array(3).fill(42));
 
       const extension: MessagePackExtension = {
+        decode: vi.fn<() => void>(),
+        encode: vi.fn<() => void>(),
         type: 1,
-        encode: vi.fn(),
-        decode: vi.fn(),
       };
 
       buffer.writeExtension(extension, extensionBuffer);
@@ -1370,7 +1382,7 @@ describe('general writing', () => {
         Symbols.EXT8,
         3,
         1,
-        ...new Array(3).fill(42),
+        ...new Array<number>(3).fill(42),
       ]);
     });
 
@@ -1386,9 +1398,9 @@ describe('general writing', () => {
       extensionBuffer.writeBin(new Uint8Array(256).fill(42));
 
       const extension: MessagePackExtension = {
+        decode: vi.fn<() => void>(),
+        encode: vi.fn<() => void>(),
         type: 1,
-        encode: vi.fn(),
-        decode: vi.fn(),
       };
 
       buffer.writeExtension(extension, extensionBuffer);
@@ -1398,7 +1410,7 @@ describe('general writing', () => {
         1,
         0,
         1,
-        ...new Array(256).fill(42),
+        ...new Array<number>(256).fill(42),
       ]);
     });
 
@@ -1408,15 +1420,15 @@ describe('general writing', () => {
       });
 
       const extensionBuffer = new EncoderBuffer({
-        initialBufferSize: 65536,
+        initialBufferSize: 65_536,
       });
 
-      extensionBuffer.writeBin(new Uint8Array(65536).fill(42));
+      extensionBuffer.writeBin(new Uint8Array(65_536).fill(42));
 
       const extension: MessagePackExtension = {
+        decode: vi.fn<() => void>(),
+        encode: vi.fn<() => void>(),
         type: 1,
-        encode: vi.fn(),
-        decode: vi.fn(),
       };
 
       buffer.writeExtension(extension, extensionBuffer);
@@ -1428,7 +1440,7 @@ describe('general writing', () => {
         0,
         0,
         1,
-        ...new Array(65536).fill(42),
+        ...new Array<number>(65_536).fill(42),
       ]);
     });
 
@@ -1442,19 +1454,31 @@ describe('general writing', () => {
       });
 
       vi.spyOn(extensionBuffer, 'offset', 'get').mockReturnValueOnce(
-        4294967296,
+        4_294_967_296,
       );
 
       const extension: MessagePackExtension = {
+        decode: vi.fn<() => void>(),
+        encode: vi.fn<() => void>(),
         type: 1,
-        encode: vi.fn(),
-        decode: vi.fn(),
       };
 
       expect(() => buffer.writeExtension(extension, extensionBuffer)).toThrow(
         'Extension data too large to encode: 4294967296',
       );
     });
+  });
+
+  it('should fails with bigint with no extensions', () => {
+    const buffer = new EncoderBuffer({
+      initialBufferSize: 1,
+    });
+
+    const value = 1n;
+
+    expect(() => buffer.writeBigInt(value)).toThrow(
+      '"bigint" encoding is not supported by default. Consider using BigIntExtension',
+    );
   });
 
   describe('writeObject', () => {
@@ -1480,12 +1504,16 @@ describe('general writing', () => {
         foo: 'bar',
       };
 
+      const encodeFn = vi.fn<
+        (value: unknown, extensionBuffer: EncoderBuffer) => void
+      >((_value, extensionBuffer: EncoderBuffer) => {
+        extensionBuffer.writeUint8(42);
+      });
+
       const extension: MessagePackExtension = {
+        decode: vi.fn<() => void>(),
+        encode: encodeFn,
         type: 1,
-        decode: vi.fn(),
-        encode: vi.fn((_, extensionBuffer) => {
-          extensionBuffer.writeUint8(42);
-        }),
       };
 
       const writeExtensionSpy = vi.spyOn(buffer, 'writeExtension');
@@ -1493,10 +1521,7 @@ describe('general writing', () => {
       buffer.addExtension(extension);
       buffer.writeObject(value);
 
-      expect(extension.encode).toHaveBeenCalledWith(
-        value,
-        expect.any(EncoderBuffer),
-      );
+      expect(encodeFn).toHaveBeenCalledWith(value, expect.any(EncoderBuffer));
       expect(writeExtensionSpy).toHaveBeenCalledWith(
         extension,
         expect.any(EncoderBuffer),
@@ -1514,16 +1539,6 @@ describe('general writing', () => {
       buffer.writeObject(array);
 
       expect(writeUint8ArraySpy).toHaveBeenCalledWith(array);
-    });
-
-    it('should fails with bigint', () => {
-      const buffer = new EncoderBuffer({
-        initialBufferSize: 1,
-      });
-
-      const value = 1n;
-
-      expect(() => buffer.writeObject(value)).toThrow();
     });
 
     it('should call writeMap', () => {
@@ -1631,7 +1646,7 @@ describe('general writing', () => {
       const writeNilFlagSpy = vi.spyOn(buffer, 'writeNilSymbol');
       const writeObjectSpy = vi.spyOn(buffer, 'writeObject');
 
-      buffer.write(undefined);
+      buffer.write(null);
 
       expect(ensureCapacitySpy).toHaveBeenCalledWith(1);
       expect(writeNilFlagSpy).toHaveBeenCalledOnce();
@@ -1643,7 +1658,9 @@ describe('general writing', () => {
         initialBufferSize: 1,
       });
 
-      expect(() => buffer.write(INT64_MIN - 1)).toThrow();
+      expect(() => buffer.write(INT64_MIN - 1)).toThrow(
+        `Integer too small to encode: ${INT64_MIN - 1}. Consider using BigIntExtension.`,
+      );
     });
 
     it('should call writeObject', () => {
@@ -1672,9 +1689,9 @@ describe('extensions', () => {
       });
 
       const extension: MessagePackExtension = {
+        decode: vi.fn<() => void>(),
+        encode: vi.fn<() => void>(),
         type: 1,
-        encode: vi.fn(),
-        decode: vi.fn(),
       };
 
       buffer.addExtension(extension);
@@ -1690,15 +1707,15 @@ describe('extensions', () => {
       });
 
       const negativeExtension: MessagePackExtension = {
+        decode: vi.fn<() => void>(),
+        encode: vi.fn<() => void>(),
         type: -1,
-        encode: vi.fn(),
-        decode: vi.fn(),
       };
 
       const tooLargeExtension: MessagePackExtension = {
+        decode: vi.fn<() => void>(),
+        encode: vi.fn<() => void>(),
         type: 128,
-        encode: vi.fn(),
-        decode: vi.fn(),
       };
 
       expect(() => buffer.addExtension(negativeExtension)).toThrow(
@@ -1716,9 +1733,9 @@ describe('extensions', () => {
       });
 
       const extension: MessagePackExtension = {
+        decode: vi.fn<() => void>(),
+        encode: vi.fn<() => void>(),
         type: 1,
-        encode: vi.fn(),
-        decode: vi.fn(),
       };
 
       expect(buffer.addExtension(extension)).toBe(buffer);
@@ -1733,9 +1750,9 @@ describe('extensions', () => {
       });
 
       const extension: MessagePackExtension = {
+        decode: vi.fn<() => void>(),
+        encode: vi.fn<() => void>(),
         type: -1,
-        encode: vi.fn(),
-        decode: vi.fn(),
       };
 
       buffer.addInternalExtension(extension);
@@ -1751,15 +1768,15 @@ describe('extensions', () => {
       });
 
       const nonNegativeExtension: MessagePackExtension = {
+        decode: vi.fn<() => void>(),
+        encode: vi.fn<() => void>(),
         type: 0,
-        encode: vi.fn(),
-        decode: vi.fn(),
       };
 
       const tooSmallExtension: MessagePackExtension = {
+        decode: vi.fn<() => void>(),
+        encode: vi.fn<() => void>(),
         type: -129,
-        encode: vi.fn(),
-        decode: vi.fn(),
       };
 
       expect(() => buffer.addInternalExtension(nonNegativeExtension)).toThrow(
@@ -1777,9 +1794,9 @@ describe('extensions', () => {
       });
 
       const extension: MessagePackExtension = {
+        decode: vi.fn<() => void>(),
+        encode: vi.fn<() => void>(),
         type: -1,
-        encode: vi.fn(),
-        decode: vi.fn(),
       };
 
       expect(buffer.addInternalExtension(extension)).toBe(buffer);

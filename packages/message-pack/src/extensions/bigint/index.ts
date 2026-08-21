@@ -1,1 +1,1 @@
-export { default as BigIntExtension } from './bigInt.ts';
+export { default } from './bigInt.ts';

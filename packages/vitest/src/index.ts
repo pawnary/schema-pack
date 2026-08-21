@@ -1,2 +1,2 @@
-import './bytes-assertions.ts';
+import './bytesAssertions.ts';
 import './extensions.d.ts';

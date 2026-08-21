@@ -1,8 +1,9 @@
-import { Packr } from 'msgpackr';
-import { Encoder as MsgpackEncoder } from '@msgpack/msgpack';
 import { MessagePackEncoder } from '@jsonjoy.com/json-pack/lib/msgpack/index.js';
+import { Encoder as MsgpackEncoder } from '@msgpack/msgpack';
+import { dataTypesFactory, SerializerBenchSuite } from '@schema-pack/benchmark';
+import { Packr } from 'msgpackr';
+
 import Encoder from '../src/encoder/encoder.ts';
-import { SerializerBenchSuite, dataTypesFactory } from '@schema-pack/benchmark';
 
 // -- msgpackr --
 const sharedMsgpackrPackr = new Packr({

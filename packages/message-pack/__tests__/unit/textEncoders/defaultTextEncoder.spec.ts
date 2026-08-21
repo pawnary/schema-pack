@@ -1,4 +1,5 @@
 import { expect, test, vi } from 'vitest';
+
 import DefaultTextEncoder from '../../../src/encoder/textEncoders/defaultTextEncoder.ts';
 
 test('writeBytes', () => {

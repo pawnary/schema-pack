@@ -1,5 +1,5 @@
-import type MessagePackBufferWithExtensions from './interfaces/messagePackBufferWithExtensions.ts';
 import type MessagePackExtension from './extensions/interfaces/messagePackExtension.ts';
+import type MessagePackBufferWithExtensions from './interfaces/messagePackBufferWithExtensions.ts';
 
 abstract class BufferWithExtensions<
   TBuffer extends Uint8Array = Uint8Array,
@@ -56,14 +56,14 @@ abstract class BufferWithExtensions<
     return this;
   }
 
-  fetchExtension<T = unknown>(type: number): MessagePackExtension<T, TBuffer> {
+  fetchExtension(type: number): MessagePackExtension<unknown, TBuffer> {
     const extension = this.extensions.get(type);
 
     if (!extension) {
       throw new Error(`Extension with type ${type} not found`);
     }
 
-    return extension as MessagePackExtension<T, TBuffer>;
+    return extension;
   }
 }
 

@@ -1,4 +1,5 @@
 import { expect, test } from 'vitest';
+
 import TimestampDateExtension from '../../../src/extensions/timestampDate/timestampDate.ts';
 
 test('parseToMessagePackTime', () => {
@@ -8,5 +9,8 @@ test('parseToMessagePackTime', () => {
 
   const messagePackTime = extension.parseToMessagePackTime(date);
 
-  expect(messagePackTime).toEqual({ sec: 981173106, nsec: 789000000 });
+  expect(messagePackTime).toStrictEqual({
+    nsec: 789_000_000,
+    sec: 981_173_106,
+  });
 });

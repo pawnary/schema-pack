@@ -1,5 +1,6 @@
 import type MessagePackExtension from '../extensions/interfaces/messagePackExtension.ts';
 import DecoderBuffer from './decoderBuffer.ts';
+import type { DecoderBufferOptions } from './types.ts';
 
 // export function isArrayBufferLike(buffer: unknown): buffer is ArrayBufferLike {
 //   return (
@@ -8,14 +9,14 @@ import DecoderBuffer from './decoderBuffer.ts';
 // }
 
 class Decoder<TBuffer extends Uint8Array = Uint8Array> {
-  protected decoderBuffer: DecoderBuffer;
+  protected decoderBuffer: DecoderBuffer<TBuffer>;
 
-  constructor() {
-    this.decoderBuffer = new DecoderBuffer();
+  constructor(options?: DecoderBufferOptions<TBuffer>) {
+    this.decoderBuffer = new DecoderBuffer(options);
   }
 
   // decode<T extends any = unknown>(value: ArrayLike<number> | ArrayBufferView | ArrayBufferLike): T {
-  decode<T = unknown>(encodedBuffer: Uint8Array): T {
+  decode<TValue = unknown>(encodedBuffer: TBuffer): TValue {
     // if (value instanceof Uint8Array) {
     //   this.buffer = value;
     // } else if (ArrayBuffer.isView(value)) {
@@ -25,14 +26,14 @@ class Decoder<TBuffer extends Uint8Array = Uint8Array> {
     // } else {
     //   this.buffer = Uint8Array.from(value);
     // }
-    const decoderBuffer = this.decoderBuffer;
+    const { decoderBuffer } = this;
 
     // decoderBuffer.buffer = encodedBuffer;
     // decoderBuffer.offset = 0;
     // decoderBuffer.view = new DataView(encodedBuffer.buffer, encodedBuffer.byteOffset, encodedBuffer.byteLength);
     decoderBuffer.setBuffer(encodedBuffer);
 
-    return decoderBuffer.nextValue<T>();
+    return decoderBuffer.nextValue<TValue>();
   }
 
   addExtension(extension: MessagePackExtension<unknown, TBuffer>): this {
@@ -53,7 +54,7 @@ class Decoder<TBuffer extends Uint8Array = Uint8Array> {
     type: number,
     extension: Omit<MessagePackExtension<unknown, TBuffer>, 'type'>,
   ): this {
-    this.decoderBuffer.addExtension(Object.assign({ type }, extension));
+    this.decoderBuffer.addExtension({ type, ...extension });
 
     return this;
   }

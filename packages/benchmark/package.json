@@ -2,35 +2,19 @@
   "name": "@schema-pack/benchmark",
   "version": "0.0.0",
   "description": "Serialization benchmark suite",
-  "type": "module",
+  "keywords": [
+    "benchmark",
+    "message-pack",
+    "schema-pack",
+    "serialization"
+  ],
+  "license": "MIT",
+  "author": "Elvis Muñoz <elvis.munoz.f@gmail.com>",
   "files": [
     "./dist"
   ],
-  "publishConfig": {
-    "registry": "https://npm.pkg.github.com/"
-  },
-  "keywords": [
-    "benchmark",
-    "serialization",
-    "message-pack",
-    "schema-pack"
-  ],
-  "author": "Elvis Muñoz <elvis.munoz.f@gmail.com>",
-  "license": "MIT",
+  "type": "module",
   "sideEffects": false,
-  "devDependencies": {
-    "@faker-js/faker": "^10.4.0",
-    "@jsonjoy.com/json-pack": "^18.28.0",
-    "@msgpack/msgpack": "^3.1.3",
-    "@types/selenium-webdriver": "^4.35.6",
-    "chalk": "^5.6.2",
-    "console-table-printer": "^2.16.1",
-    "esbuild": "^0.28.1",
-    "msgpackr": "^2.0.3",
-    "selenium-webdriver": "^4.44.0",
-    "tinybench": "^6.1.2",
-    "ts-node": "^10.9.2"
-  },
   "main": "./dist/cjs/index.cjs",
   "module": "./dist/esm/index.mjs",
   "types": "./dist/cjs/index.d.cts",
@@ -56,5 +40,9 @@
       "require": "./dist/cjs/types.cjs"
     },
     "./package.json": "./package.json"
+  },
+  "devDependencies": {
+    "console-table-printer": "catalog:",
+    "tinybench": "catalog:"
   }
 }

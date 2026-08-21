@@ -1,7 +1,7 @@
-import { expect, test, vi } from 'vitest';
-import Debugger from '../../../src/debugger.ts';
-
 import { Encoder, Symbols } from '@schema-pack/message-pack';
+import { expect, test, vi } from 'vitest';
+
+import Debugger from '../../../src/debugger.ts';
 import messagePackDebugSymbols from '../../../src/debugSymbols/messagePack.ts';
 
 const serializerDebugger = new Debugger(messagePackDebugSymbols);
@@ -9,33 +9,36 @@ const encoder = new Encoder();
 
 test('positive fixint', () => {
   for (
-    let i = Symbols.POSITIVE_FIXINT_START;
-    i <= Symbols.POSITIVE_FIXINT_END;
-    i++
+    let index = Symbols.POSITIVE_FIXINT_START;
+    index <= Symbols.POSITIVE_FIXINT_END;
+    index++
   ) {
-    const encoded = encoder.encode(i);
+    const encoded = encoder.encode(index);
     const chunks = serializerDebugger.debug(encoded);
 
     expect(chunks).toHaveLength(1);
     expect(chunks[0]).toStrictEqual({
-      flag: i,
-      startOffset: 0,
-      endOffset: 0, // fixuint has only one byte for flag and no additional information
       description: expect.any(String),
+      endOffset: 0, // fixuint has only one byte for flag and no additional information
+      flag: index,
+      startOffset: 0,
     });
   }
 
-  expect.assertions(128 * 2);
+  expect.assertions(
+    (Symbols.POSITIVE_FIXINT_END - Symbols.POSITIVE_FIXINT_START + 1) * 2,
+  );
 });
 
 test('fixstr', () => {
-  for (let i = Symbols.FIXSTR_START; i <= Symbols.FIXSTR_END; i++) {
-    const strLength = i - Symbols.FIXSTR_START;
+  for (let index = Symbols.FIXSTR_START; index <= Symbols.FIXSTR_END; index++) {
+    const strLength = index - Symbols.FIXSTR_START;
     const str = 'a'.repeat(strLength);
 
     let expectedEndOffset = 0;
     let expectedStartOffset = 0;
 
+    // oxlint-disable-next-line vitest/no-conditional-in-test
     if (str.length > 0) {
       expectedStartOffset = 1;
       expectedEndOffset = strLength;
@@ -46,14 +49,14 @@ test('fixstr', () => {
 
     expect(chunks).toHaveLength(1);
     expect(chunks[0]).toMatchObject({
-      flag: i,
-      startOffset: 0,
-      endOffset: encoded.length - 1,
       description: expect.any(String),
+      endOffset: encoded.length - 1,
+      flag: index,
       informationBytes: {
-        startOffset: expectedStartOffset,
         endOffset: expectedEndOffset,
+        startOffset: expectedStartOffset,
       },
+      startOffset: 0,
     });
   }
 
@@ -61,12 +64,16 @@ test('fixstr', () => {
 });
 
 test('fixmap', () => {
-  for (let i = Symbols.FIXMAP_START; i <= Symbols.FIXMAP_END; i++) {
-    const mapSize = i - Symbols.FIXMAP_START;
+  for (
+    let mapIndex = Symbols.FIXMAP_START;
+    mapIndex <= Symbols.FIXMAP_END;
+    mapIndex++
+  ) {
+    const mapSize = mapIndex - Symbols.FIXMAP_START;
     const map: Record<string, number> = {};
 
-    for (let j = 0; j < mapSize; j++) {
-      map[j] = j;
+    for (let index = 0; index < mapSize; index++) {
+      map[index] = index;
     }
 
     const encoded = encoder.encode(map);
@@ -74,11 +81,11 @@ test('fixmap', () => {
 
     expect(chunks).toHaveLength(1);
     expect(chunks[0]).toMatchObject({
-      flag: i,
-      startOffset: 0,
-      endOffset: encoded.length - 1,
-      description: expect.any(String),
       children: expect.any(Array),
+      description: expect.any(String),
+      endOffset: encoded.length - 1,
+      flag: mapIndex,
+      startOffset: 0,
     });
     expect(chunks[0].children).toHaveLength(mapSize * 2);
   }
@@ -87,13 +94,17 @@ test('fixmap', () => {
 });
 
 test('fixarray', () => {
-  for (let i = Symbols.FIXARRAY_START; i <= Symbols.FIXARRAY_END; i++) {
-    const arraySize = i - Symbols.FIXARRAY_START;
+  for (
+    let itemIndex = Symbols.FIXARRAY_START;
+    itemIndex <= Symbols.FIXARRAY_END;
+    itemIndex++
+  ) {
+    const arraySize = itemIndex - Symbols.FIXARRAY_START;
 
     const array: number[] = [];
 
-    for (let j = 0; j < arraySize; j++) {
-      array.push(j);
+    for (let index = 0; index < arraySize; index++) {
+      array.push(index);
     }
 
     const encoded = encoder.encode(array);
@@ -101,11 +112,11 @@ test('fixarray', () => {
 
     expect(chunks).toHaveLength(1);
     expect(chunks[0]).toMatchObject({
-      flag: i,
-      startOffset: 0,
-      endOffset: encoded.length - 1,
-      description: expect.any(String),
       children: expect.any(Array),
+      description: expect.any(String),
+      endOffset: encoded.length - 1,
+      flag: itemIndex,
+      startOffset: 0,
     });
     expect(chunks[0].children).toHaveLength(arraySize);
   }
@@ -119,10 +130,10 @@ test('nil', () => {
 
   expect(chunks).toHaveLength(1);
   expect(chunks[0]).toStrictEqual({
+    description: expect.any(String),
+    endOffset: 0, // nil has only one byte for flag and no additional information
     flag: Symbols.NIL,
     startOffset: 0,
-    endOffset: 0, // nil has only one byte for flag and no additional information
-    description: expect.any(String),
   });
 });
 
@@ -132,10 +143,10 @@ test('false', () => {
 
   expect(chunks).toHaveLength(1);
   expect(chunks[0]).toStrictEqual({
+    description: expect.any(String),
+    endOffset: 0, // false has only one byte for flag and no additional information
     flag: Symbols.FALSE,
     startOffset: 0,
-    endOffset: 0, // false has only one byte for flag and no additional information
-    description: expect.any(String),
   });
 });
 
@@ -145,10 +156,10 @@ test('true', () => {
 
   expect(chunks).toHaveLength(1);
   expect(chunks[0]).toStrictEqual({
+    description: expect.any(String),
+    endOffset: 0, // true has only one byte for flag and no additional information
     flag: Symbols.TRUE,
     startOffset: 0,
-    endOffset: 0, // true has only one byte for flag and no additional information
-    description: expect.any(String),
   });
 });
 
@@ -159,20 +170,20 @@ test('bin8', () => {
 
   expect(chunks).toHaveLength(1);
   expect(chunks[0]).toMatchObject({
-    flag: Symbols.BIN8,
-    startOffset: 0,
-    endOffset: 6, // bin8 has one byte for flag, one byte for length, and 5 bytes for data
-    description: expect.any(String),
     additionalBytes: [
       {
-        startOffset: 1,
         endOffset: 1,
+        startOffset: 1,
       },
     ],
+    description: expect.any(String),
+    endOffset: 6, // bin8 has one byte for flag, one byte for length, and 5 bytes for data
+    flag: Symbols.BIN8,
     informationBytes: {
-      startOffset: 2,
       endOffset: 6,
+      startOffset: 2,
     },
+    startOffset: 0,
   });
 });
 
@@ -183,181 +194,181 @@ test('bin16', () => {
 
   expect(chunks).toHaveLength(1);
   expect(chunks[0]).toMatchObject({
-    flag: Symbols.BIN16,
-    startOffset: 0,
-    endOffset: 258, // bin16 has one byte for flag, two bytes for length, and 256 bytes for data
-    description: expect.any(String),
     additionalBytes: [
       {
-        startOffset: 1,
         endOffset: 2,
+        startOffset: 1,
       },
     ],
+    description: expect.any(String),
+    endOffset: 258, // bin16 has one byte for flag, two bytes for length, and 256 bytes for data
+    flag: Symbols.BIN16,
     informationBytes: {
-      startOffset: 3,
       endOffset: 258,
+      startOffset: 3,
     },
+    startOffset: 0,
   });
 });
 
 test('bin32', () => {
-  const data = new Uint8Array(65536).fill(99); // 65536 bytes of data
+  const data = new Uint8Array(65_536).fill(99); // 65536 bytes of data
   const encoded = encoder.encode(data);
   const chunks = serializerDebugger.debug(encoded);
 
   expect(chunks).toHaveLength(1);
   expect(chunks[0]).toMatchObject({
-    flag: Symbols.BIN32,
-    startOffset: 0,
-    endOffset: 65540, // bin32 has one byte for flag, four bytes for length, and 65536 bytes for data
-    description: expect.any(String),
     additionalBytes: [
       {
-        startOffset: 1,
         endOffset: 4,
+        startOffset: 1,
       },
     ],
+    description: expect.any(String),
+    endOffset: 65_540, // bin32 has one byte for flag, four bytes for length, and 65536 bytes for data
+    flag: Symbols.BIN32,
     informationBytes: {
+      endOffset: 65_540,
       startOffset: 5,
-      endOffset: 65540,
     },
+    startOffset: 0,
   });
 });
 
 test('ext 8', () => {
-  const encoder = new Encoder();
-  encoder.addExtension({
-    type: 1,
+  const encoderWithExtension = new Encoder();
+  encoderWithExtension.addExtension({
+    decode: vi.fn<() => void>(),
     encode: (_value, buffer) => {
       buffer.writeBin(new Uint8Array(17).fill(123));
     },
-    decode: vi.fn(),
+    type: 1,
   });
 
-  const encoded = encoder.encode({});
+  const encoded = encoderWithExtension.encode({});
 
   const chunks = serializerDebugger.debug(encoded);
 
   expect(chunks).toHaveLength(1);
   expect(chunks[0]).toMatchObject({
-    flag: Symbols.EXT8,
-    startOffset: 0,
-    endOffset: 19, // 1 byte for length + 1 byte for extension type + 17 bytes for data
-    description: expect.any(String),
     additionalBytes: [
       {
-        startOffset: 1,
         endOffset: 1,
+        startOffset: 1,
       },
       {
-        startOffset: 2,
         endOffset: 2,
+        startOffset: 2,
       },
     ],
+    description: expect.any(String),
+    endOffset: 19, // 1 byte for length + 1 byte for extension type + 17 bytes for data
+    flag: Symbols.EXT8,
     informationBytes: {
-      startOffset: 3,
       endOffset: 19,
+      startOffset: 3,
     },
+    startOffset: 0,
   });
 });
 
 test('ext 16', () => {
-  const encoder = new Encoder();
-  encoder.addExtension({
-    type: 1,
+  const encoderWithExtension = new Encoder();
+  encoderWithExtension.addExtension({
+    decode: vi.fn<() => void>(),
     encode: (_value, buffer) => {
       buffer.writeBin(new Uint8Array(256).fill(123));
     },
-    decode: vi.fn(),
+    type: 1,
   });
 
-  const encoded = encoder.encode({});
+  const encoded = encoderWithExtension.encode({});
 
   const chunks = serializerDebugger.debug(encoded);
 
   expect(chunks).toHaveLength(1);
   expect(chunks[0]).toMatchObject({
-    flag: Symbols.EXT16,
-    startOffset: 0,
-    endOffset: 259, // 2 bytes for length + 1 byte for extension type + 256 bytes for data
-    description: expect.any(String),
     additionalBytes: [
       {
-        startOffset: 1,
         endOffset: 2,
+        startOffset: 1,
       },
       {
-        startOffset: 3,
         endOffset: 3,
+        startOffset: 3,
       },
     ],
+    description: expect.any(String),
+    endOffset: 259, // 2 bytes for length + 1 byte for extension type + 256 bytes for data
+    flag: Symbols.EXT16,
     informationBytes: {
-      startOffset: 4,
       endOffset: 259,
+      startOffset: 4,
     },
+    startOffset: 0,
   });
 });
 
 test('ext 32', () => {
-  const requiredSize = 65536 + 1 + 4 + 1; // 1 byte for flag + 4 bytes for length + 1 byte for extension type + 65536 bytes for data
+  const requiredSize = 65_536 + 1 + 4 + 1; // 1 byte for flag + 4 bytes for length + 1 byte for extension type + 65536 bytes for data
 
-  const encoder = new Encoder({
+  const encoderWithExtension = new Encoder({
     initialBufferSize: requiredSize,
     initialSharedBufferSize: requiredSize,
   });
 
-  encoder.addExtension({
-    type: 1,
+  encoderWithExtension.addExtension({
+    decode: vi.fn<() => void>(),
     encode: (_value, buffer) => {
-      buffer.writeBin(new Uint8Array(65536).fill(123));
+      buffer.writeBin(new Uint8Array(65_536).fill(123));
     },
-    decode: vi.fn(),
+    type: 1,
   });
 
-  const encoded = encoder.encode({});
+  const encoded = encoderWithExtension.encode({});
 
   const chunks = serializerDebugger.debug(encoded);
 
   expect(chunks).toHaveLength(1);
   expect(chunks[0]).toMatchObject({
-    flag: Symbols.EXT32,
-    startOffset: 0,
-    endOffset: 65541, // 4 bytes for length + 1 byte for extension type + 65536 bytes for data
-    description: expect.any(String),
     additionalBytes: [
       {
-        startOffset: 1,
         endOffset: 4,
+        startOffset: 1,
       },
       {
-        startOffset: 5,
         endOffset: 5,
+        startOffset: 5,
       },
     ],
+    description: expect.any(String),
+    endOffset: 65_541, // 4 bytes for length + 1 byte for extension type + 65536 bytes for data
+    flag: Symbols.EXT32,
     informationBytes: {
+      endOffset: 65_541,
       startOffset: 6,
-      endOffset: 65541,
     },
+    startOffset: 0,
   });
 });
 
 test('float 32', () => {
-  const encoder = new Encoder({
+  const encoderWithFloat32 = new Encoder({
     forceFloat32: true,
   });
-  const encoded = encoder.encode(3.14);
+  const encoded = encoderWithFloat32.encode(3.14);
   const chunks = serializerDebugger.debug(encoded);
 
   expect(chunks).toHaveLength(1);
   expect(chunks[0]).toMatchObject({
-    flag: Symbols.FLOAT32,
-    startOffset: 0,
-    endOffset: 4, // float32 has one byte for flag and four bytes for data
     description: expect.any(String),
+    endOffset: 4, // float32 has one byte for flag and four bytes for data
+    flag: Symbols.FLOAT32,
     informationBytes: {
-      startOffset: 1,
       endOffset: 4,
+      startOffset: 1,
     },
+    startOffset: 0,
   });
 });
 
@@ -367,14 +378,14 @@ test('float 64', () => {
 
   expect(chunks).toHaveLength(1);
   expect(chunks[0]).toMatchObject({
-    flag: Symbols.FLOAT64,
-    startOffset: 0,
-    endOffset: 8, // float64 has one byte for flag and eight bytes for data
     description: expect.any(String),
+    endOffset: 8, // float64 has one byte for flag and eight bytes for data
+    flag: Symbols.FLOAT64,
     informationBytes: {
-      startOffset: 1,
       endOffset: 8,
+      startOffset: 1,
     },
+    startOffset: 0,
   });
 });
 
@@ -384,48 +395,48 @@ test('uint 8', () => {
 
   expect(chunks).toHaveLength(1);
   expect(chunks[0]).toMatchObject({
-    flag: Symbols.UINT8,
-    startOffset: 0,
-    endOffset: 1,
     description: expect.any(String),
+    endOffset: 1,
+    flag: Symbols.UINT8,
     informationBytes: {
-      startOffset: 1,
       endOffset: 1,
+      startOffset: 1,
     },
+    startOffset: 0,
   });
 });
 
 test('uint 16', () => {
-  const encoded = encoder.encode(65535);
+  const encoded = encoder.encode(65_535);
   const chunks = serializerDebugger.debug(encoded);
 
   expect(chunks).toHaveLength(1);
   expect(chunks[0]).toMatchObject({
-    flag: Symbols.UINT16,
-    startOffset: 0,
-    endOffset: 2, // uint16 has one byte for flag and two bytes for data
     description: expect.any(String),
+    endOffset: 2, // uint16 has one byte for flag and two bytes for data
+    flag: Symbols.UINT16,
     informationBytes: {
-      startOffset: 1,
       endOffset: 2,
+      startOffset: 1,
     },
+    startOffset: 0,
   });
 });
 
 test('uint 32', () => {
-  const encoded = encoder.encode(65536);
+  const encoded = encoder.encode(65_536);
   const chunks = serializerDebugger.debug(encoded);
 
   expect(chunks).toHaveLength(1);
   expect(chunks[0]).toMatchObject({
-    flag: Symbols.UINT32,
-    startOffset: 0,
-    endOffset: 4, // uint32 has one byte for flag and four bytes for data
     description: expect.any(String),
+    endOffset: 4, // uint32 has one byte for flag and four bytes for data
+    flag: Symbols.UINT32,
     informationBytes: {
-      startOffset: 1,
       endOffset: 4,
+      startOffset: 1,
     },
+    startOffset: 0,
   });
 });
 
@@ -436,14 +447,14 @@ test('uint 64', () => {
 
   expect(chunks).toHaveLength(1);
   expect(chunks[0]).toMatchObject({
-    flag: Symbols.UINT64,
-    startOffset: 0,
-    endOffset: 8, // uint64 has one byte for flag and eight bytes for data
     description: expect.any(String),
+    endOffset: 8, // uint64 has one byte for flag and eight bytes for data
+    flag: Symbols.UINT64,
     informationBytes: {
-      startOffset: 1,
       endOffset: 8,
+      startOffset: 1,
     },
+    startOffset: 0,
   });
 });
 
@@ -453,48 +464,48 @@ test('int 8', () => {
 
   expect(chunks).toHaveLength(1);
   expect(chunks[0]).toMatchObject({
-    flag: Symbols.INT8,
-    startOffset: 0,
-    endOffset: 1, // int8 has one byte for flag and one byte for data
     description: expect.any(String),
+    endOffset: 1, // int8 has one byte for flag and one byte for data
+    flag: Symbols.INT8,
     informationBytes: {
-      startOffset: 1,
       endOffset: 1,
+      startOffset: 1,
     },
+    startOffset: 0,
   });
 });
 
 test('int 16', () => {
-  const encoded = encoder.encode(-32768);
+  const encoded = encoder.encode(-32_768);
   const chunks = serializerDebugger.debug(encoded);
 
   expect(chunks).toHaveLength(1);
   expect(chunks[0]).toMatchObject({
-    flag: Symbols.INT16,
-    startOffset: 0,
-    endOffset: 2, // int16 has one byte for flag and two bytes for data
     description: expect.any(String),
+    endOffset: 2, // int16 has one byte for flag and two bytes for data
+    flag: Symbols.INT16,
     informationBytes: {
-      startOffset: 1,
       endOffset: 2,
+      startOffset: 1,
     },
+    startOffset: 0,
   });
 });
 
 test('int 32', () => {
-  const encoded = encoder.encode(-32769);
+  const encoded = encoder.encode(-32_769);
   const chunks = serializerDebugger.debug(encoded);
 
   expect(chunks).toHaveLength(1);
   expect(chunks[0]).toMatchObject({
-    flag: Symbols.INT32,
-    startOffset: 0,
-    endOffset: 4, // int32 has one byte for flag and four bytes for data
     description: expect.any(String),
+    endOffset: 4, // int32 has one byte for flag and four bytes for data
+    flag: Symbols.INT32,
     informationBytes: {
-      startOffset: 1,
       endOffset: 4,
+      startOffset: 1,
     },
+    startOffset: 0,
   });
 });
 
@@ -505,174 +516,174 @@ test('int 64', () => {
 
   expect(chunks).toHaveLength(1);
   expect(chunks[0]).toMatchObject({
-    flag: Symbols.INT64,
-    startOffset: 0,
-    endOffset: 8, // int64 has one byte for flag and eight bytes for data
     description: expect.any(String),
+    endOffset: 8, // int64 has one byte for flag and eight bytes for data
+    flag: Symbols.INT64,
     informationBytes: {
-      startOffset: 1,
       endOffset: 8,
+      startOffset: 1,
     },
+    startOffset: 0,
   });
 });
 
 test('fixext 1', () => {
-  const encoder = new Encoder();
-  encoder.addExtension({
-    type: 1,
+  const encoderWithExtension = new Encoder();
+  encoderWithExtension.addExtension({
+    decode: vi.fn<() => void>(),
     encode: (_value, buffer) => {
       buffer.writeBin(new Uint8Array(1).fill(123));
     },
-    decode: vi.fn(),
+    type: 1,
   });
 
-  const encoded = encoder.encode({});
+  const encoded = encoderWithExtension.encode({});
   const chunks = serializerDebugger.debug(encoded);
 
   expect(chunks).toHaveLength(1);
   expect(chunks[0]).toMatchObject({
-    flag: Symbols.FIXEXT1,
-    startOffset: 0,
-    endOffset: 2, // 1 byte for extension type + 1 byte for data
-    description: expect.any(String),
     additionalBytes: [
       {
-        startOffset: 1,
         endOffset: 1,
+        startOffset: 1,
       },
     ],
+    description: expect.any(String),
+    endOffset: 2, // 1 byte for extension type + 1 byte for data
+    flag: Symbols.FIXEXT1,
     informationBytes: {
-      startOffset: 2,
       endOffset: 2,
+      startOffset: 2,
     },
+    startOffset: 0,
   });
 });
 
 test('fixext 2', () => {
-  const encoder = new Encoder();
-  encoder.addExtension({
-    type: 1,
+  const encoderWithExtension = new Encoder();
+  encoderWithExtension.addExtension({
+    decode: vi.fn<() => void>(),
     encode: (_value, buffer) => {
       buffer.writeBin(new Uint8Array(2).fill(123));
     },
-    decode: vi.fn(),
+    type: 1,
   });
 
-  const encoded = encoder.encode({});
+  const encoded = encoderWithExtension.encode({});
   const chunks = serializerDebugger.debug(encoded);
 
   expect(chunks).toHaveLength(1);
   expect(chunks[0]).toMatchObject({
-    flag: Symbols.FIXEXT2,
-    startOffset: 0,
-    endOffset: 3, // 1 byte for extension type + 2 bytes for data
-    description: expect.any(String),
     additionalBytes: [
       {
-        startOffset: 1,
         endOffset: 1,
+        startOffset: 1,
       },
     ],
+    description: expect.any(String),
+    endOffset: 3, // 1 byte for extension type + 2 bytes for data
+    flag: Symbols.FIXEXT2,
     informationBytes: {
-      startOffset: 2,
       endOffset: 3,
+      startOffset: 2,
     },
+    startOffset: 0,
   });
 });
 
 test('fixext 4', () => {
-  const encoder = new Encoder();
-  encoder.addExtension({
-    type: 1,
+  const encoderWithExtension = new Encoder();
+  encoderWithExtension.addExtension({
+    decode: vi.fn<() => void>(),
     encode: (_value, buffer) => {
       buffer.writeBin(new Uint8Array(4).fill(123));
     },
-    decode: vi.fn(),
+    type: 1,
   });
 
-  const encoded = encoder.encode({});
+  const encoded = encoderWithExtension.encode({});
   const chunks = serializerDebugger.debug(encoded);
 
   expect(chunks).toHaveLength(1);
   expect(chunks[0]).toMatchObject({
-    flag: Symbols.FIXEXT4,
-    startOffset: 0,
-    endOffset: 5, // 1 byte for extension type + 4 bytes for data
-    description: expect.any(String),
     additionalBytes: [
       {
-        startOffset: 1,
         endOffset: 1,
+        startOffset: 1,
       },
     ],
+    description: expect.any(String),
+    endOffset: 5, // 1 byte for extension type + 4 bytes for data
+    flag: Symbols.FIXEXT4,
     informationBytes: {
-      startOffset: 2,
       endOffset: 5,
+      startOffset: 2,
     },
+    startOffset: 0,
   });
 });
 
 test('fixext 8', () => {
-  const encoder = new Encoder();
-  encoder.addExtension({
-    type: 1,
+  const encoderWithExtension = new Encoder();
+  encoderWithExtension.addExtension({
+    decode: vi.fn<() => void>(),
     encode: (_value, buffer) => {
       buffer.writeBin(new Uint8Array(8).fill(123));
     },
-    decode: vi.fn(),
+    type: 1,
   });
 
-  const encoded = encoder.encode({});
+  const encoded = encoderWithExtension.encode({});
   const chunks = serializerDebugger.debug(encoded);
 
   expect(chunks).toHaveLength(1);
   expect(chunks[0]).toMatchObject({
-    flag: Symbols.FIXEXT8,
-    startOffset: 0,
-    endOffset: 9, // 1 byte for extension type + 8 bytes for data
-    description: expect.any(String),
     additionalBytes: [
       {
-        startOffset: 1,
         endOffset: 1,
+        startOffset: 1,
       },
     ],
+    description: expect.any(String),
+    endOffset: 9, // 1 byte for extension type + 8 bytes for data
+    flag: Symbols.FIXEXT8,
     informationBytes: {
-      startOffset: 2,
       endOffset: 9,
+      startOffset: 2,
     },
+    startOffset: 0,
   });
 });
 
 test('fixext 16', () => {
-  const encoder = new Encoder();
-  encoder.addExtension({
-    type: 1,
+  const encoderWithExtension = new Encoder();
+  encoderWithExtension.addExtension({
+    decode: vi.fn<() => void>(),
     encode: (_value, buffer) => {
       buffer.writeBin(new Uint8Array(16).fill(123));
     },
-    decode: vi.fn(),
+    type: 1,
   });
 
-  const encoded = encoder.encode({});
+  const encoded = encoderWithExtension.encode({});
   const chunks = serializerDebugger.debug(encoded);
 
   expect(chunks).toHaveLength(1);
   expect(chunks[0]).toMatchObject({
-    flag: Symbols.FIXEXT16,
-    startOffset: 0,
-    endOffset: 17, // 1 byte for extension type + 16 bytes for data
-    description: expect.any(String),
     additionalBytes: [
       {
-        startOffset: 1,
         endOffset: 1,
+        startOffset: 1,
       },
     ],
+    description: expect.any(String),
+    endOffset: 17, // 1 byte for extension type + 16 bytes for data
+    flag: Symbols.FIXEXT16,
     informationBytes: {
-      startOffset: 2,
       endOffset: 17,
+      startOffset: 2,
     },
+    startOffset: 0,
   });
 });
 
@@ -683,20 +694,20 @@ test('str 8', () => {
 
   expect(chunks).toHaveLength(1);
   expect(chunks[0]).toMatchObject({
-    flag: Symbols.STR8,
-    startOffset: 0,
-    endOffset: 34, // 1 byte for length + 33 bytes for data
-    description: expect.any(String),
     additionalBytes: [
       {
-        startOffset: 1,
         endOffset: 1,
+        startOffset: 1,
       },
     ],
+    description: expect.any(String),
+    endOffset: 34, // 1 byte for length + 33 bytes for data
+    flag: Symbols.STR8,
     informationBytes: {
-      startOffset: 2,
       endOffset: 34,
+      startOffset: 2,
     },
+    startOffset: 0,
   });
 });
 
@@ -707,44 +718,44 @@ test('str 16', () => {
 
   expect(chunks).toHaveLength(1);
   expect(chunks[0]).toMatchObject({
-    flag: Symbols.STR16,
-    startOffset: 0,
-    endOffset: 258, // 2 bytes for length + 256 bytes for data
-    description: expect.any(String),
     additionalBytes: [
       {
-        startOffset: 1,
         endOffset: 2,
+        startOffset: 1,
       },
     ],
+    description: expect.any(String),
+    endOffset: 258, // 2 bytes for length + 256 bytes for data
+    flag: Symbols.STR16,
     informationBytes: {
-      startOffset: 3,
       endOffset: 258,
+      startOffset: 3,
     },
+    startOffset: 0,
   });
 });
 
 test('str 32', () => {
-  const str = 'a'.repeat(65536);
+  const str = 'a'.repeat(65_536);
   const encoded = encoder.encode(str);
   const chunks = serializerDebugger.debug(encoded);
 
   expect(chunks).toHaveLength(1);
   expect(chunks[0]).toMatchObject({
-    flag: Symbols.STR32,
-    startOffset: 0,
-    endOffset: encoded.length - 1,
-    description: expect.any(String),
     additionalBytes: [
       {
-        startOffset: 1,
         endOffset: 4,
+        startOffset: 1,
       },
     ],
+    description: expect.any(String),
+    endOffset: encoded.length - 1,
+    flag: Symbols.STR32,
     informationBytes: {
+      endOffset: 65_540,
       startOffset: 5,
-      endOffset: 65540,
     },
+    startOffset: 0,
   });
 });
 
@@ -755,43 +766,43 @@ test('array 16', () => {
 
   expect(chunks).toHaveLength(1);
   expect(chunks[0]).toMatchObject({
-    flag: Symbols.ARRAY16,
-    startOffset: 0,
-    endOffset: encoded.length - 1,
-    description: expect.any(String),
     additionalBytes: [
       {
-        startOffset: 1,
         endOffset: 2,
+        startOffset: 1,
       },
     ],
+    description: expect.any(String),
+    endOffset: encoded.length - 1,
+    flag: Symbols.ARRAY16,
+    startOffset: 0,
   });
 });
 
 test('array 32', () => {
-  const array = new Array(65536).fill(123);
+  const array = new Array(65_536).fill(123);
   const encoded = encoder.encode(array);
   const chunks = serializerDebugger.debug(encoded);
 
   expect(chunks).toHaveLength(1);
   expect(chunks[0]).toMatchObject({
-    flag: Symbols.ARRAY32,
-    startOffset: 0,
-    endOffset: encoded.length - 1,
-    description: expect.any(String),
     additionalBytes: [
       {
-        startOffset: 1,
         endOffset: 4,
+        startOffset: 1,
       },
     ],
+    description: expect.any(String),
+    endOffset: encoded.length - 1,
+    flag: Symbols.ARRAY32,
+    startOffset: 0,
   });
 });
 
 test('map 16', () => {
   const map: Record<string, number> = {};
-  for (let i = 0; i < 16; i++) {
-    map[`key${i}`] = i;
+  for (let index = 0; index < 16; index++) {
+    map[`key${index}`] = index;
   }
 
   const encoded = encoder.encode(map);
@@ -799,23 +810,23 @@ test('map 16', () => {
 
   expect(chunks).toHaveLength(1);
   expect(chunks[0]).toMatchObject({
-    flag: Symbols.MAP16,
-    startOffset: 0,
-    endOffset: encoded.length - 1,
-    description: expect.any(String),
     additionalBytes: [
       {
-        startOffset: 1,
         endOffset: 2,
+        startOffset: 1,
       },
     ],
+    description: expect.any(String),
+    endOffset: encoded.length - 1,
+    flag: Symbols.MAP16,
+    startOffset: 0,
   });
 });
 
 test('map 32', () => {
   const map: Record<string, number> = {};
-  for (let i = 0; i < 65536; i++) {
-    map[`key${i}`] = i;
+  for (let index = 0; index < 65_536; index++) {
+    map[`key${index}`] = index;
   }
 
   const encoded = encoder.encode(map);
@@ -823,30 +834,30 @@ test('map 32', () => {
 
   expect(chunks).toHaveLength(1);
   expect(chunks[0]).toMatchObject({
-    flag: Symbols.MAP32,
-    startOffset: 0,
-    endOffset: encoded.length - 1,
-    description: expect.any(String),
     additionalBytes: [
       {
-        startOffset: 1,
         endOffset: 4,
+        startOffset: 1,
       },
     ],
+    description: expect.any(String),
+    endOffset: encoded.length - 1,
+    flag: Symbols.MAP32,
+    startOffset: 0,
   });
 });
 
 test('negative fixint', () => {
-  for (let i = -32; i <= -1; i++) {
-    const encoded = encoder.encode(i);
+  for (let index = -32; index <= -1; index++) {
+    const encoded = encoder.encode(index);
     const chunks = serializerDebugger.debug(encoded);
 
     expect(chunks).toHaveLength(1);
     expect(chunks[0]).toMatchObject({
-      flag: Symbols.NEGATIVE_FIXINT_START + (i + 32),
-      startOffset: 0,
-      endOffset: 0, // negative fixint has only one byte for flag and no additional information
       description: expect.any(String),
+      endOffset: 0, // negative fixint has only one byte for flag and no additional information
+      flag: Symbols.NEGATIVE_FIXINT_START + (index + 32),
+      startOffset: 0,
     });
   }
 

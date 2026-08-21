@@ -1,7 +1,8 @@
 import type MessagePackDecoderBuffer from '../../decoder/interfaces/messagePackDecoderBuffer.ts';
 import type { ExtensionEncoderBuffer } from '../../encoder/types.ts';
 import UntypedExtension from '../../untypedExtension.ts';
-import { BIGINT_MASK } from './constants.ts';
+
+const BIGINT_MASK = 0xff_ff_ff_ff_ff_ff_ff_ffn;
 
 /**
  * This class encodes and decodes JavaScript BigInt values that are outside the
@@ -56,8 +57,8 @@ class BigIntExtension<
     let encoded = 0n;
     let shift = 0n;
 
-    for (let i = buffer.offset; i < size; i += 8) {
-      encoded |= buffer.view.getBigUint64(i, false) << shift;
+    for (let offset = buffer.offset; offset < size; offset += 8) {
+      encoded |= buffer.view.getBigUint64(offset, false) << shift;
       shift += 64n;
     }
 

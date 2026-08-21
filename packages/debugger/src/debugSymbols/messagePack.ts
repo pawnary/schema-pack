@@ -1,23 +1,30 @@
 import { Symbols } from '@schema-pack/message-pack';
-import type { Chunk, DebugSymbolFn, DebugSymbols, Metadata } from '../types.ts';
-import type Debugger from '../debugger.ts';
 
-const debugSingleByte: (description: string) => DebugSymbolFn = (
-  description,
-) => {
+import type Debugger from '../debugger.ts';
+import type {
+  Chunk,
+  DebugSymbolFn,
+  DebugSymbols,
+  Metadata,
+  PartialChunk,
+} from '../types.ts';
+
+function debugSingleByte(description: string): DebugSymbolFn {
   return (debug: Debugger) => {
+    let descriptionTemplate = description;
+
     if (description.includes('{FLAG}')) {
       const value = debug.buffer[debug.offset].toString();
 
-      description = description.replace('{FLAG}', value);
+      descriptionTemplate = descriptionTemplate.replace('{FLAG}', value);
     }
 
     return {
+      description: descriptionTemplate,
       flag: debug.buffer[debug.offset++],
-      description,
     };
   };
-};
+}
 
 type ReadLengthOutput = Metadata & {
   length: number;
@@ -28,32 +35,37 @@ function readLength(debug: Debugger, size: 1 | 2 | 4 | 8): ReadLengthOutput {
   const startOffset = debug.offset;
 
   switch (size) {
-    case 1:
+    case 1: {
       length = debug.buffer[debug.offset++];
       break;
-    case 2:
+    }
+    case 2: {
       length = debug.view.getUint16(debug.offset);
       debug.offset += 2;
       break;
-    case 4:
+    }
+    case 4: {
       length = debug.view.getUint32(debug.offset);
       debug.offset += 4;
       break;
-    case 8:
+    }
+    case 8: {
       length = Number(debug.view.getBigUint64(debug.offset));
       debug.offset += 8;
       break;
-    default:
+    }
+    default: {
       throw new Error(`Unsupported size: ${size}`);
+    }
   }
 
   const endOffset = debug.offset - 1;
 
   return {
+    description: '',
+    endOffset,
     length,
     startOffset,
-    endOffset,
-    description: '',
   };
 }
 
@@ -64,43 +76,46 @@ function readInformationBytes(debug: Debugger, length: number): Metadata {
   debug.offset = endOffset + 1;
 
   return {
-    startOffset,
-    endOffset,
     description: '',
+    endOffset,
+    startOffset,
   };
 }
 
-const debugFixMap: DebugSymbolFn = (debug) => {
+function debugFixMap(debug: Debugger): PartialChunk {
   const flag = debug.buffer[debug.offset++];
-  const length = flag & 0x0f; // Extract the length from the flag
+  // Extract the length from the flag
+  const length = flag & 0x0f;
 
   const items: Chunk[] = [];
 
-  for (let i = 0; i < length; i++) {
+  for (let offset = 0; offset < length; offset++) {
     const key = debug.nextValue();
     const value = debug.nextValue();
 
-    items.push({
-      ...key,
-      description: `Map key: ${key.description}`,
-    });
-
-    items.push({
-      ...value,
-      description: `Map value: ${value.description}`,
-    });
+    items.push(
+      {
+        ...key,
+        description: `Map key: ${key.description}`,
+      },
+      {
+        ...value,
+        description: `Map value: ${value.description}`,
+      },
+    );
   }
 
   return {
-    flag,
-    description: `Message pack fix map flag (${flag - length}) of length ${length}`,
     children: items,
+    description: `Message pack fix map flag (${flag - length}) of length ${length}`,
+    flag,
   };
-};
+}
 
-const debugFixStr: DebugSymbolFn = (debug) => {
+function debugFixStr(debug: Debugger): PartialChunk {
   const flag = debug.buffer[debug.offset++];
-  const length = flag & 0x1f; // Extract the length from the flag
+  // Extract the length from the flag
+  const length = flag & 0x1f;
 
   let informationBytes: Metadata;
 
@@ -117,45 +132,43 @@ const debugFixStr: DebugSymbolFn = (debug) => {
     const offset = debug.offset - 1;
 
     informationBytes = {
-      startOffset: offset,
-      endOffset: offset,
       description: 'Empty string',
+      endOffset: offset,
+      startOffset: offset,
     };
   }
 
   return {
-    flag,
     description: `Message pack fix string flag (${flag - length}) of length ${length}`,
+    flag,
     informationBytes,
   };
-};
+}
 
-const debugFixArray: DebugSymbolFn = (debug) => {
+function debugFixArray(debug: Debugger): PartialChunk {
   const flag = debug.buffer[debug.offset++];
   const length = flag & 0x0f;
 
   const children: Chunk[] = [];
 
-  for (let i = 0; i < length; i++) {
+  for (let offset = 0; offset < length; offset++) {
     const value = debug.nextValue();
 
     children.push({
       ...value,
-      description: `Array element in index ${i}: ${value.description}`,
+      description: `Array element in index ${offset}: ${value.description}`,
     });
   }
 
   return {
-    flag,
-    description: `Message pack fix array flag (${flag - length}) of length ${length}`,
     children,
+    description: `Message pack fix array flag (${flag - length}) of length ${length}`,
+    flag,
   };
-};
+}
 
-/**
- * DEBUGGERS
- */
-const debugBin8: DebugSymbolFn = (debug) => {
+/** DEBUGGERS. */
+function debugBin8(debug: Debugger): PartialChunk {
   const flag = debug.buffer[debug.offset++];
 
   const { length, ...additionalBytes } = readLength(debug, 1);
@@ -167,14 +180,14 @@ const debugBin8: DebugSymbolFn = (debug) => {
   informationBytes.description = `Binary data of length ${length}`;
 
   return {
-    flag,
-    description: `Message pack bin8 flag (${flag})`,
     additionalBytes: [additionalBytes],
+    description: `Message pack bin8 flag (${flag})`,
+    flag,
     informationBytes,
   };
-};
+}
 
-const debugBin16: DebugSymbolFn = (debug) => {
+function debugBin16(debug: Debugger): PartialChunk {
   const flag = debug.buffer[debug.offset++];
   const { length, ...additionalBytes } = readLength(debug, 2);
 
@@ -185,14 +198,14 @@ const debugBin16: DebugSymbolFn = (debug) => {
   informationBytes.description = `Binary data of length ${length}`;
 
   return {
-    flag,
-    description: `Message pack bin16 flag (${flag})`,
     additionalBytes: [additionalBytes],
+    description: `Message pack bin16 flag (${flag})`,
+    flag,
     informationBytes,
   };
-};
+}
 
-const debugBin32: DebugSymbolFn = (debug) => {
+function debugBin32(debug: Debugger): PartialChunk {
   const flag = debug.buffer[debug.offset++];
   const { length, ...additionalBytes } = readLength(debug, 4);
 
@@ -203,14 +216,14 @@ const debugBin32: DebugSymbolFn = (debug) => {
   informationBytes.description = `Binary data of length ${length}`;
 
   return {
-    flag,
-    description: `Message pack bin32 flag (${flag})`,
     additionalBytes: [additionalBytes],
+    description: `Message pack bin32 flag (${flag})`,
+    flag,
     informationBytes,
   };
-};
+}
 
-const debugExt8: DebugSymbolFn = (debug) => {
+function debugExt8(debug: Debugger): PartialChunk {
   const flag = debug.buffer[debug.offset++];
   const { length, ...lengthBytes } = readLength(debug, 1);
 
@@ -225,14 +238,14 @@ const debugExt8: DebugSymbolFn = (debug) => {
   informationBytes.description = `Extension data of length ${length}`;
 
   return {
-    flag,
-    description: `Message pack fixext8 flag (${flag})`,
     additionalBytes: [lengthBytes, extensionTypeBytes],
+    description: `Message pack fixext8 flag (${flag})`,
+    flag,
     informationBytes,
   };
-};
+}
 
-const debugExt16: DebugSymbolFn = (debug) => {
+function debugExt16(debug: Debugger): PartialChunk {
   const flag = debug.buffer[debug.offset++];
   const { length, ...lengthBytes } = readLength(debug, 2);
 
@@ -247,14 +260,14 @@ const debugExt16: DebugSymbolFn = (debug) => {
   informationBytes.description = `Extension data of length ${length}`;
 
   return {
-    flag,
-    description: `Message pack fixext16 flag (${flag})`,
     additionalBytes: [lengthBytes, extensionTypeBytes],
+    description: `Message pack fixext16 flag (${flag})`,
+    flag,
     informationBytes,
   };
-};
+}
 
-const debugExt32: DebugSymbolFn = (debug) => {
+function debugExt32(debug: Debugger): PartialChunk {
   const flag = debug.buffer[debug.offset++];
   const { length, ...lengthBytes } = readLength(debug, 4);
 
@@ -269,14 +282,14 @@ const debugExt32: DebugSymbolFn = (debug) => {
   informationBytes.description = `Extension data of length ${length}`;
 
   return {
-    flag,
-    description: `Message pack fixext32 flag (${flag})`,
     additionalBytes: [lengthBytes, extensionTypeBytes],
+    description: `Message pack fixext32 flag (${flag})`,
+    flag,
     informationBytes,
   };
-};
+}
 
-const debugFloat32: DebugSymbolFn = (debug) => {
+function debugFloat32(debug: Debugger): PartialChunk {
   const flag = debug.buffer[debug.offset++];
   const value = debug.view.getFloat32(debug.offset);
   const informationBytes = readInformationBytes(debug, 4);
@@ -284,15 +297,15 @@ const debugFloat32: DebugSymbolFn = (debug) => {
   informationBytes.description = `Float32 value: ${value}`;
 
   return {
-    flag,
     description: `Message pack float32 flag (${flag})`,
-    informationBytes: informationBytes,
+    flag,
+    informationBytes,
     warning:
       "JavaScript uses 64-bit floating point numbers, so the original float32 value may not be represented exactly. This is a limitation of JavaScript's number representation.",
   };
-};
+}
 
-const debugFloat64: DebugSymbolFn = (debug) => {
+function debugFloat64(debug: Debugger): PartialChunk {
   const flag = debug.buffer[debug.offset++];
   const value = debug.view.getFloat64(debug.offset);
   const informationBytes = readInformationBytes(debug, 8);
@@ -300,13 +313,13 @@ const debugFloat64: DebugSymbolFn = (debug) => {
   informationBytes.description = `Float64 value: ${value}`;
 
   return {
-    flag,
     description: `Message pack float64 flag (${flag})`,
-    informationBytes: informationBytes,
+    flag,
+    informationBytes,
   };
-};
+}
 
-const debugUint8: DebugSymbolFn = (debug) => {
+function debugUint8(debug: Debugger): PartialChunk {
   const flag = debug.buffer[debug.offset++];
   const value = debug.view.getUint8(debug.offset);
   const informationBytes = readInformationBytes(debug, 1);
@@ -314,13 +327,13 @@ const debugUint8: DebugSymbolFn = (debug) => {
   informationBytes.description = `Uint8 value: ${value}`;
 
   return {
-    flag,
     description: `Message pack uint8 flag (${flag})`,
-    informationBytes: informationBytes,
+    flag,
+    informationBytes,
   };
-};
+}
 
-const debugUint16: DebugSymbolFn = (debug) => {
+function debugUint16(debug: Debugger): PartialChunk {
   const flag = debug.buffer[debug.offset++];
   const value = debug.view.getUint16(debug.offset);
   const informationBytes = readInformationBytes(debug, 2);
@@ -328,13 +341,13 @@ const debugUint16: DebugSymbolFn = (debug) => {
   informationBytes.description = `Uint16 value: ${value}`;
 
   return {
-    flag,
     description: `Message pack uint16 flag (${flag})`,
-    informationBytes: informationBytes,
+    flag,
+    informationBytes,
   };
-};
+}
 
-const debugUint32: DebugSymbolFn = (debug) => {
+function debugUint32(debug: Debugger): PartialChunk {
   const flag = debug.buffer[debug.offset++];
   const value = debug.view.getUint32(debug.offset);
   const informationBytes = readInformationBytes(debug, 4);
@@ -342,13 +355,13 @@ const debugUint32: DebugSymbolFn = (debug) => {
   informationBytes.description = `Uint32 value: ${value}`;
 
   return {
-    flag,
     description: `Message pack uint32 flag (${flag})`,
-    informationBytes: informationBytes,
+    flag,
+    informationBytes,
   };
-};
+}
 
-const debugUint64: DebugSymbolFn = (debug) => {
+function debugUint64(debug: Debugger): PartialChunk {
   const flag = debug.buffer[debug.offset++];
   const value = debug.view.getBigUint64(debug.offset);
   const informationBytes = readInformationBytes(debug, 8);
@@ -356,14 +369,14 @@ const debugUint64: DebugSymbolFn = (debug) => {
   informationBytes.description = `Uint64 value: ${value}`;
 
   return {
-    flag,
     description: `Message pack uint64 flag (${flag})`,
-    informationBytes: informationBytes,
+    flag,
+    informationBytes,
     // warning: "JavaScript cannot represent integers larger than Number.MAX_SAFE_INTEGER (2^53 - 1) accurately. The original uint64 value may not be represented exactly. This is a limitation of JavaScript's number representation.",
   };
-};
+}
 
-const debugInt8: DebugSymbolFn = (debug) => {
+function debugInt8(debug: Debugger): PartialChunk {
   const flag = debug.buffer[debug.offset++];
   const value = debug.view.getInt8(debug.offset);
   const informationBytes = readInformationBytes(debug, 1);
@@ -371,13 +384,13 @@ const debugInt8: DebugSymbolFn = (debug) => {
   informationBytes.description = `Int8 value: ${value}`;
 
   return {
-    flag,
     description: `Message pack int8 flag (${flag})`,
-    informationBytes: informationBytes,
+    flag,
+    informationBytes,
   };
-};
+}
 
-const debugInt16: DebugSymbolFn = (debug) => {
+function debugInt16(debug: Debugger): PartialChunk {
   const flag = debug.buffer[debug.offset++];
   const value = debug.view.getInt16(debug.offset);
   const informationBytes = readInformationBytes(debug, 2);
@@ -385,13 +398,13 @@ const debugInt16: DebugSymbolFn = (debug) => {
   informationBytes.description = `Int16 value: ${value}`;
 
   return {
-    flag,
     description: `Message pack int16 flag (${flag})`,
-    informationBytes: informationBytes,
+    flag,
+    informationBytes,
   };
-};
+}
 
-const debugInt32: DebugSymbolFn = (debug) => {
+function debugInt32(debug: Debugger): PartialChunk {
   const flag = debug.buffer[debug.offset++];
   const value = debug.view.getInt32(debug.offset);
   const informationBytes = readInformationBytes(debug, 4);
@@ -399,13 +412,13 @@ const debugInt32: DebugSymbolFn = (debug) => {
   informationBytes.description = `Int32 value: ${value}`;
 
   return {
-    flag,
     description: `Message pack int32 flag (${flag})`,
-    informationBytes: informationBytes,
+    flag,
+    informationBytes,
   };
-};
+}
 
-const debugInt64: DebugSymbolFn = (debug) => {
+function debugInt64(debug: Debugger): PartialChunk {
   const flag = debug.buffer[debug.offset++];
   const value = debug.view.getBigInt64(debug.offset);
   const informationBytes = readInformationBytes(debug, 8);
@@ -413,14 +426,14 @@ const debugInt64: DebugSymbolFn = (debug) => {
   informationBytes.description = `Int64 value: ${value}`;
 
   return {
-    flag,
     description: `Message pack int64 flag (${flag})`,
-    informationBytes: informationBytes,
+    flag,
+    informationBytes,
     // warning: "JavaScript cannot represent integers larger than Number.MAX_SAFE_INTEGER (2^53 - 1) accurately. The original int64 value may not be represented exactly. This is a limitation of JavaScript's number representation.",
   };
-};
+}
 
-const debugFixExt1: DebugSymbolFn = (debug) => {
+function debugFixExt1(debug: Debugger): PartialChunk {
   const flag = debug.buffer[debug.offset++];
   const extensionTypeBytes = readInformationBytes(debug, 1);
   const informationBytes = readInformationBytes(debug, 1);
@@ -429,14 +442,14 @@ const debugFixExt1: DebugSymbolFn = (debug) => {
   informationBytes.description = `Extension binary data of length 1`;
 
   return {
-    flag,
-    description: `Message pack fixext1 flag (${flag})`,
     additionalBytes: [extensionTypeBytes],
-    informationBytes: informationBytes,
+    description: `Message pack fixext1 flag (${flag})`,
+    flag,
+    informationBytes,
   };
-};
+}
 
-const debugFixExt2: DebugSymbolFn = (debug) => {
+function debugFixExt2(debug: Debugger): PartialChunk {
   const flag = debug.buffer[debug.offset++];
   const extensionTypeBytes = readInformationBytes(debug, 1);
   const informationBytes = readInformationBytes(debug, 2);
@@ -445,14 +458,14 @@ const debugFixExt2: DebugSymbolFn = (debug) => {
   informationBytes.description = `Extension binary data of length 2`;
 
   return {
-    flag,
-    description: `Message pack fixext2 flag (${flag})`,
     additionalBytes: [extensionTypeBytes],
-    informationBytes: informationBytes,
+    description: `Message pack fixext2 flag (${flag})`,
+    flag,
+    informationBytes,
   };
-};
+}
 
-const debugFixExt4: DebugSymbolFn = (debug) => {
+function debugFixExt4(debug: Debugger): PartialChunk {
   const flag = debug.buffer[debug.offset++];
   const extensionTypeBytes = readInformationBytes(debug, 1);
   const informationBytes = readInformationBytes(debug, 4);
@@ -461,14 +474,14 @@ const debugFixExt4: DebugSymbolFn = (debug) => {
   informationBytes.description = `Extension binary data of length 4`;
 
   return {
-    flag,
-    description: `Message pack fixext4 flag (${flag})`,
     additionalBytes: [extensionTypeBytes],
-    informationBytes: informationBytes,
+    description: `Message pack fixext4 flag (${flag})`,
+    flag,
+    informationBytes,
   };
-};
+}
 
-const debugFixExt8: DebugSymbolFn = (debug) => {
+function debugFixExt8(debug: Debugger): PartialChunk {
   const flag = debug.buffer[debug.offset++];
   const extensionTypeBytes = readInformationBytes(debug, 1);
   const informationBytes = readInformationBytes(debug, 8);
@@ -477,14 +490,14 @@ const debugFixExt8: DebugSymbolFn = (debug) => {
   informationBytes.description = `Extension binary data of length 8`;
 
   return {
-    flag,
-    description: `Message pack fixext8 flag (${flag})`,
     additionalBytes: [extensionTypeBytes],
-    informationBytes: informationBytes,
+    description: `Message pack fixext8 flag (${flag})`,
+    flag,
+    informationBytes,
   };
-};
+}
 
-const debugFixExt16: DebugSymbolFn = (debug) => {
+function debugFixExt16(debug: Debugger): PartialChunk {
   const flag = debug.buffer[debug.offset++];
   const extensionTypeBytes = readInformationBytes(debug, 1);
   const informationBytes = readInformationBytes(debug, 16);
@@ -493,14 +506,14 @@ const debugFixExt16: DebugSymbolFn = (debug) => {
   informationBytes.description = `Extension binary data of length 16`;
 
   return {
-    flag,
-    description: `Message pack fixext16 flag (${flag})`,
     additionalBytes: [extensionTypeBytes],
-    informationBytes: informationBytes,
+    description: `Message pack fixext16 flag (${flag})`,
+    flag,
+    informationBytes,
   };
-};
+}
 
-const debugStr8: DebugSymbolFn = (debug) => {
+function debugStr8(debug: Debugger): PartialChunk {
   const flag = debug.buffer[debug.offset++];
   const { length, ...additionalBytes } = readLength(debug, 1);
   const informationBytes = readInformationBytes(debug, length);
@@ -513,14 +526,14 @@ const debugStr8: DebugSymbolFn = (debug) => {
   informationBytes.description = `"${debug.textDecoder.decode(strBytes)}"`;
 
   return {
-    flag,
-    description: `Message pack str8 of length ${length}`,
     additionalBytes: [additionalBytes],
+    description: `Message pack str8 of length ${length}`,
+    flag,
     informationBytes,
   };
-};
+}
 
-const debugStr16: DebugSymbolFn = (debug) => {
+function debugStr16(debug: Debugger): PartialChunk {
   const flag = debug.buffer[debug.offset++];
   const { length, ...additionalBytes } = readLength(debug, 2);
   const informationBytes = readInformationBytes(debug, length);
@@ -533,14 +546,14 @@ const debugStr16: DebugSymbolFn = (debug) => {
   informationBytes.description = `"${debug.textDecoder.decode(strBytes)}"`;
 
   return {
-    flag,
-    description: `Message pack str16 of length ${length}`,
     additionalBytes: [additionalBytes],
+    description: `Message pack str16 of length ${length}`,
+    flag,
     informationBytes,
   };
-};
+}
 
-const debugStr32: DebugSymbolFn = (debug) => {
+function debugStr32(debug: Debugger): PartialChunk {
   const flag = debug.buffer[debug.offset++];
   const { length, ...additionalBytes } = readLength(debug, 4);
   const informationBytes = readInformationBytes(debug, length);
@@ -553,14 +566,14 @@ const debugStr32: DebugSymbolFn = (debug) => {
   informationBytes.description = `"${debug.textDecoder.decode(strBytes)}"`;
 
   return {
-    flag,
-    description: `Message pack str32 flag (${flag})`,
     additionalBytes: [additionalBytes],
+    description: `Message pack str32 flag (${flag})`,
+    flag,
     informationBytes,
   };
-};
+}
 
-const debugArray16: DebugSymbolFn = (debug) => {
+function debugArray16(debug: Debugger): PartialChunk {
   const flag = debug.buffer[debug.offset++];
   const { length, ...additionalBytes } = readLength(debug, 2);
 
@@ -568,24 +581,24 @@ const debugArray16: DebugSymbolFn = (debug) => {
 
   const children: Chunk[] = [];
 
-  for (let i = 0; i < length; i++) {
+  for (let offset = 0; offset < length; offset++) {
     const value = debug.nextValue();
 
     children.push({
       ...value,
-      description: `Array element in index ${i}: ${value.description}`,
+      description: `Array element in index ${offset}: ${value.description}`,
     });
   }
 
   return {
-    flag,
-    description: `Message pack array16 flag (${flag})`,
     additionalBytes: [additionalBytes],
     children,
+    description: `Message pack array16 flag (${flag})`,
+    flag,
   };
-};
+}
 
-const debugArray32: DebugSymbolFn = (debug) => {
+function debugArray32(debug: Debugger): PartialChunk {
   const flag = debug.buffer[debug.offset++];
   const { length, ...additionalBytes } = readLength(debug, 4);
 
@@ -593,24 +606,24 @@ const debugArray32: DebugSymbolFn = (debug) => {
 
   const children: Chunk[] = [];
 
-  for (let i = 0; i < length; i++) {
+  for (let offset = 0; offset < length; offset++) {
     const value = debug.nextValue();
 
     children.push({
       ...value,
-      description: `Array element in index ${i}: ${value.description}`,
+      description: `Array element in index ${offset}: ${value.description}`,
     });
   }
 
   return {
-    flag,
-    description: `Message pack array32 flag (${flag})`,
     additionalBytes: [additionalBytes],
     children,
+    description: `Message pack array32 flag (${flag})`,
+    flag,
   };
-};
+}
 
-const debugMap16: DebugSymbolFn = (debug) => {
+function debugMap16(debug: Debugger): PartialChunk {
   const flag = debug.buffer[debug.offset++];
   const { length, ...additionalBytes } = readLength(debug, 2);
 
@@ -618,30 +631,31 @@ const debugMap16: DebugSymbolFn = (debug) => {
 
   const children: Chunk[] = [];
 
-  for (let i = 0; i < length; i++) {
+  for (let offset = 0; offset < length; offset++) {
     const key = debug.nextValue();
     const value = debug.nextValue();
 
-    children.push({
-      ...key,
-      description: `Map key in index ${i}: ${key.description}`,
-    });
-
-    children.push({
-      ...value,
-      description: `Map value in index ${i}: ${value.description}`,
-    });
+    children.push(
+      {
+        ...key,
+        description: `Map key in index ${offset}: ${key.description}`,
+      },
+      {
+        ...value,
+        description: `Map value in index ${offset}: ${value.description}`,
+      },
+    );
   }
 
   return {
-    flag,
-    description: `Message pack map16 flag (${flag})`,
     additionalBytes: [additionalBytes],
     children,
+    description: `Message pack map16 flag (${flag})`,
+    flag,
   };
-};
+}
 
-const debugMap32: DebugSymbolFn = (debug) => {
+function debugMap32(debug: Debugger): PartialChunk {
   const flag = debug.buffer[debug.offset++];
   const { length, ...additionalBytes } = readLength(debug, 4);
 
@@ -649,38 +663,40 @@ const debugMap32: DebugSymbolFn = (debug) => {
 
   const children: Chunk[] = [];
 
-  for (let i = 0; i < length; i++) {
+  for (let offset = 0; offset < length; offset++) {
     const key = debug.nextValue();
     const value = debug.nextValue();
 
-    children.push({
-      ...key,
-      description: `Map key in index ${i}: ${key.description}`,
-    });
-
-    children.push({
-      ...value,
-      description: `Map value in index ${i}: ${value.description}`,
-    });
+    children.push(
+      {
+        ...key,
+        description: `Map key in index ${offset}: ${key.description}`,
+      },
+      {
+        ...value,
+        description: `Map value in index ${offset}: ${value.description}`,
+      },
+    );
   }
 
   return {
-    flag,
-    description: `Message pack map32 flag (${flag})`,
     additionalBytes: [additionalBytes],
     children,
+    description: `Message pack map32 flag (${flag})`,
+    flag,
   };
-};
+}
 
-const debugNegativeFixInt: DebugSymbolFn = (debug) => {
+function debugNegativeFixInt(debug: Debugger): PartialChunk {
   const flag = debug.buffer[debug.offset++];
-  const value = (flag & 0x1f) - 32; // Extract the value from the flag
+  // Extract the value from the flag
+  const value = (flag & 0x1f) - 32;
 
   return {
-    flag,
     description: `Message pack fix negative int flag ${flag} with value ${value}`,
+    flag,
   };
-};
+}
 
 const messagePackDebugSymbols: DebugSymbols = {
   [Symbols.NIL]: debugSingleByte('Message pack nil'),
@@ -717,26 +733,26 @@ const messagePackDebugSymbols: DebugSymbols = {
   [Symbols.NEVER_USED]: debugSingleByte('Message pack never used'),
 };
 
-for (let i = 0; i <= 127; i++) {
-  messagePackDebugSymbols[i] = debugSingleByte(
+for (let index = 0; index <= 127; index++) {
+  messagePackDebugSymbols[index] = debugSingleByte(
     `Message pack fix positive int: {FLAG}`,
   );
 }
 
-for (let i = 128; i <= 143; i++) {
-  messagePackDebugSymbols[i] = debugFixMap;
+for (let index = 128; index <= 143; index++) {
+  messagePackDebugSymbols[index] = debugFixMap;
 }
 
-for (let i = 144; i <= 159; i++) {
-  messagePackDebugSymbols[i] = debugFixArray;
+for (let index = 144; index <= 159; index++) {
+  messagePackDebugSymbols[index] = debugFixArray;
 }
 
-for (let i = 160; i <= 191; i++) {
-  messagePackDebugSymbols[i] = debugFixStr;
+for (let index = 160; index <= 191; index++) {
+  messagePackDebugSymbols[index] = debugFixStr;
 }
 
-for (let i = 224; i <= 255; i++) {
-  messagePackDebugSymbols[i] = debugNegativeFixInt;
+for (let index = 224; index <= 255; index++) {
+  messagePackDebugSymbols[index] = debugNegativeFixInt;
 }
 
 export default messagePackDebugSymbols;

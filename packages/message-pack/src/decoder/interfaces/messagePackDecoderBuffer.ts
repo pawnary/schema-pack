@@ -8,5 +8,6 @@ export default interface MessagePackDecoderBuffer<
   textDecoder: MessagePackTextDecoder;
   offset: number;
 
-  nextValue<T = unknown>(): T;
+  // oxlint-disable-next-line typescript/no-unnecessary-type-parameters
+  nextValue<TValue = unknown>(): TValue;
 }

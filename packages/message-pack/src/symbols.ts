@@ -1,3 +1,5 @@
+// oxlint-disable sort-keys
+
 const Symbols = {
   POSITIVE_FIXINT_START: 0x00, // 0
   POSITIVE_FIXINT_END: 0x7f, // 127

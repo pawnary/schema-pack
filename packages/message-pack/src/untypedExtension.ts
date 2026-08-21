@@ -9,7 +9,8 @@ abstract class UntypedExtension<
   readonly type: number;
 
   /**
-   * @param type - The extension type for BigInt values. Can be a integer between 0 and 127, default is 0.
+   * @param type - The extension type for BigInt values. Can be a integer
+   *   between 0 and 127, default is 0.
    */
   constructor(type = 0) {
     this.type = type;
@@ -19,6 +20,7 @@ abstract class UntypedExtension<
     value: object | bigint,
     buffer: MessagePackEncoderBuffer<TBuffer>,
   ): void;
+
   abstract decode(
     decoderBuffer: MessagePackDecoderBuffer,
     size: number,

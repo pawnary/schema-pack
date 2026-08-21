@@ -1,35 +1,37 @@
+// oxlint-disable unicorn/prefer-code-point
 import BufferWithExtensions from '../bufferWithExtensions.ts';
+import {
+  DEFAULT_ALLOCATION_SIZE,
+  INT64_MIN,
+  UINT64_MAX,
+} from '../constants.ts';
+import defaultNewBufferFn from '../defaultNewBufferFn.ts';
+import type MessagePackExtension from '../extensions/interfaces/messagePackExtension.ts';
 import Symbols from '../symbols.ts';
-import type MessagePackEncoderBuffer from './interfaces/messagePackEncoderBuffer.ts';
-import type MessagePackTextEncoder from './interfaces/messagePackTextEncoder.ts';
-import fitIn16Bits from '../utils/fitIn16Bits.ts';
-import fitIn32Bits from '../utils/fitIn32Bits.ts';
+import type { NewBufferFn } from '../types.ts';
 import fitIn7Bits from '../utils/fitIn7Bits.ts';
 import fitIn8Bits from '../utils/fitIn8Bits.ts';
-import DefaultTextEncoder from './textEncoders/defaultTextEncoder.ts';
-import type MessagePackExtension from '../extensions/interfaces/messagePackExtension.ts';
+import fitIn16Bits from '../utils/fitIn16Bits.ts';
+import fitIn32Bits from '../utils/fitIn32Bits.ts';
 import type {
-  EncoderBufferOptions,
-  ExtensionEncoderBuffer,
-  NewBufferFn,
-} from './types.ts';
-import { INT64_MIN, UINT64_MAX } from '../constants.ts';
-import { DEFAULT_ALLOCATION_SIZE } from './constants.ts';
+  MessagePackEncoderBuffer,
+  MessagePackTextEncoder,
+} from './interfaces/index.ts';
+import DefaultTextEncoder from './textEncoders/defaultTextEncoder.ts';
+import type { EncoderBufferOptions, ExtensionEncoderBuffer } from './types.ts';
 
 class EncoderBuffer<TBuffer extends Uint8Array = Uint8Array>
   extends BufferWithExtensions<TBuffer>
   implements MessagePackEncoderBuffer<TBuffer>
 {
-  /**
-   * The current offset in the buffer where the next write operation will occur.
-   */
+  /** The current offset in the buffer where the next write operation will occur. */
   offset: number;
 
   /**
    * Shared buffer is used to encode strings, to avoid allocating a new buffer
    * for each string. The shared buffer is resized if the string is larger than
-   * the current size of the shared buffer. This helps to improve performance
-   * by reducing memory allocations and garbage collection overhead.
+   * the current size of the shared buffer. This helps to improve performance by
+   * reducing memory allocations and garbage collection overhead.
    */
   protected sharedBuffer: TBuffer;
 
@@ -51,9 +53,9 @@ class EncoderBuffer<TBuffer extends Uint8Array = Uint8Array>
   readonly forceFloat32: boolean;
 
   /**
-   * A function that creates a new buffer of the specified size. This function is
-   * used to allocate new buffers when the current buffer is not large enough to
-   * accommodate the data being written. The function should return a new
+   * A function that creates a new buffer of the specified size. This function
+   * is used to allocate new buffers when the current buffer is not large enough
+   * to accommodate the data being written. The function should return a new
    * instance of TBuffer with the specified size.
    */
   protected newBufferFn: NewBufferFn<TBuffer>;
@@ -66,12 +68,12 @@ class EncoderBuffer<TBuffer extends Uint8Array = Uint8Array>
   /**
    * The extension buffer is used to encode extension types. It is a separate
    * buffer from the main buffer, and is used to encode the extension data
-   * before writing it to the main buffer. This allows for efficient encoding
-   * of extension types, as the extension data can be encoded in a separate
-   * buffer and then written to the main buffer in a single operation.
+   * before writing it to the main buffer. This allows for efficient encoding of
+   * extension types, as the extension data can be encoded in a separate buffer
+   * and then written to the main buffer in a single operation.
    *
-   * The extension buffer must be resized using ensureCapacity before writing
-   * to it, to ensure that there is enough space for the extension data.
+   * The extension buffer must be resized using ensureCapacity before writing to
+   * it, to ensure that there is enough space for the extension data.
    */
   #extensionBuffer?: EncoderBuffer<TBuffer>;
 
@@ -81,9 +83,7 @@ class EncoderBuffer<TBuffer extends Uint8Array = Uint8Array>
     this.offset = 0;
     this.textEncoder = options?.textEncoder ?? new DefaultTextEncoder();
 
-    this.newBufferFn =
-      options?.newBufferFn ??
-      ((requiredSize: number) => new Uint8Array(requiredSize) as TBuffer);
+    this.newBufferFn = options?.newBufferFn ?? defaultNewBufferFn<TBuffer>;
 
     this.buffer = this.newBufferFn(
       options?.initialBufferSize ?? DEFAULT_ALLOCATION_SIZE,
@@ -106,9 +106,9 @@ class EncoderBuffer<TBuffer extends Uint8Array = Uint8Array>
       this.#extensionBuffer = new EncoderBuffer<TBuffer>({
         initialBufferSize: this.sharedBuffer.byteLength,
         initialSharedBufferSize: 0,
-        textEncoder: this.textEncoder,
-        sortKeys: this.sortKeys,
         newBufferFn: this.newBufferFn,
+        sortKeys: this.sortKeys,
+        textEncoder: this.textEncoder,
       });
     }
 
@@ -147,6 +147,7 @@ class EncoderBuffer<TBuffer extends Uint8Array = Uint8Array>
   }
 
   flush(): TBuffer {
+    // oxlint-disable-next-line typescript/no-unsafe-type-assertion
     const buffer = this.buffer.subarray(0, this.offset) as TBuffer;
 
     this.resetBuffer();
@@ -162,7 +163,7 @@ class EncoderBuffer<TBuffer extends Uint8Array = Uint8Array>
 
   writeNegativeFixInt(value: number): this {
     // this.buffer[this.offset++] = NEGATIVE_FIXINT_START | (value + 32);
-    this.buffer[this.offset++] = value + 0x100;
+    this.buffer[this.offset++] = value + 0x1_00;
 
     return this;
   }
@@ -210,7 +211,7 @@ class EncoderBuffer<TBuffer extends Uint8Array = Uint8Array>
   }
 
   writeUint64(value: number): this {
-    const high = value / 0x1_0000_0000;
+    const high = value / 0x1_00_00_00_00;
     const low = value;
 
     this.view.setUint32(this.offset, high);
@@ -243,7 +244,7 @@ class EncoderBuffer<TBuffer extends Uint8Array = Uint8Array>
   }
 
   writeInt64(value: number): this {
-    const high = Math.floor(value / 0x1_0000_0000);
+    const high = Math.floor(value / 0x1_00_00_00_00);
     const low = value;
 
     this.view.setInt32(this.offset, high);
@@ -533,30 +534,30 @@ class EncoderBuffer<TBuffer extends Uint8Array = Uint8Array>
       let totalBytes = 0;
       let fitInFixStr = true;
       let fitInStr8 = true;
-      let offset = this.offset;
+      let { offset } = this;
 
-      for (let i = 0; i < valueLength; i++) {
-        const code = value.charCodeAt(i);
+      for (let index = 0; index < valueLength; index++) {
+        const code = value.charCodeAt(index);
 
         if (code < 0x80) {
           this.buffer[offset++] = code;
           totalBytes++;
-        } else if (code < 0x800) {
+        } else if (code < 0x8_00) {
           this.buffer[offset++] = 0xc0 | (code >> 6);
           this.buffer[offset++] = 0x80 | (code & 0x3f);
           totalBytes += 2;
-        } else if (code < 0xd800 || code >= 0xe000) {
+        } else if (code < 0xd8_00 || code >= 0xe0_00) {
           this.buffer[offset++] = 0xe0 | (code >> 12);
           this.buffer[offset++] = 0x80 | ((code >> 6) & 0x3f);
           this.buffer[offset++] = 0x80 | (code & 0x3f);
           totalBytes += 3;
         } else {
           // surrogate pair
-          i++;
-          const nextCode = value.charCodeAt(i);
+          index++;
+          const nextCode = value.charCodeAt(index);
 
           const surrogatePair =
-            (((code & 0x3ff) << 10) | (nextCode & 0x3ff)) + 0x10000;
+            (((code & 0x3_ff) << 10) | (nextCode & 0x3_ff)) + 0x1_00_00;
 
           this.buffer[offset++] = 0xf0 | (surrogatePair >> 18);
           this.buffer[offset++] = 0x80 | ((surrogatePair >> 12) & 0x3f);
@@ -595,17 +596,16 @@ class EncoderBuffer<TBuffer extends Uint8Array = Uint8Array>
 
         this.offset += totalBytes;
         return this;
-      } else {
-        // fallback
-        this.offset = initialoffset;
       }
+      // fallback
+      this.offset = initialoffset;
     }
 
     if (this.sharedBuffer.byteLength < requiredSize) {
       this.sharedBuffer = this.newBufferFn(requiredSize);
     }
 
-    const sharedBuffer = this.sharedBuffer;
+    const { sharedBuffer } = this;
 
     const byteLength = this.textEncoder.writeBytes(value, sharedBuffer);
 
@@ -636,11 +636,11 @@ class EncoderBuffer<TBuffer extends Uint8Array = Uint8Array>
           this.ensureCapacity(2);
           this.writeInt8Symbol();
           return this.writeInt8(value);
-        } else if (value > -32769) {
+        } else if (value > -32_769) {
           this.ensureCapacity(3);
           this.writeInt16Symbol();
           return this.writeInt16(value);
-        } else if (value > -2147483649) {
+        } else if (value > -2_147_483_649) {
           this.ensureCapacity(5);
           this.writeInt32Symbol();
           return this.writeInt32(value);
@@ -688,22 +688,22 @@ class EncoderBuffer<TBuffer extends Uint8Array = Uint8Array>
           `Integer too large to encode: ${value}. Consider using BigIntExtension.`,
         );
       }
+    } else if (this.forceFloat32) {
+      this.ensureCapacity(5);
+      this.writeFloat32Symbol();
+      this.writeFloat32(value);
     } else {
-      if (this.forceFloat32) {
-        this.ensureCapacity(5);
-        this.writeFloat32Symbol();
-        this.writeFloat32(value);
-      } else {
-        this.ensureCapacity(9);
-        this.writeFloat64Symbol();
-        this.writeFloat64(value);
-      }
+      this.ensureCapacity(9);
+      this.writeFloat64Symbol();
+      this.writeFloat64(value);
     }
 
     return this;
   }
 
-  writeMap<K extends string | number, T>(value: Record<K, T>): this {
+  writeMap<TKey extends string | number, TValue>(
+    value: Record<TKey, TValue>,
+  ): this {
     const keys = Object.keys(value);
 
     if (this.sortKeys) {
@@ -728,7 +728,8 @@ class EncoderBuffer<TBuffer extends Uint8Array = Uint8Array>
 
     for (const key of keys) {
       this.write(key);
-      this.write(value[key as keyof typeof value]);
+      // oxlint-disable-next-line typescript/no-unsafe-type-assertion
+      this.write(value[key as TKey]);
     }
 
     return this;
@@ -751,8 +752,8 @@ class EncoderBuffer<TBuffer extends Uint8Array = Uint8Array>
       throw new Error(`Array too large to encode: ${length}`);
     }
 
-    for (let i = 0; i < length; ++i) {
-      this.write(value[i]);
+    for (let index = 0; index < length; ++index) {
+      this.write(value[index]);
     }
 
     return this;
@@ -838,11 +839,7 @@ class EncoderBuffer<TBuffer extends Uint8Array = Uint8Array>
     return this;
   }
 
-  writeObject(value: object | bigint): this {
-    if (Array.isArray(value)) {
-      return this.writeArray(value);
-    }
-
+  tryToWriteExtensionValue(value: object | bigint): number {
     if (this.extensions.size > 0) {
       const iterator = this.extensions.values();
       const extensionBuffer = this.getExtensionBuffer();
@@ -853,74 +850,84 @@ class EncoderBuffer<TBuffer extends Uint8Array = Uint8Array>
         extension.encode(value, extensionBuffer);
 
         if (extensionBuffer.offset > 0) {
-          return this.writeExtension(extension, extensionBuffer);
+          this.writeExtension(extension, extensionBuffer);
+
+          return extensionBuffer.offset;
         }
       }
+    }
+
+    return 0;
+  }
+
+  writeBigInt(value: bigint): this {
+    const writtenBytes = this.tryToWriteExtensionValue(value);
+
+    if (writtenBytes > 0) {
+      return this;
+    }
+
+    throw new TypeError(
+      '"bigint" encoding is not supported by default. Consider using BigIntExtension',
+    );
+  }
+
+  writeObject(value: object): this {
+    if (Array.isArray(value)) {
+      return this.writeArray(value);
+    }
+
+    const writtenBytes = this.tryToWriteExtensionValue(value);
+
+    if (writtenBytes > 0) {
+      return this;
     }
 
     if (value instanceof Uint8Array) {
       return this.writeUint8Array(value);
     }
 
-    if (typeof value === 'bigint') {
-      //   if (value < 0n) {
-      //     if (value >= INT64_MIN) {
-      //       this.ensureCapacity(9);
-      //       this.writeInt64Symbol();
-      //       return this.writeBigInt64(value);
-      //     } else {
-      //       throw new Error(
-      //         `BigInt value too small for encoding: ${value}. Consider using BigIntExtension`,
-      //       );
-      //     }
-      //   } else {
-      //     if (value <= UINT64_MAX) {
-      //       this.ensureCapacity(9);
-      //       this.writeUint64Symbol();
-      //       return this.writeBigUint64(value);
-      //     } else {
-      //       throw new Error(
-      //         `BigInt value too large for encoding: ${value}. Consider using BigIntExtension`,
-      //       );
-      //     }
-      //   }
-      throw new Error(
-        '"bigint" encoding is not supported by default. Consider using BigIntExtension',
-      );
-    }
-
     return this.writeMap(value);
   }
 
   write(value: unknown): this {
+    // oxlint-disable-next-line typescript/switch-exhaustiveness-check
     switch (typeof value) {
-      case 'number':
+      case 'number': {
         return this.writeNumber(value);
-      case 'string':
+      }
+      case 'string': {
         return this.writeString(value);
-      case 'boolean':
-        switch (value) {
-          case true:
-            this.ensureCapacity(1);
-            return this.writeTrueSymbol();
-          case false:
-            this.ensureCapacity(1);
-            return this.writeFalseSymbol();
-          default:
-            // just for linting purposes, this case should never be reached
-            throw new Error(`Unexpected boolean value: ${value}`);
+      }
+      case 'boolean': {
+        this.ensureCapacity(1);
+
+        if (value) {
+          return this.writeTrueSymbol();
         }
-      case 'undefined':
+
+        return this.writeFalseSymbol();
+      }
+      case 'undefined': {
         this.ensureCapacity(1);
         return this.writeNilSymbol();
-      default:
-        switch (value) {
-          case null:
-            this.ensureCapacity(1);
-            return this.writeNilSymbol();
-          default:
-            return this.writeObject(value as object);
+      }
+      case 'bigint': {
+        return this.writeBigInt(value);
+      }
+      case 'object': {
+        if (value === null) {
+          this.ensureCapacity(1);
+          return this.writeNilSymbol();
         }
+
+        return this.writeObject(value);
+      }
+      default: {
+        throw new TypeError(
+          `Unsupported type for encoding: ${typeof value}. Consider using an extension.`,
+        );
+      }
     }
   }
 }

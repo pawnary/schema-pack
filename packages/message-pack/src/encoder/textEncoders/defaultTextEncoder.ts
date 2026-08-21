@@ -1,21 +1,16 @@
 import type MessagePackTextEncoder from '../interfaces/messagePackTextEncoder.ts';
 
 /**
- * DefaultTextEncoder is a class that implements the MessagePackTextEncoder
- * interface. It provides functionality to encode strings into UTF-8 bytes,
- * using either a native TextEncoder or a custom encoding method based on the
- * string length and a specified threshold.
+ * DefaultTextEncoder provides functionality to encode strings into UTF-8 bytes,
+ * using the native TextEncoder.
  */
-class DefaultTextEncoder implements MessagePackTextEncoder {
-  /**
-   * The native TextEncoder instance used for encoding strings into UTF-8 bytes.
-   */
+class DefaultTextEncoder<
+  TBuffer extends Uint8Array = Uint8Array,
+> implements MessagePackTextEncoder<TBuffer> {
+  /** The native TextEncoder instance used for encoding strings into UTF-8 bytes. */
   nativeTextEncoder = new TextEncoder();
 
-  public writeBytes(
-    value: string,
-    buffer: Uint8Array<ArrayBufferLike>,
-  ): number {
+  public writeBytes(value: string, buffer: TBuffer): number {
     return this.nativeTextEncoder.encodeInto(value, buffer).written;
   }
 }

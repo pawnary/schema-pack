@@ -3,7 +3,8 @@ import EncoderBuffer from './encoderBuffer.ts';
 import type { EncoderBufferOptions } from './types.ts';
 
 /**
- * The `Encoder` class is responsible for encoding JavaScript values into the MessagePack format.
+ * The `Encoder` class is responsible for encoding JavaScript values into the
+ * MessagePack format.
  *
  * This class is just a wrapper around the buffer, which does the actual
  * encoding. The buffer is responsible for managing the encoding process and
@@ -17,7 +18,7 @@ class Encoder<TBuffer extends Uint8Array = Uint8Array> {
   }
 
   encode(value: unknown): Uint8Array {
-    const buffer = this.buffer;
+    const { buffer } = this;
 
     buffer.write(value);
 
@@ -42,12 +43,12 @@ class Encoder<TBuffer extends Uint8Array = Uint8Array> {
     type: number,
     extension: Omit<MessagePackExtension<unknown, TBuffer>, 'type'>,
   ): this {
-    this.buffer.addExtension(Object.assign({ type }, extension));
+    this.buffer.addExtension({ type, ...extension });
 
     return this;
   }
 
-  fetchExtension<T = unknown>(type: number): MessagePackExtension<T, TBuffer> {
+  fetchExtension(type: number): MessagePackExtension<unknown, TBuffer> {
     return this.buffer.fetchExtension(type);
   }
 }

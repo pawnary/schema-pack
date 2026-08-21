@@ -3,7 +3,7 @@ import bytesToString from './bytesToString.ts';
 import byteToString from './byteToString.ts';
 
 /**
- * output a chunk as a string, including its children and additional bytes.
+ * Output a chunk as a string, including its children and additional bytes.
  *
  * E.G.:
  *
@@ -55,7 +55,7 @@ export default function chunkToString(
 
   if (chunk.children) {
     for (const child of chunk.children) {
-      output += `${chunkToString(buffer, child, newDepth)}`;
+      output += chunkToString(buffer, child, newDepth);
     }
   }
 

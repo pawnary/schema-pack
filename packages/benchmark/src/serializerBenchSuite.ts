@@ -1,23 +1,20 @@
-import { Task } from 'tinybench';
+// oxlint-disable no-console -- Consider web support
+import { Table } from 'console-table-printer';
+import type { CellValue } from 'console-table-printer/dist/src/models/external-table.js';
+import type { Task } from 'tinybench';
+
+import SerializerDataTypeBench from './serializerDataTypeBench.ts';
 import type {
-  DataTypesFactory,
   DataTypeFactoryFn,
+  DataTypesFactory,
   SerializerFn,
   SerializerTask,
   SerializerTaskOptions,
 } from './types.ts';
-import { Table } from 'console-table-printer';
-import SerializerDataTypeBench from './serializerDataTypeBench.ts';
-import type { CellValue } from 'console-table-printer/dist/src/models/external-table.js';
 
 class SerializerBenchSuite<TDataTypesFactory extends DataTypesFactory> {
   protected tasks = new Map<string, SerializerTask<TDataTypesFactory>>();
-  protected dataTypes = new Map<
-    keyof TDataTypesFactory,
-    DataTypeFactoryFn<
-      ReturnType<TDataTypesFactory[keyof TDataTypesFactory]> | unknown
-    >
-  >();
+  protected dataTypes = new Map<keyof TDataTypesFactory, DataTypeFactoryFn>();
 
   protected dataTypesFactory: TDataTypesFactory;
 
@@ -43,8 +40,8 @@ class SerializerBenchSuite<TDataTypesFactory extends DataTypesFactory> {
     fnOpts?: SerializerTaskOptions<TDataTypesFactory>,
   ): this {
     this.tasks.set(name, {
-      name,
       fn,
+      name,
       options: fnOpts,
     });
 
@@ -54,18 +51,21 @@ class SerializerBenchSuite<TDataTypesFactory extends DataTypesFactory> {
   withDataType(dataType: keyof TDataTypesFactory): this {
     if (!(dataType in this.dataTypesFactory)) {
       throw new Error(
-        `Data type "${dataType as string}" is not supported. Use withCustomDataType() to add a custom data type.`,
+        `Data type "${String(dataType)}" is not supported. Use withCustomDataType() to add a custom data type.`,
       );
     }
 
-    const factory = this.dataTypesFactory[dataType as keyof TDataTypesFactory];
+    const factory = this.dataTypesFactory[dataType];
 
-    this.dataTypes.set(dataType as string, factory);
+    this.dataTypes.set(dataType, factory);
 
     return this;
   }
 
-  withCustomDataType<T>(name: string, factoryFn: DataTypeFactoryFn<T>): this {
+  withCustomDataType<TValue>(
+    name: string,
+    factoryFn: DataTypeFactoryFn<TValue>,
+  ): this {
     this.dataTypes.set(name, factoryFn);
 
     return this;
@@ -77,22 +77,22 @@ class SerializerBenchSuite<TDataTypesFactory extends DataTypesFactory> {
       keyof TDataTypesFactory
     >[] = [];
 
-    if (this.dataTypes.size < 1) {
+    if (this.dataTypes.size === 0) {
       this.dataTypes = new Map(Object.entries(this.dataTypesFactory));
     }
 
     for (const [dataType, dataTypeFactory] of this.dataTypes) {
       const tasks = new Map<string, SerializerTask<TDataTypesFactory>>();
 
-      for (const task of this.tasks.values()) {
-        if (task.options) {
-          if (task.options.skip && task.options.skip.includes(dataType)) {
-            continue;
-          }
+      const name = String(dataType);
 
-          if (task.options.only && !task.options.only.includes(dataType)) {
-            continue;
-          }
+      for (const task of this.tasks.values()) {
+        if (task.options?.skip?.includes(name)) {
+          continue;
+        }
+
+        if (task.options?.only && !task.options.only.includes(name)) {
+          continue;
         }
 
         tasks.set(task.name, task);
@@ -101,18 +101,16 @@ class SerializerBenchSuite<TDataTypesFactory extends DataTypesFactory> {
       if (tasks.size > 0) {
         benches.push(
           new SerializerDataTypeBench({
-            name: dataType as string,
-            dataType: dataType,
+            dataType,
             dataTypeFactory,
-            tasks: tasks,
+            name,
+            tasks,
             throws: true,
             time: 1000,
           }),
         );
       } else {
-        console.log(
-          `No tasks found for data type "${dataType as string}". Skipping...`,
-        );
+        console.log(`No tasks found for data type "${name}". Skipping...`);
       }
     }
 
@@ -123,7 +121,7 @@ class SerializerBenchSuite<TDataTypesFactory extends DataTypesFactory> {
     this.printResume(benches);
   }
 
-  // TODO: Consider web support
+  // Note: Consider web support
   printResume(
     benches: SerializerDataTypeBench<
       TDataTypesFactory,
@@ -133,36 +131,36 @@ class SerializerBenchSuite<TDataTypesFactory extends DataTypesFactory> {
     const table = new Table({
       columns: [
         {
-          name: 'Task',
           alignment: 'left',
+          name: 'Task',
         },
         ...benches.map((bench) => ({
-          name: bench.dataType as string,
           alignment: 'center',
-          transform: (place: CellValue) => {
-            let placeColor = '\x1b[37m';
+          name: String(bench.dataType),
+          transform: (place: CellValue): string => {
+            let placeColor = '\u001B[37m';
 
             if (place === 1) {
-              placeColor = `\x1b[32m`;
+              placeColor = `\u001B[32m`;
             } else if (place === 2) {
-              placeColor = `\x1b[33m`;
+              placeColor = `\u001B[33m`;
             } else if (place === 3) {
-              placeColor = `\x1b[34m`;
+              placeColor = `\u001B[34m`;
             }
 
-            return `${placeColor}${place}\x1b[0m`;
+            return `${placeColor}${place}\u001B[0m`;
           },
         })),
       ],
     });
 
-    const tasks = benches.reduce((carry, bench) => {
-      for (const task of bench.tasks) {
-        carry.set(task.name, task);
-      }
+    const tasks = new Map<string, Task>();
 
-      return carry;
-    }, new Map<string, Task>());
+    for (const bench of benches) {
+      for (const task of bench.tasks) {
+        tasks.set(task.name, task);
+      }
+    }
 
     for (const task of tasks.values()) {
       const row: Record<string, unknown> = {
@@ -171,29 +169,32 @@ class SerializerBenchSuite<TDataTypesFactory extends DataTypesFactory> {
 
       for (const bench of benches) {
         const places = bench.fetchPlaces();
-        const dataType = bench.dataType;
+        const { dataType } = bench;
+        const dataTypeName = String(dataType);
 
-        const benchTask = bench.tasks.find((t) => t.name === task.name);
+        const benchTask = bench.tasks.find(
+          (taskItem) => taskItem.name === task.name,
+        );
 
         let place: string | number | undefined;
 
-        if (!benchTask) {
-          place = 'N/A';
-        } else {
+        if (benchTask) {
           place = places.get(benchTask);
 
           if (place === undefined) {
             place = 'N/A';
           }
+        } else {
+          place = 'N/A';
         }
 
         if (dataType in row) {
           throw new Error(
-            `Duplicate data type "${dataType as string}" in row for task "${task.name}".`,
+            `Duplicate data type "${dataTypeName}" in row for task "${task.name}".`,
           );
         }
 
-        row[dataType as string] = place;
+        row[dataTypeName] = place;
       }
 
       table.addRow(row);

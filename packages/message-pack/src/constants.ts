@@ -18,12 +18,15 @@ export const UINT64_MAX = Number.MAX_SAFE_INTEGER;
  */
 export const INT64_MIN = Number.MIN_SAFE_INTEGER;
 
-/**
- * 4294967295
- */
+/** 4294967295. */
 export const UINT32_MAX = ~0 >>> 0;
 
+/** -2147483648. */
+export const INT32_MIN = -0x80_00_00_00;
+
 /**
- * -2147483648
+ * Default allocation size for the encoder and decoder buffers. This is the
+ * initial size of the buffer when it is created, and it will grow as needed
+ * when more data is written to it.
  */
-export const INT32_MIN = -0x80000000;
+export const DEFAULT_ALLOCATION_SIZE = 1024;

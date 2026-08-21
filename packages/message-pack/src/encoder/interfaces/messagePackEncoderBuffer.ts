@@ -1,7 +1,7 @@
-import type MessagePackTextEncoder from './messagePackTextEncoder.ts';
-import type MessagePackBufferWithExtensions from '../../interfaces/messagePackBufferWithExtensions.ts';
 import type MessagePackExtension from '../../extensions/interfaces/messagePackExtension.ts';
+import type MessagePackBufferWithExtensions from '../../interfaces/messagePackBufferWithExtensions.ts';
 import type { ExtensionEncoderBuffer } from '../types.ts';
+import type MessagePackTextEncoder from './messagePackTextEncoder.ts';
 
 /**
  * Defines the core methods for managing a buffer. It serves as the foundation
@@ -11,19 +11,17 @@ import type { ExtensionEncoderBuffer } from '../types.ts';
 export default interface MessagePackEncoderBuffer<
   TBuffer extends Uint8Array = Uint8Array,
 > extends MessagePackBufferWithExtensions<TBuffer> {
-  /*********************
-   * Buffer management *
-   *********************/
+  /** Buffer management * */
   /**
-   * Returns the underlying buffer. This method provides access to the raw
-   * data that has been written to the buffer.
+   * Returns the underlying buffer. This method provides access to the raw data
+   * that has been written to the buffer.
    */
   buffer: TBuffer;
 
   /**
-   * the current position in the buffer, which indicates where the next
-   * write operation will occur. This position is updated as data is written to
-   * the buffer.
+   * The current position in the buffer, which indicates where the next write
+   * operation will occur. This position is updated as data is written to the
+   * buffer.
    */
   offset: number;
 
@@ -36,9 +34,8 @@ export default interface MessagePackEncoderBuffer<
   view: DataView;
 
   /**
-   * This encoder is responsible for converting strings into their
-   * corresponding byte representations according to the MessagePack
-   * specification.
+   * This encoder is responsible for converting strings into their corresponding
+   * byte representations according to the MessagePack specification.
    */
   readonly textEncoder: MessagePackTextEncoder;
 
@@ -49,13 +46,13 @@ export default interface MessagePackEncoderBuffer<
    * If the current buffer does not have enough capacity, it will be resized to
    * accommodate the new data.
    *
-   * This method is crucial for efficient buffer management, as it minimizes
-   * the number of allocations and copies by resizing the buffer in larger
+   * This method is crucial for efficient buffer management, as it minimizes the
+   * number of allocations and copies by resizing the buffer in larger
    * increments when necessary.
    *
    * @param sizeToWrite - The number of bytes that need to be written to the
-   * buffer. The method will ensure that there is enough capacity for this
-   * amount of data.
+   *   buffer. The method will ensure that there is enough capacity for this
+   *   amount of data.
    */
   ensureCapacity(sizeToWrite: number): this;
 
@@ -64,7 +61,7 @@ export default interface MessagePackEncoderBuffer<
    * the current buffer does not have enough capacity to accommodate new data.
    *
    * @param newSize - The new size for the buffer. The method will resize the
-   * buffer to this size.
+   *   buffer to this size.
    */
   resizeBuffer(newSize: number): this;
 
@@ -82,11 +79,10 @@ export default interface MessagePackEncoderBuffer<
    */
   flush(): TBuffer;
 
-  /************************************
-   * MessagePack primitive data types *
-   ************************************/
+  /** MessagePack primitive data types * */
   /**
-   * Writes a MessagePack positive fixint stores a 7-bit positive integer in 1 byte.
+   * Writes a MessagePack positive fixint stores a 7-bit positive integer in 1
+   * byte.
    *
    * ```
    * positive fixint:
@@ -98,7 +94,8 @@ export default interface MessagePackEncoderBuffer<
   writePositiveFixInt(value: number): this;
 
   /**
-   * Writes a MessagePack negative fixint stores a 5-bit negative integer in 1 byte.
+   * Writes a MessagePack negative fixint stores a 5-bit negative integer in 1
+   * byte.
    *
    * ```
    * negative fixint:
@@ -253,9 +250,7 @@ export default interface MessagePackEncoderBuffer<
    */
   writeStr(value: string): this;
 
-  /***********************
-   * MessagePack symbols *
-   ***********************/
+  /** MessagePack symbols * */
   /**
    * Writes a MessagePack nil format byte stores nil in 1 byte.
    *
@@ -556,8 +551,8 @@ export default interface MessagePackEncoderBuffer<
   writeArray32Symbol(size: number): this;
 
   /**
-   * Writes a MessagePack map 16 header for a map whose length is up to
-   * (2^16)-1 elements.
+   * Writes a MessagePack map 16 header for a map whose length is up to (2^16)-1
+   * elements.
    *
    * ```
    * map 16:
@@ -569,8 +564,8 @@ export default interface MessagePackEncoderBuffer<
   writeMap16Symbol(size: number): this;
 
   /**
-   * Writes a MessagePack map 32 header for a map whose length is up to
-   * (2^32)-1 elements.
+   * Writes a MessagePack map 32 header for a map whose length is up to (2^32)-1
+   * elements.
    *
    * ```
    * map 32:
@@ -634,8 +629,8 @@ export default interface MessagePackEncoderBuffer<
   writeFixExt8Symbol(type: number): this;
 
   /**
-   * Writes a MessagePack fixext 16 header for an extension whose data length
-   * is 16 bytes.
+   * Writes a MessagePack fixext 16 header for an extension whose data length is
+   * 16 bytes.
    *
    * ```
    * fixext 16:
@@ -660,8 +655,8 @@ export default interface MessagePackEncoderBuffer<
   writeExt8Symbol(type: number, size: number): this;
 
   /**
-   * Writes a MessagePack ext 16 header for an extension whose data length is
-   * up to (2^16)-1 bytes.
+   * Writes a MessagePack ext 16 header for an extension whose data length is up
+   * to (2^16)-1 bytes.
    *
    * ```
    * ext 16:
@@ -673,8 +668,8 @@ export default interface MessagePackEncoderBuffer<
   writeExt16Symbol(type: number, size: number): this;
 
   /**
-   * Writes a MessagePack ext 32 header for an extension whose data length is
-   * up to (2^32)-1 bytes.
+   * Writes a MessagePack ext 32 header for an extension whose data length is up
+   * to (2^32)-1 bytes.
    *
    * ```
    * ext 32:
@@ -685,12 +680,10 @@ export default interface MessagePackEncoderBuffer<
    */
   writeExt32Symbol(type: number, size: number): this;
 
-  /*************
-   * Shortcuts *
-   *************/
+  /** Shortcuts * */
   /**
-   * Writes an unknown value using the MessagePack format family selected for its
-   * runtime type.
+   * Writes an unknown value using the MessagePack format family selected for
+   * its runtime type.
    */
   write(value: unknown): this;
 
@@ -808,7 +801,9 @@ export default interface MessagePackEncoderBuffer<
    * +--------+--------+--------+--------+--------+~~~~~~~~~~~~~~~~~+
    * ```
    */
-  writeMap<K extends string | number, T>(value: Record<K, T>): this;
+  writeMap<TKey extends string | number, TValue>(
+    value: Record<TKey, TValue>,
+  ): this;
 
   /**
    * Writes an array using the MessagePack array format family.
@@ -835,7 +830,8 @@ export default interface MessagePackEncoderBuffer<
   /**
    * Writes a JavaScript object using the MessagePack format.
    *
-   * @param value - The JavaScript object to be encoded and written to the buffer.
+   * @param value - The JavaScript object to be encoded and written to the
+   *   buffer.
    */
   writeObject(value: object): this;
 
@@ -844,11 +840,11 @@ export default interface MessagePackEncoderBuffer<
    * signed 64-bit integers, ensuring that they are correctly represented in the
    * MessagePack format.
    *
-   * Maximum int64
+   * Maximum int64.
    *
    * @param value - The bigint value to be encoded and written to the buffer.
-   * The method will determine the appropriate encoding based on the value's
-   * size and sign.
+   *   The method will determine the appropriate encoding based on the value's
+   *   size and sign.
    */
   // writeBigInt64(value: bigint): this;
 
@@ -877,8 +873,8 @@ export default interface MessagePackEncoderBuffer<
   writeUint8Array(value: Uint8Array): this;
 
   /**
-   * Writes a MessagePack extension using fixext 1, fixext 2, fixext 4,
-   * fixext 8, fixext 16, ext 8, ext 16, or ext 32.
+   * Writes a MessagePack extension using fixext 1, fixext 2, fixext 4, fixext
+   * 8, fixext 16, ext 8, ext 16, or ext 32.
    *
    * ```
    * fixext 1:

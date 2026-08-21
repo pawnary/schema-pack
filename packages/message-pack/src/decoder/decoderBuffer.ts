@@ -1,9 +1,11 @@
+// oxlint-disable typescript/no-unsafe-type-assertion complexity
 import BufferWithExtensions from '../bufferWithExtensions.ts';
-import DefaultTextDecoder from './textDecoders/defaultTextDecoder.ts';
+import { DEFAULT_ALLOCATION_SIZE } from '../constants.ts';
+import defaultNewBufferFn from '../defaultNewBufferFn.ts';
 import Symbols from '../symbols.ts';
 import type MessagePackDecoderBuffer from './interfaces/messagePackDecoderBuffer.ts';
-
-// export interface DecoderBufferOptions {}
+import DefaultTextDecoder from './textDecoders/defaultTextDecoder.ts';
+import type { DecoderBufferOptions } from './types.ts';
 
 class DecoderBuffer<TBuffer extends Uint8Array = Uint8Array>
   extends BufferWithExtensions<TBuffer>
@@ -14,10 +16,14 @@ class DecoderBuffer<TBuffer extends Uint8Array = Uint8Array>
   view: DataView;
   textDecoder = new DefaultTextDecoder();
 
-  constructor() {
+  constructor(options?: DecoderBufferOptions<TBuffer>) {
     super();
 
-    this.buffer = new Uint8Array([]) as TBuffer;
+    const newBufferFn = options?.newBufferFn ?? defaultNewBufferFn<TBuffer>;
+
+    this.buffer = newBufferFn(
+      options?.initialBufferSize ?? DEFAULT_ALLOCATION_SIZE,
+    );
     this.view = new DataView(this.buffer.buffer);
     this.offset = 0;
   }
@@ -44,7 +50,7 @@ class DecoderBuffer<TBuffer extends Uint8Array = Uint8Array>
     return decodedArray;
   }
 
-  // TODO: refactor this method?, too many loops.
+  // NOTE: refactor this method?, too many loops.
   // ASCII fast path avoids allocating a subarray view + handing off to TextDecoder
   // (both measurably show up in profiling) for the overwhelmingly common case of
   // short ASCII keys/values; falls back to TextDecoder only when non-ASCII bytes appear.
@@ -53,7 +59,7 @@ class DecoderBuffer<TBuffer extends Uint8Array = Uint8Array>
       return '';
     }
 
-    const buffer = this.buffer;
+    const { buffer } = this;
     const stringStartOffset = this.offset;
     const stringEndOffset = stringStartOffset + byteLength;
     this.offset = stringEndOffset;
@@ -84,6 +90,7 @@ class DecoderBuffer<TBuffer extends Uint8Array = Uint8Array>
           byteIndex < stringEndOffset;
           byteIndex++
         ) {
+          // oxlint-disable-next-line unicorn/prefer-code-point -- check that
           decodedString += String.fromCharCode(buffer[byteIndex]);
         }
 
@@ -94,7 +101,7 @@ class DecoderBuffer<TBuffer extends Uint8Array = Uint8Array>
     return this.textDecoder.decode(buffer, stringStartOffset, stringEndOffset);
   }
 
-  // TODO: implements an efficient method to read map keys, avoiding the
+  // Note: implements an efficient method to read map keys, avoiding the
   // overhead of nextValue() for the overwhelmingly common case of short ASCII
   // keys.
   readMapKey(): string | number {
@@ -122,11 +129,13 @@ class DecoderBuffer<TBuffer extends Uint8Array = Uint8Array>
   // Cold path: everything in the 0xc0-0xdf control-code range that isn't Symbols.NIL/Symbols.FALSE/Symbols.TRUE/Symbols.UINT8/16/32.
   // Kept out of nextValue() on purpose (see comment above) so the hot switch stays small.
   decodeControlSlow(headerByte: number): unknown {
-    const buffer = this.buffer;
+    const { buffer } = this;
 
     switch (headerByte) {
-      case 0xc1: // unassigned byte, historically decoded as undefined
+      case 0xc1: {
+        // unassigned byte, historically decoded as undefined
         return undefined;
+      }
       case Symbols.BIN8: {
         const byteLength = buffer[this.offset++];
         const dataStartOffset = this.offset;
@@ -187,7 +196,7 @@ class DecoderBuffer<TBuffer extends Uint8Array = Uint8Array>
         const low = this.view.getUint32(this.offset);
         this.offset += 4;
 
-        return high * 0x1_0000_0000 + low;
+        return high * 0x1_00_00_00_00 + low;
         // const decodedUint64 = this.view.getBigUint64(this.offset);
         // this.offset += 8;
         // return decodedUint64;
@@ -216,7 +225,7 @@ class DecoderBuffer<TBuffer extends Uint8Array = Uint8Array>
         const low = this.view.getUint32(this.offset);
         this.offset += 4;
 
-        return high * 0x1_0000_0000 + low;
+        return high * 0x1_00_00_00_00 + low;
       }
       case Symbols.FIXEXT1: {
         const extensionId = this.view.getInt8(this.offset++);
@@ -283,8 +292,9 @@ class DecoderBuffer<TBuffer extends Uint8Array = Uint8Array>
         this.offset += 4;
         return this.readMap(length);
       }
-      default:
+      default: {
         return undefined;
+      }
     }
   }
 
@@ -294,8 +304,8 @@ class DecoderBuffer<TBuffer extends Uint8Array = Uint8Array>
   // Kept deliberately tiny (unlike a single flat 32-case switch) so V8's inliner can fold
   // it into readArray's loop; everything rare/unimplemented is deferred to decodeControlSlow
   // so it doesn't bloat this function's inlining budget.
-  nextValue<T = unknown>(): T {
-    const buffer = this.buffer;
+  nextValue<TValue = unknown>(): TValue {
+    const { buffer } = this;
     const headerByte = buffer[this.offset++];
 
     // if (
@@ -309,52 +319,57 @@ class DecoderBuffer<TBuffer extends Uint8Array = Uint8Array>
     if ((headerByte & 0xe0) === Symbols.NIL) {
       // 0xc0-0xdf control codes, single bitmask test
       switch (headerByte) {
-        case Symbols.NIL:
-          return null as T;
-        case Symbols.FALSE:
-          return false as T;
-        case Symbols.TRUE:
-          return true as T;
-        case Symbols.UINT8:
-          return buffer[this.offset++] as T;
+        case Symbols.NIL: {
+          return null as TValue;
+        }
+        case Symbols.FALSE: {
+          return false as TValue;
+        }
+        case Symbols.TRUE: {
+          return true as TValue;
+        }
+        case Symbols.UINT8: {
+          return buffer[this.offset++] as TValue;
+        }
         case Symbols.UINT16: {
           const valueStartOffset = this.offset;
           const decodedUint16 =
             (buffer[valueStartOffset] << 8) | buffer[valueStartOffset + 1];
           this.offset = valueStartOffset + 2;
-          return decodedUint16 as T;
+          return decodedUint16 as TValue;
         }
         case Symbols.UINT32: {
           const decodedUint32 = this.view.getUint32(this.offset);
           this.offset += 4;
-          return decodedUint32 as T;
+          return decodedUint32 as TValue;
+        }
+        default: {
+          return this.decodeControlSlow(headerByte) as TValue;
         }
       }
-
-      return this.decodeControlSlow(headerByte) as T;
     }
 
     if (headerByte >= Symbols.NEGATIVE_FIXINT_START) {
-      return (headerByte - 0x100) as T;
+      return (headerByte - 0x1_00) as TValue;
     }
 
     if (headerByte < Symbols.FIXARRAY_START) {
       if (headerByte < Symbols.FIXMAP_START) {
-        return headerByte as T; // POSITIVE_FIXINT
+        return headerByte as TValue; // POSITIVE_FIXINT
       }
 
       // Symbols.FIXMAP_START
-      return this.readMap(headerByte & 0b1111) as T;
+      return this.readMap(headerByte & 0b1111) as TValue;
     }
 
     if (headerByte < Symbols.FIXSTR_START) {
       const elementCount = headerByte & 0b1111;
 
-      return this.readArray(elementCount) as T;
+      return this.readArray(elementCount) as TValue;
     }
 
     // Symbols.FIXSTR_START
-    return this.readStr(headerByte & 0b11111) as T;
+    return this.readStr(headerByte & 0b1_1111) as TValue;
   }
 }
 

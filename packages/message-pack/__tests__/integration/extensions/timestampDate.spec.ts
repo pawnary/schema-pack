@@ -1,17 +1,19 @@
-import Encoder from '../../../src/encoder/encoder.ts';
-import { describe, expect, it } from 'vitest';
-import FLAG from '../../../src/symbols.ts';
+import { beforeAll, describe, expect, it } from 'vitest';
+
 import Decoder from '../../../src/decoder/decoder.ts';
+import Encoder from '../../../src/encoder/encoder.ts';
 import TimestampDateExtension from '../../../src/extensions/timestampDate/timestampDate.ts';
+import FLAG from '../../../src/symbols.ts';
 
 describe('encode and decode Date', () => {
   const extension = new TimestampDateExtension();
-
   const encoder = new Encoder();
-  encoder.addInternalExtension(extension);
-
   const decoder = new Decoder();
-  decoder.addInternalExtension(extension);
+
+  beforeAll(() => {
+    encoder.addInternalExtension(extension);
+    decoder.addInternalExtension(extension);
+  });
 
   it('encode 32 bits date', () => {
     const date = new Date('2001-02-03T04:05:06.000Z');
@@ -22,7 +24,7 @@ describe('encode and decode Date', () => {
 
     const decoded = decoder.decode(encoded);
 
-    expect(decoded).toEqual(date);
+    expect(decoded).toStrictEqual(date);
   });
 
   it('encode 64 bits date', () => {
@@ -51,7 +53,7 @@ describe('encode and decode Date', () => {
 
     const decoded = decoder.decode(encoded);
 
-    expect(decoded).toEqual(date);
+    expect(decoded).toStrictEqual(date);
   });
 
   it('encode 96 bits date', () => {
@@ -80,6 +82,6 @@ describe('encode and decode Date', () => {
 
     const decoded = decoder.decode(encoded);
 
-    expect(decoded).toEqual(date);
+    expect(decoded).toStrictEqual(date);
   });
 });
