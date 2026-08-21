@@ -9,8 +9,16 @@
     "serialization",
     "vitest"
   ],
+  "homepage": "https://github.com/pawnary/schema-pack/tree/master/packages/vitest#readme",
+  "bugs": {
+    "url": "https://github.com/pawnary/schema-pack/issues"
+  },
   "license": "MIT",
   "author": "Elvis Muñoz <elvis.munoz.f@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pawnary/schema-pack.git"
+  },
   "files": [
     "./dist"
   ],

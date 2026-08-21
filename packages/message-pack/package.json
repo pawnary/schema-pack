@@ -11,8 +11,16 @@
     "msgpack",
     "serialization"
   ],
+  "homepage": "https://github.com/pawnary/schema-pack/tree/master/packages/message-pack#readme",
+  "bugs": {
+    "url": "https://github.com/pawnary/schema-pack/issues"
+  },
   "license": "MIT",
   "author": "Elvis Muñoz <elvis.munoz.f@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pawnary/schema-pack.git"
+  },
   "files": [
     "./dist"
   ],
