@@ -1,7 +1,7 @@
 {
   "name": "schema-pack",
   "version": "0.0.0",
-  "description": "",
+  "private": true,
   "license": "MIT",
   "author": "Elvis Muñoz <elvis.munoz.f@gmail.com>",
   "type": "module",
