@@ -24,6 +24,15 @@ function callGarbageCollector(): void {
   process.stdout.write(` done.\n`);
 }
 
+function assertSyncFunction(
+  fn: unknown,
+  message = 'The provided function is not a synchronous function.',
+): asserts fn is (...args: unknown[]) => unknown {
+  if (!(typeof fn === 'function' && fn.constructor.name !== 'AsyncFunction')) {
+    throw new TypeError(message);
+  }
+}
+
 class SerializerDataTypeBench<
   TDataTypesFactory extends DataTypesFactory,
   TDataType extends keyof TDataTypesFactory,
@@ -57,7 +66,7 @@ class SerializerDataTypeBench<
 
       this.add(name, () => task.fn(data), {
         ...task.options,
-        async afterAll(this: Task, mode) {
+        afterAll(this: Task, mode) {
           if (mode === 'warmup') {
             process.stdout.write(`warmed up.\n`);
           } else {
@@ -65,10 +74,15 @@ class SerializerDataTypeBench<
           }
 
           if (task.options?.afterAll) {
-            await task.options.afterAll.call(this, mode);
+            assertSyncFunction(
+              task.options.afterAll,
+              'The afterAll hook must be a synchronous function. Asynchronous functions are not supported in the afterAll hook.',
+            );
+
+            task.options.afterAll.call(this, mode);
           }
         },
-        async beforeAll(this: Task, mode) {
+        beforeAll(this: Task, mode) {
           callGarbageCollector();
 
           const dataTypeName = String(dataType);
@@ -80,10 +94,15 @@ class SerializerDataTypeBench<
           }
 
           if (task.options?.beforeAll) {
-            await task.options.beforeAll.call(this, mode);
+            assertSyncFunction(
+              task.options.beforeAll,
+              'The beforeAll hook must be a synchronous function. Asynchronous functions are not supported in the beforeAll hook.',
+            );
+
+            task.options.beforeAll.call(this, mode);
           }
         },
-        async beforeEach(this: Task) {
+        beforeEach(this: Task) {
           // always generate a new value for each task, to avoid libraries caching
           // effects and ensure that each task is working with a fresh instance of
           // the data type, like a real world scenario.
@@ -91,7 +110,12 @@ class SerializerDataTypeBench<
           data = dataTypeFactory() as ReturnType<TDataTypesFactory[TDataType]>;
 
           if (task.options?.beforeEach) {
-            await task.options.beforeEach.call(this);
+            assertSyncFunction(
+              task.options.beforeEach,
+              'The beforeEach hook must be a synchronous function. Asynchronous functions are not supported in the beforeEach hook.',
+            );
+
+            task.options.beforeEach.call(this);
           }
         },
       });
