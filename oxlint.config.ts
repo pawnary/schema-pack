@@ -21,5 +21,6 @@ export default defineConfig({
     'eslint/max-lines-per-function': 'off',
     'eslint/max-statements': 'off',
     'eslint/no-bitwise': 'off',
+    'unicorn/prefer-code-point': 'off',
   },
 });
