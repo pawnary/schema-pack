@@ -8,6 +8,7 @@
   "scripts": {
     "build": "tsdown",
     "clean": "git clean -dfqX -- packages/**/dist packages/**/tsconfig*tsbuildinfo node_modules packages/**/node_modules",
+    "docs": "pnpm --filter @schema-pack/website run dev",
     "fmt": "oxfmt --check",
     "fmt:fix": "oxfmt --write",
     "lint": "oxlint",

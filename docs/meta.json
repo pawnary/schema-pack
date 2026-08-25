@@ -1,0 +1,3 @@
+{
+  "pages": ["index", "message-pack", "debugger", "benchmark", "vitest"]
+}
