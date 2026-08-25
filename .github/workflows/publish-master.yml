@@ -1,4 +1,4 @@
-name: 'Publish master branch to NPM and GitHub Packages'
+name: 'Publish master branch to NPM registry'
 on:
   push:
     branches:
@@ -8,7 +8,7 @@ on:
       - .vscode/**
 jobs:
   publish:
-    name: 'Publish master branch to NPM and GitHub Packages'
+    name: 'Publish to NPM registry'
     permissions:
       id-token: write
       contents: read
