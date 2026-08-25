@@ -4,7 +4,7 @@ export default function extractDisplayBytes(
   endOffset = 10,
 ): string {
   if (received.length === 0) {
-    return 'empty bytes';
+    return 'empty Bytes()';
   }
 
   if (received.length > endOffset) {

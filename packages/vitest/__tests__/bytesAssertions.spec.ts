@@ -149,7 +149,7 @@ describe('toHaveBytes', () => {
 
       expect(() => {
         expect(bytes).toHaveBytes([1, 2, 3]);
-      }).toThrow('Expected empty bytes to have bytes Bytes(1,2,3)');
+      }).toThrow('Expected empty Bytes() to have bytes Bytes(1,2,3)');
     });
 
     it('should fail when using "not" and the received bytes match the expected bytes', () => {
@@ -189,7 +189,7 @@ describe('toHaveBytesFrom', () => {
     expect(() => {
       expect(bytes).toHaveBytesFrom(0, [1, 2, 3]);
     }).toThrow(
-      'Expected empty bytes to have bytes Bytes(1,2,3) from index 0 but got empty bytes',
+      'Expected empty Bytes() to have bytes Bytes(1,2,3) from index 0 but got empty Bytes()',
     );
   });
 

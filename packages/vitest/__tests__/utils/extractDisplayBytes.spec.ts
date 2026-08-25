@@ -20,7 +20,7 @@ describe('uint8Array', () => {
   });
 
   it('should extract display bytes with empty bytes', () => {
-    expect(extractDisplayBytes(new Uint8Array())).toBe('empty bytes');
+    expect(extractDisplayBytes(new Uint8Array())).toBe('empty Bytes()');
   });
 
   it('should extract display bytes with bytes less than trim length', () => {
@@ -43,8 +43,8 @@ describe('number[]', () => {
     });
   });
 
-  it('should extract display bytes with empty bytes', () => {
-    expect(extractDisplayBytes([])).toBe('empty bytes');
+  it('should extract display bytes with empty Bytes()', () => {
+    expect(extractDisplayBytes([])).toBe('empty Bytes()');
   });
 
   it('should extract display bytes with bytes less than trim length', () => {

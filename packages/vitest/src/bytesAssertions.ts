@@ -17,7 +17,7 @@ expect.extend({
       pass,
     };
   },
-  toBeBytes(received: Uint8Array, expectedBytes: number[]) {
+  toBeBytes(received: Uint8Array, expectedBytes: number[] | Uint8Array) {
     const missingBytes: number[] = [];
 
     let length = received.length;
@@ -53,7 +53,7 @@ expect.extend({
     received: Uint8Array,
     start: number,
     end: number,
-    expectedBytes: number[],
+    expectedBytes: number[] | Uint8Array,
   ) {
     let pass = true;
     const currentBytes: number[] = [];
@@ -72,7 +72,7 @@ expect.extend({
         [
           `Expected ${extractDisplayBytes(received)}`,
           `${isNot(this)}to be bytes`,
-          extractDisplayBytes(new Uint8Array(expectedBytes)),
+          extractDisplayBytes(expectedBytes),
           `between index ${start} and ${end} but got`,
           extractDisplayBytes(currentBytes),
         ].join(' '),
@@ -91,7 +91,7 @@ expect.extend({
       pass,
     };
   },
-  toHaveBytes(received: Uint8Array, expectedBytes: number[]) {
+  toHaveBytes(received: Uint8Array, expectedBytes: number[] | Uint8Array) {
     let pass = true;
 
     for (let offset = 0; offset < expectedBytes.length; offset++) {
@@ -113,7 +113,7 @@ expect.extend({
   toHaveBytesFrom(
     received: Uint8Array,
     start: number,
-    expectedBytes: number[],
+    expectedBytes: number[] | Uint8Array,
   ) {
     let pass = true;
 
