@@ -784,6 +784,11 @@ export default interface MessagePackEncoderBuffer<
   /**
    * Writes a record as a MessagePack map using fixmap, map 16, or map 32.
    *
+   * This method calls `openMap` to write the appropriate map header based on
+   * the number of keys in the record. It then iterates over the key-value pairs
+   * in the record, writing each key and value to the buffer using the
+   * appropriate MessagePack encoding methods.
+   *
    * ```
    * fixmap:
    * +--------+~~~~~~~~~~~~~~~~~+
@@ -806,7 +811,19 @@ export default interface MessagePackEncoderBuffer<
   ): this;
 
   /**
+   * Opens a map in the buffer for writing key-value pairs. This method only
+   * writes the appropriate MessagePack map header based on the specified number
+   * of keys.
+   */
+  openMap(keysLength: number): this;
+
+  /**
    * Writes an array using the MessagePack array format family.
+   *
+   * This method calls `openArray` to write the appropriate array header based
+   * on the number of elements in the array. It then iterates over the elements
+   * in the array, writing each element to the buffer using the appropriate
+   * MessagePack encoding methods.
    *
    * ```
    * fixarray:
@@ -826,6 +843,13 @@ export default interface MessagePackEncoderBuffer<
    * ```
    */
   writeArray(value: unknown[]): this;
+
+  /**
+   * Opens an array in the buffer for writing elements. This method only writes
+   * the appropriate MessagePack array header based on the specified number of
+   * elements.
+   */
+  openArray(length: number): this;
 
   /**
    * Writes a JavaScript object using the MessagePack format.

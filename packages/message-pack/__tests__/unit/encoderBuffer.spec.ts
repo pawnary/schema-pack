@@ -887,6 +887,48 @@ describe('general writing', () => {
   });
 
   describe('writeMap', () => {
+    describe('openMap', () => {
+      it('should open a fixmap', () => {
+        const buffer = new EncoderBuffer({
+          initialBufferSize: 1,
+        });
+
+        buffer.openMap(15);
+
+        expect(buffer.flush()).toBeBytes([Symbols.FIXMAP_START | 15]);
+      });
+
+      it('should open a map16', () => {
+        const buffer = new EncoderBuffer({
+          initialBufferSize: 1,
+        });
+
+        buffer.openMap(65_535);
+
+        expect(buffer.flush()).toBeBytes([Symbols.MAP16, 255, 255]);
+      });
+
+      it('should open a map32', () => {
+        const buffer = new EncoderBuffer({
+          initialBufferSize: 1,
+        });
+
+        buffer.openMap(65_536);
+
+        expect(buffer.flush()).toBeBytes([Symbols.MAP32, 0, 1, 0, 0]);
+      });
+
+      it('should throw an error if the map is too big', () => {
+        const buffer = new EncoderBuffer({
+          initialBufferSize: 1,
+        });
+
+        expect(() => buffer.openMap(4_294_967_296)).toThrow(
+          'Map size 4294967296 exceeds maximum allowed size of 4294967295',
+        );
+      });
+    });
+
     it('should write a fix map', () => {
       const buffer = new EncoderBuffer({
         initialBufferSize: 1,
@@ -1072,24 +1114,51 @@ describe('general writing', () => {
 
       expect(buffer.buffer.slice(0, buffer.offset)).toBeBytes(expected);
     });
-
-    it('should throw an error if the map is too big', () => {
-      const buffer = new EncoderBuffer({
-        initialBufferSize: 1,
-      });
-
-      // @ts-expect-error - We are mocking the return value of Object.keys to simulate a large map
-      vi.spyOn(Object, 'keys').mockReturnValueOnce({
-        length: 4_294_967_296,
-      });
-
-      expect(() => buffer.writeMap({})).toThrow(
-        'Map too large to encode: 4294967296 keys',
-      );
-    });
   });
 
   describe('writeArray', () => {
+    describe('openArray', () => {
+      it('should open a fixarray', () => {
+        const buffer = new EncoderBuffer({
+          initialBufferSize: 1,
+        });
+
+        buffer.openArray(15);
+
+        expect(buffer.flush()).toBeBytes([Symbols.FIXARRAY_START | 15]);
+      });
+
+      it('should open an array16', () => {
+        const buffer = new EncoderBuffer({
+          initialBufferSize: 1,
+        });
+
+        buffer.openArray(65_535);
+
+        expect(buffer.flush()).toBeBytes([Symbols.ARRAY16, 255, 255]);
+      });
+
+      it('should open an array32', () => {
+        const buffer = new EncoderBuffer({
+          initialBufferSize: 1,
+        });
+
+        buffer.openArray(65_536);
+
+        expect(buffer.flush()).toBeBytes([Symbols.ARRAY32, 0, 1, 0, 0]);
+      });
+
+      it('should throw an error if the array is too big', () => {
+        const buffer = new EncoderBuffer({
+          initialBufferSize: 1,
+        });
+
+        expect(() => buffer.openArray(4_294_967_296)).toThrow(
+          'Array size 4294967296 exceeds maximum allowed size of 4294967295',
+        );
+      });
+    });
+
     it('should write a fix array', () => {
       const buffer = new EncoderBuffer({
         initialBufferSize: 1,
@@ -1139,21 +1208,6 @@ describe('general writing', () => {
         0,
         ...new Array<number>(65_536).fill(0),
       ]);
-    });
-
-    it('should throw an error if the array is too big', () => {
-      const buffer = new EncoderBuffer({
-        initialBufferSize: 1,
-      });
-
-      // @ts-expect-error - We are mocking the return value of Array.length to simulate a large array
-      const array: number[] = {
-        length: 4_294_967_296,
-      };
-
-      expect(() => buffer.writeArray(array)).toThrow(
-        'Array too large to encode: 4294967296',
-      );
     });
   });
 
@@ -1802,5 +1856,38 @@ describe('extensions', () => {
       expect(buffer.addInternalExtension(extension)).toBe(buffer);
       expect(buffer.fetchExtension(-1)).toBe(extension);
     });
+  });
+});
+
+describe('chaining', () => {
+  it('check that write complex structures using chained methods', () => {
+    const expectedObject = {
+      first: 'a',
+      second: [1, 2, 3],
+      third: {
+        nested: true,
+      },
+    };
+
+    const buffer = new EncoderBuffer();
+
+    const chainedResult = buffer
+      .openMap(3)
+      .writeString('first') // first key
+      .writeString('a') // first value
+      .writeString('second') // second key
+      .openArray(3) // second value
+      .writeNumber(1)
+      .writeNumber(2)
+      .writeNumber(3)
+      .writeString('third') // third key
+      .openMap(1) // third value
+      .writeString('nested') // nested key
+      .writeTrueSymbol() // nested value
+      .flush();
+
+    const expected = buffer.write(expectedObject).flush();
+
+    expect(chainedResult).toBeBytes(expected);
   });
 });

@@ -17,12 +17,12 @@ class Encoder<TBuffer extends Uint8Array = Uint8Array> {
     this.buffer = new EncoderBuffer<TBuffer>(options);
   }
 
-  encode(value: unknown): Uint8Array {
-    const { buffer } = this;
+  encode(value: unknown): TBuffer {
+    const buffer = this.buffer;
 
     buffer.write(value);
 
-    return this.buffer.flush();
+    return buffer.flush();
   }
 
   addExtension(extension: MessagePackExtension<unknown, TBuffer>): this {

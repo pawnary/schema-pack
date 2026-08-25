@@ -3,6 +3,7 @@ import BufferWithExtensions from '../bufferWithExtensions.ts';
 import {
   DEFAULT_ALLOCATION_SIZE,
   INT64_MIN,
+  UINT32_MAX,
   UINT64_MAX,
 } from '../constants.ts';
 import defaultNewBufferFn from '../defaultNewBufferFn.ts';
@@ -691,11 +692,30 @@ class EncoderBuffer<TBuffer extends Uint8Array = Uint8Array>
     } else if (this.forceFloat32) {
       this.ensureCapacity(5);
       this.writeFloat32Symbol();
-      this.writeFloat32(value);
+      return this.writeFloat32(value);
+    }
+
+    this.ensureCapacity(9);
+    this.writeFloat64Symbol();
+    return this.writeFloat64(value);
+  }
+
+  openMap(keysLength: number): this {
+    const requiredSize = keysLength * 4;
+
+    if (keysLength < 16) {
+      this.ensureCapacity(requiredSize + 1);
+      this.writeFixMapSymbol(keysLength);
+    } else if (fitIn16Bits(keysLength)) {
+      this.ensureCapacity(requiredSize + 3);
+      this.writeMap16Symbol(keysLength);
+    } else if (fitIn32Bits(keysLength)) {
+      this.ensureCapacity(requiredSize + 5);
+      this.writeMap32Symbol(keysLength);
     } else {
-      this.ensureCapacity(9);
-      this.writeFloat64Symbol();
-      this.writeFloat64(value);
+      throw new Error(
+        `Map size ${keysLength} exceeds maximum allowed size of ${UINT32_MAX}`,
+      );
     }
 
     return this;
@@ -711,23 +731,11 @@ class EncoderBuffer<TBuffer extends Uint8Array = Uint8Array>
     }
 
     const keysLength = keys.length;
-    const requiredSize = keysLength * 4;
 
-    if (keysLength < 16) {
-      this.ensureCapacity(requiredSize + 1);
-      this.writeFixMapSymbol(keysLength);
-    } else if (fitIn16Bits(keysLength)) {
-      this.ensureCapacity(requiredSize + 3);
-      this.writeMap16Symbol(keysLength);
-    } else if (fitIn32Bits(keysLength)) {
-      this.ensureCapacity(requiredSize + 5);
-      this.writeMap32Symbol(keysLength);
-    } else {
-      throw new Error(`Map too large to encode: ${keysLength} keys`);
-    }
+    this.openMap(keysLength);
 
     for (const key of keys) {
-      this.write(key);
+      this.writeString(key);
       // oxlint-disable-next-line typescript/no-unsafe-type-assertion
       this.write(value[key as TKey]);
     }
@@ -735,8 +743,7 @@ class EncoderBuffer<TBuffer extends Uint8Array = Uint8Array>
     return this;
   }
 
-  writeArray(value: unknown[]): this {
-    const length = value.length;
+  openArray(length: number): this {
     const requiredSize = length * 4;
 
     if (length < 16) {
@@ -749,8 +756,18 @@ class EncoderBuffer<TBuffer extends Uint8Array = Uint8Array>
       this.ensureCapacity(requiredSize + 5);
       this.writeArray32Symbol(length);
     } else {
-      throw new Error(`Array too large to encode: ${length}`);
+      throw new Error(
+        `Array size ${length} exceeds maximum allowed size of ${UINT32_MAX}`,
+      );
     }
+
+    return this;
+  }
+
+  writeArray(value: unknown[]): this {
+    const length = value.length;
+
+    this.openArray(length);
 
     for (let index = 0; index < length; ++index) {
       this.write(value[index]);

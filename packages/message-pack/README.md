@@ -6,7 +6,8 @@
 
 # @schema-pack/message-pack
 
-A [MessagePack](https://github.com/msgpack/msgpack/blob/master/spec.md)
+Incremental
+[MessagePack](https://github.com/msgpack/msgpack/blob/master/spec.md)
 encoder/decoder for TypeScript and JavaScript. It targets full compliance with
 the MessagePack spec and exposes a pluggable extension system for encoding
 custom types.
@@ -14,21 +15,93 @@ custom types.
 ## Installation
 
 ```bash
-pnpm add @schema-pack/message-pack
+pnpm add @schema-pack/message-pack@next
 ```
 
 ## Quick start
 
 ```ts
-import { Decoder, Encoder } from '@schema-pack/message-pack';
+import { encode, decode } from '@schema-pack/message-pack';
 
-const encoder = new Encoder();
-const bytes = encoder.encode({ hello: 'world', values: [1, 2, 3] });
+const buffer = encode({ hello: 'world', values: [1, 2, 3] });
 
-const decoder = new Decoder();
-const value = decoder.decode(bytes);
+const value = decode(buffer);
 // { hello: 'world', values: [1, 2, 3] }
 ```
+
+## Incremental encoding
+
+Also you can use the `EncoderBuffer` class for incremental encoding:
+
+```ts
+import { EncoderBuffer, decode } from '@schema-pack/message-pack';
+
+const encoder = new EncoderBuffer();
+
+/**
+ * Here we're encoding the following object:
+ *
+ * {
+ *   first: 'a',
+ *   second: [1, 2, 3],
+ *   third: {
+ *     nested: true
+ *   }
+ * }
+ */
+encoder.openMap(3); // open a map with 3 key-value pairs
+
+encoder.writeString('first'); // first key
+encoder.writeString('a'); // first value
+
+encoder.writeString('second'); // second key
+encoder.openArray(3); // second value (an array with 3 elements)
+
+encoder.writeNumber(1); // first array element
+encoder.writeNumber(2); // second array element
+encoder.writeNumber(3); // third array element
+
+encoder.writeString('third'); // third key
+encoder.openMap(1); // third value (a map with 1 key-value pair)
+
+encoder.writeString('nested'); // nested key
+encoder.writeTrueSymbol(); // nested value (true)
+
+const buffer = encoder.flush();
+
+const value = decode(buffer);
+```
+
+Note: All `open*`/`write*` methods on `EncoderBuffer` are chainable, so you can
+also write the above example as:
+
+```ts
+const encoder = new EncoderBuffer();
+
+const buffer = encoder
+  .openMap(3)
+  .writeString('first') // first key
+  .writeString('a') // first value
+  .writeString('second') // second key
+  .openArray(3) // second value
+  .writeNumber(1)
+  .writeNumber(2)
+  .writeNumber(3)
+  .writeString('third') // third key
+  .openMap(1) // third value
+  .writeString('nested') // nested key
+  .writeTrueSymbol() // nested value
+  .flush();
+```
+
+<!-- prettier-ignore-start -->
+> [!WARNING]
+> Be careful when using incremental encoding, as the encoder does not track the
+> structure of the data being encoded. You must ensure that you open and fill
+> maps/arrays correctly, or you may end up with malformed MessagePack data.
+>
+> Always you can use de `decode` function to verify that the encoded data is valid MessagePack.
+<!-- prettier-ignore-end -->
 
 ## The 64-bit integer caveat
 
