@@ -1,8 +1,10 @@
 {
   "exclude": [
+    "node_modules",
     "src",
     "./packages/schema-pack",
-    "./packages/benchmark/__bench__"
+    "./packages/benchmark/__bench__",
+    "./packages/website"
   ],
   "compilerOptions": {
     "target": "esnext",
@@ -19,7 +21,7 @@
     "strict": true,
     "noImplicitAny": true,
     "strictNullChecks": true,
-    "erasableSyntaxOnly": false,
+    "erasableSyntaxOnly": true,
     "noImplicitThis": true,
     "alwaysStrict": true,
     "noUnusedLocals": false,
