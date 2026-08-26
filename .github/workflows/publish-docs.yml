@@ -3,8 +3,8 @@ on:
   push:
     branches:
       - master
-    paths:
-      - 'docs/**'
+    # paths:
+    #   - 'docs/**'
 concurrency:
   group: ${{ github.workflow }}
   cancel-in-progress: true
