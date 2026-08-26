@@ -6,7 +6,7 @@
   "author": "Elvis Muñoz <elvis.munoz.f@gmail.com>",
   "type": "module",
   "scripts": {
-    "build": "tsdown",
+    "build": "tsdown && pnpm --filter @schema-pack/website run build",
     "clean": "git clean -dfqX -- packages/**/dist packages/**/tsconfig*tsbuildinfo node_modules packages/**/node_modules",
     "docs": "pnpm --filter @schema-pack/website run dev",
     "fmt": "oxfmt --check",
