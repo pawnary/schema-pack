@@ -1,6 +1,5 @@
 // oxlint-disable typescript/no-unsafe-type-assertion complexity
 import BufferWithExtensions from '../bufferWithExtensions.ts';
-import { DEFAULT_ALLOCATION_SIZE } from '../constants.ts';
 import defaultNewBufferFn from '../defaultNewBufferFn.ts';
 import Symbols from '../symbols.ts';
 import type MessagePackDecoderBuffer from './interfaces/messagePackDecoderBuffer.ts';
@@ -21,9 +20,7 @@ class DecoderBuffer<TBuffer extends Uint8Array = Uint8Array>
 
     const bufferFactory = options?.bufferFactory ?? defaultNewBufferFn<TBuffer>;
 
-    this.buffer = bufferFactory(
-      options?.initialBufferSize ?? DEFAULT_ALLOCATION_SIZE,
-    );
+    this.buffer = bufferFactory(0);
     this.view = new DataView(this.buffer.buffer);
     this.offset = 0;
   }
