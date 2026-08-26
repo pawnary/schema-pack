@@ -50,6 +50,10 @@
       "import": "./dist/esm/decoder/index.mjs",
       "require": "./dist/cjs/decoder/index.cjs"
     },
+    "./decoder/decode": {
+      "import": "./dist/esm/decoder/decode.mjs",
+      "require": "./dist/cjs/decoder/decode.cjs"
+    },
     "./decoder/decoder": {
       "import": "./dist/esm/decoder/decoder.mjs",
       "require": "./dist/cjs/decoder/decoder.cjs"
@@ -70,9 +74,17 @@
       "import": "./dist/esm/decoder/interfaces/messagePackTextDecoder.mjs",
       "require": "./dist/cjs/decoder/interfaces/messagePackTextDecoder.cjs"
     },
+    "./decoder/textDecoders": {
+      "import": "./dist/esm/decoder/textDecoders/index.mjs",
+      "require": "./dist/cjs/decoder/textDecoders/index.cjs"
+    },
     "./decoder/textDecoders/defaultTextDecoder": {
       "import": "./dist/esm/decoder/textDecoders/defaultTextDecoder.mjs",
       "require": "./dist/cjs/decoder/textDecoders/defaultTextDecoder.cjs"
+    },
+    "./decoder/textDecoders/nodeTextDecoder": {
+      "import": "./dist/esm/decoder/textDecoders/nodeTextDecoder.mjs",
+      "require": "./dist/cjs/decoder/textDecoders/nodeTextDecoder.cjs"
     },
     "./decoder/types": {
       "import": "./dist/esm/decoder/types.mjs",
@@ -85,6 +97,10 @@
     "./encoder": {
       "import": "./dist/esm/encoder/index.mjs",
       "require": "./dist/cjs/encoder/index.cjs"
+    },
+    "./encoder/encode": {
+      "import": "./dist/esm/encoder/encode.mjs",
+      "require": "./dist/cjs/encoder/encode.cjs"
     },
     "./encoder/encoder": {
       "import": "./dist/esm/encoder/encoder.mjs",
