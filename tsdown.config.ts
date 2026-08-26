@@ -13,7 +13,7 @@ export default defineConfig({
   plugins: [tsdownFixExports()],
   publint: true,
   workspace: {
-    exclude: ['packages/schema-pack'],
+    exclude: ['packages/schema-pack', 'packages/website'],
     include: ['packages/*'],
   },
 });
