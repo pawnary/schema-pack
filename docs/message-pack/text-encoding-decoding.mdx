@@ -1,0 +1,109 @@
+---
+title: Text encoding/decoding
+---
+
+## Built-in implementations
+
+By default this library provides built-in text encoder/decoder implementations:
+
+## Encoding
+
+### `DefaultTextEncoder`
+
+This implementation uses under the hood the built-in JavaScript
+[`TextEncoder`](https://developer.mozilla.org/en-US/docs/Web/API/TextEncoder)
+class. This is the default text encoder used by the library.
+
+```ts
+import { DefaultTextEncoder } from '@schema-pack/message-pack';
+```
+
+### `NodeTextEncoder`
+
+This implementation uses under the hood the built-in NodeJS
+[`Buffer`](https://nodejs.org/api/buffer.html) class.
+
+```ts
+import { NodeTextEncoder } from '@schema-pack/message-pack';
+```
+
+## Decoding
+
+### `DefaultTextDecoder`
+
+This implementation uses under the hood the built-in JavaScript
+[`TextDecoder`](https://developer.mozilla.org/en-US/docs/Web/API/TextDecoder)
+class.
+
+```ts
+import { DefaultTextDecoder } from '@schema-pack/message-pack';
+```
+
+### `NodeTextDecoder`
+
+This implementation uses under the hood the built-in NodeJS
+[`Buffer`](https://nodejs.org/api/buffer.html) class.
+
+```ts
+import { NodeTextDecoder } from '@schema-pack/message-pack';
+```
+
+---
+
+## Custom implementations
+
+If you want to create your own text encoder/decoder implementation, you can
+implement the `MessagePackTextEncoder` and `MessagePackTextDecoder` interfaces.
+
+{/* prettier-ignore */}
+```ts
+import { MessagePackTextEncoder, MessagePackTextDecoder } from '@schema-pack/message-pack';
+```
+
+## The `MessagePackTextEncoder` interface
+
+This interface defines the method `writeBytes` to write a string into a
+`TBuffer` instance.
+
+{/* prettier-ignore */}
+```ts
+export default interface MessagePackTextEncoder<TBuffer extends Uint8Array = Uint8Array> {
+  writeBytes(source: string, buffer: TBuffer): number;
+}
+```
+
+Where:
+
+- `TBuffer` is a generic type that extends
+  [`Uint8Array`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array).
+  It represents the type of buffer that will be used to store the encoded text
+  data. E.G.,
+  [`Uint8Array`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array),
+  [`Buffer`](https://nodejs.org/api/buffer.html), etc...
+- `source` is the string to be written into the buffer.
+- `buffer` is the `TBuffer` instance that will receive the encoded text data.
+- The returning value is the number of bytes written into the buffer.
+
+## The `MessagePackTextDecoder` interface
+
+This interface defines a method to decode a `TBuffer` instance into a string.
+
+{/* prettier-ignore */}
+```ts
+export default interface MessagePackTextDecoder<TBuffer extends Uint8Array = Uint8Array> {
+  decode(buffer: TBuffer, startOffset: number, endOffset: number): string;
+}
+```
+
+Where:
+
+- `TBuffer` is a generic type that extends
+  [`Uint8Array`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array).
+  It represents the type of buffer that will be used to store the encoded text
+  data. E.G.,
+  [`Uint8Array`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array),
+  [`Buffer`](https://nodejs.org/api/buffer.html), etc...
+- `buffer` is the `TBuffer` instance that contains the encoded text data.
+- `startOffset` is the starting index of the buffer to read.
+- `endOffset` is the ending index of the buffer to read.
+- The returning value is the decoded string.

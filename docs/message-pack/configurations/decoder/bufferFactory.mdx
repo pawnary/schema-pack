@@ -1,0 +1,38 @@
+---
+title: bufferFactory
+---
+
+- **Type:** `<TBuffer extends Uint8Array = Uint8Array>(size: number) => TBuffer`
+- **Default:** `(size) => new Uint8Array(size)`
+
+Factory used to allocate the initial buffer data type.
+
+Where `TBuffer` is the type of buffer to allocate. By default, it is
+`Uint8Array`, but you can override it to use any other type of buffer, such as
+Node.js `Buffer`.
+
+This configuration is only used to improve performance using
+[v8 Hidden classes](https://v8.dev/docs/hidden-classes) and
+[fast properties](https://v8.dev/blog/fast-properties). The allocation size is
+always `0`.
+
+**This is why if you want to decode a buffer different than `Uint8Array`, you
+should use this configuration to allocate a new buffer of the desired type.**
+
+---
+
+Example:
+
+Using [Node.js `Buffer`](https://nodejs.org/api/buffer.html):
+
+```ts
+import { DecoderBuffer } from '@schema-pack/message-pack';
+
+const decoder = new DecoderBuffer({
+  bufferFactory: (size) => Buffer.alloc(size),
+});
+```
+
+Where:
+
+`size` is always `0`.

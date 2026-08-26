@@ -13,9 +13,9 @@ for faster string encoding on Node.
 Example:
 
 ```ts
-import { Encoder, NodeTextEncoder } from '@schema-pack/message-pack';
+import { EncoderBuffer, NodeTextEncoder } from '@schema-pack/message-pack';
 
-const encoder = new Encoder({
+const encoder = new EncoderBuffer({
   textEncoder: new NodeTextEncoder(),
 });
 ```
