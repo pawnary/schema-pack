@@ -1,0 +1,32 @@
+---
+title: bufferFactory
+---
+
+- **Type:** `<TBuffer extends Uint8Array = Uint8Array>(size: number) => TBuffer`
+- **Default:** `(size) => new Uint8Array(size)`
+
+Initial size of the encoding buffer; grows automatically as needed.
+
+---
+
+Example:
+
+Using [Node.js `Buffer`](https://nodejs.org/api/buffer.html):
+
+```ts
+import { EncoderBuffer } from '@schema-pack/message-pack';
+
+const encoder = new EncoderBuffer({
+  bufferFactory: (size) => Buffer.alloc(size),
+});
+
+encoder.writeString('a');
+
+console.log(encoder.flush());
+```
+
+Results in a `Buffer` instance instead of a `Uint8Array`:
+
+```
+<Buffer a1 61>
+```

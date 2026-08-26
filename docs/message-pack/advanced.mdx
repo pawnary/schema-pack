@@ -1,0 +1,90 @@
+---
+title: Advanced usage
+description: Advanced usage of @schema-pack/message-pack
+---
+
+## Incremental encoding
+
+Use the `EncoderBuffer` class for incremental encoding of MessagePack data. This
+is useful when you want to build a MessagePack buffer piece by piece, rather
+than encoding a single value at once.
+
+Here we're encoding the following object:
+
+```ts
+{
+  first: 'a',
+  second: [1, 2, 3],
+  third: {
+    nested: true
+  }
+}
+```
+
+{/* prettier-ignore */}
+<Tabs items={['Classic', 'Chaineable']}>
+  <Tab value='Classic'>
+    ```ts
+    import { EncoderBuffer, decode } from '@schema-pack/message-pack';
+
+    const encoder = new EncoderBuffer();
+
+    encoder.openMap(3); // open a map with 3 key-value pairs
+
+    encoder.writeString('first'); // first key
+    encoder.writeString('a'); // first value
+
+    encoder.writeString('second'); // second key
+    encoder.openArray(3); // second value (an array with 3 elements)
+
+    encoder.writeNumber(1); // first array element
+    encoder.writeNumber(2); // second array element
+    encoder.writeNumber(3); // third array element
+
+    encoder.writeString('third'); // third key
+    encoder.openMap(1); // third value (a map with 1 key-value pair)
+
+    encoder.writeString('nested'); // nested key
+    encoder.writeTrueSymbol(); // nested value (true)
+
+    const buffer = encoder.flush();
+
+    const value = decode(buffer);
+    ```
+
+  </Tab>
+  <Tab value='Chaineable'>
+    ```ts
+    const encoder = new EncoderBuffer();
+
+    const buffer = encoder
+      .openMap(3)
+      .writeString('first') // first key
+      .writeString('a') // first value
+      .writeString('second') // second key
+      .openArray(3) // second value
+      .writeNumber(1)
+      .writeNumber(2)
+      .writeNumber(3)
+      .writeString('third') // third key
+      .openMap(1) // third value
+      .writeString('nested') // nested key
+      .writeTrueSymbol() // nested value
+      .flush();
+    ```
+
+  </Tab>
+</Tabs>
+
+<Callout
+  type='warning'
+  title='Careful with incremental encoding'
+>
+  The encoder does not track the structure of the data being encoded. You must
+  ensure that you open and fill maps/arrays correctly, or you may end up with
+  malformed MessagePack data.
+
+You can always use the `decode` function to verify that the encoded data is
+valid MessagePack.
+
+</Callout>

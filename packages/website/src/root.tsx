@@ -46,6 +46,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
           theme={{
             enabled: true,
           }}
+          search={{
+            enabled: false,
+          }}
         >
           {children}
         </RootProvider>

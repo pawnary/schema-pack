@@ -1,7 +1,6 @@
 @import 'tailwindcss';
 @import 'fumadocs-ui/css/neutral.css';
 @import 'fumadocs-ui/css/preset.css';
-@import 'fumadocs-ui/css/black.css';
 
 html {
   scrollbar-gutter: stable;
@@ -10,4 +9,12 @@ html {
 html > body[data-scroll-locked] {
   margin-right: 0px !important;
   --removed-body-scroll-bar-size: 0px !important;
+}
+
+.line:has(> span:only-child:empty) {
+  height: 1lh;
+}
+
+strong {
+  font-weight: 700;
 }

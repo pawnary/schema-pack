@@ -1,0 +1,88 @@
+---
+title: forceFloat32
+---
+
+- **Type:** `boolean`
+- **Default:** `false`
+
+Whether to force all floating-point numbers to be encoded as 32-bit floats.
+
+<Callout
+  type='warn'
+  title='Precision loss warning'
+>
+  This can be useful for reducing the size of the encoded data, but may result
+  in loss of precision for very large or very small numbers.
+
+Only enable it if you know your floats can round-trip safely.
+
+</Callout>
+
+---
+
+Example with `forceFloat32` **enabled**:
+
+```ts
+import { EncoderBuffer, decode } from '@schema-pack/message-pack';
+
+const encoder = new EncoderBuffer({
+  forceFloat32: true,
+});
+
+encoder.writeNumber(1.6);
+
+const buffer = encoder.flush();
+
+console.log(buffer);
+
+const decoded = decode(buffer);
+
+console.log(decoded);
+```
+
+Results in a loss of precision when encoding as a 32-bit float:
+
+```
+Uint8Array(5) [ 202, 63, 204, 204, 205 ]
+1.600000023841858
+```
+
+Encoding the number `1.5` instead of `1.6` would result in a lossless
+round-trip:
+
+```
+Uint8Array(5) [ 202, 63, 192, 0, 0 ]
+1.5
+```
+
+---
+
+Example with `forceFloat32` **disabled**:
+
+```ts
+import { EncoderBuffer, decode } from '@schema-pack/message-pack';
+
+const encoder = new EncoderBuffer({
+  forceFloat32: false,
+});
+
+encoder.writeNumber(1.5);
+
+const buffer = encoder.flush();
+
+console.log(buffer);
+
+const decoded = decode(buffer);
+
+console.log(decoded);
+```
+
+No loss of precision occurs when encoding as a 64-bit float:
+
+```
+Uint8Array(9) [
+  203, 63, 248, 0, 0,
+    0,  0,   0, 0
+]
+1.5
+```

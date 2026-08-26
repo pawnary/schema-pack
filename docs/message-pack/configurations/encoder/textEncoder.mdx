@@ -1,0 +1,21 @@
+---
+title: textEncoder
+---
+
+- **Type:** `MessagePackTextEncoder`
+- **Default:** `DefaultTextEncoder`
+
+Encoder used to turn strings into bytes. A `NodeTextEncoder` is also provided
+for faster string encoding on Node.
+
+---
+
+Example:
+
+```ts
+import { Encoder, NodeTextEncoder } from '@schema-pack/message-pack';
+
+const encoder = new Encoder({
+  textEncoder: new NodeTextEncoder(),
+});
+```

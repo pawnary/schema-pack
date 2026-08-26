@@ -1,12 +1,8 @@
 ---
 title: benchmark
-description: Benchmark suite for comparing serializer implementations across data types.
+description:
+  Benchmark suite for comparing serializer implementations across data types.
 ---
-
-<Callout type="warn" title="Work in progress">
-  This is a Work In Progress, and the API is not stable yet. Breaking changes
-  may be introduced at any time.
-</Callout>
 
 A benchmark suite for comparing serializer implementations across representative
 data types, built on top of [tinybench](https://github.com/tinylibs/tinybench).
@@ -20,7 +16,7 @@ serializers you register alongside it.
 pnpm add -D @schema-pack/benchmark
 ```
 
-<Callout type="info">
+<Callout type='info'>
   `tinybench` and `console-table-printer` are declared as devDependencies of
   this package but are imported at runtime by its exported classes — make sure
   both are installed alongside it.

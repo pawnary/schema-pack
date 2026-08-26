@@ -9,7 +9,7 @@ import {
 import defaultNewBufferFn from '../defaultNewBufferFn.ts';
 import type MessagePackExtension from '../extensions/interfaces/messagePackExtension.ts';
 import Symbols from '../symbols.ts';
-import type { NewBufferFn } from '../types.ts';
+import type { BufferFactory } from '../types.ts';
 import fitIn7Bits from '../utils/fitIn7Bits.ts';
 import fitIn8Bits from '../utils/fitIn8Bits.ts';
 import fitIn16Bits from '../utils/fitIn16Bits.ts';
@@ -59,7 +59,7 @@ class EncoderBuffer<TBuffer extends Uint8Array = Uint8Array>
    * to accommodate the data being written. The function should return a new
    * instance of TBuffer with the specified size.
    */
-  protected newBufferFn: NewBufferFn<TBuffer>;
+  protected bufferFactory: BufferFactory<TBuffer>;
 
   readonly textEncoder: MessagePackTextEncoder<TBuffer>;
 
@@ -84,12 +84,12 @@ class EncoderBuffer<TBuffer extends Uint8Array = Uint8Array>
     this.offset = 0;
     this.textEncoder = options?.textEncoder ?? new DefaultTextEncoder();
 
-    this.newBufferFn = options?.newBufferFn ?? defaultNewBufferFn<TBuffer>;
+    this.bufferFactory = options?.bufferFactory ?? defaultNewBufferFn<TBuffer>;
 
-    this.buffer = this.newBufferFn(
+    this.buffer = this.bufferFactory(
       options?.initialBufferSize ?? DEFAULT_ALLOCATION_SIZE,
     );
-    this.sharedBuffer = this.newBufferFn(
+    this.sharedBuffer = this.bufferFactory(
       options?.initialSharedBufferSize ?? DEFAULT_ALLOCATION_SIZE,
     );
     this.view = new DataView(
@@ -105,9 +105,9 @@ class EncoderBuffer<TBuffer extends Uint8Array = Uint8Array>
   getExtensionBuffer(): EncoderBuffer<TBuffer> {
     if (!this.#extensionBuffer) {
       this.#extensionBuffer = new EncoderBuffer<TBuffer>({
+        bufferFactory: this.bufferFactory,
         initialBufferSize: this.sharedBuffer.byteLength,
         initialSharedBufferSize: 0,
-        newBufferFn: this.newBufferFn,
         sortKeys: this.sortKeys,
         textEncoder: this.textEncoder,
       });
@@ -117,7 +117,7 @@ class EncoderBuffer<TBuffer extends Uint8Array = Uint8Array>
   }
 
   resizeBuffer(newSize: number): this {
-    const newBuffer = this.newBufferFn(newSize);
+    const newBuffer = this.bufferFactory(newSize);
 
     newBuffer.set(this.buffer);
 
@@ -603,10 +603,10 @@ class EncoderBuffer<TBuffer extends Uint8Array = Uint8Array>
     }
 
     if (this.sharedBuffer.byteLength < requiredSize) {
-      this.sharedBuffer = this.newBufferFn(requiredSize);
+      this.sharedBuffer = this.bufferFactory(requiredSize);
     }
 
-    const { sharedBuffer } = this;
+    const sharedBuffer = this.sharedBuffer;
 
     const byteLength = this.textEncoder.writeBytes(value, sharedBuffer);
 

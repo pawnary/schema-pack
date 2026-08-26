@@ -5,14 +5,14 @@ import DefaultTextEncoder from '../../src/encoder/textEncoders/defaultTextEncode
 
 test('constructor options', () => {
   const textEncoder = new DefaultTextEncoder();
-  const newBufferFn = vi.fn<(size: number) => Uint8Array>(
+  const bufferFactory = vi.fn<(size: number) => Uint8Array>(
     (size) => new Uint8Array(size),
   );
 
   const encoder = new Encoder({
+    bufferFactory,
     initialBufferSize: 123,
     initialSharedBufferSize: 456,
-    newBufferFn,
     sortKeys: true,
     textEncoder,
   });
@@ -22,9 +22,9 @@ test('constructor options', () => {
   expect(encoder.buffer.buffer).toHaveLength(123);
   expect(encoder.buffer.sortKeys).toBe(true);
 
-  expect(newBufferFn).toHaveBeenCalledTimes(2);
-  expect(newBufferFn).toHaveBeenNthCalledWith(1, 123);
-  expect(newBufferFn).toHaveBeenNthCalledWith(2, 456);
+  expect(bufferFactory).toHaveBeenCalledTimes(2);
+  expect(bufferFactory).toHaveBeenNthCalledWith(1, 123);
+  expect(bufferFactory).toHaveBeenNthCalledWith(2, 456);
 
   expect(encoder.buffer.getExtensionBuffer().buffer).toHaveLength(456);
 });

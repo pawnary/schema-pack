@@ -198,7 +198,7 @@ for the full API.
 | Option                    | Default                          | Description                                                                                                                                                                                                               |
 | ------------------------- | -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `initialBufferSize`       | `1024`                           | Initial size of the encoding buffer; grows automatically as needed.                                                                                                                                                       |
-| `newBufferFn`             | `(size) => new Uint8Array(size)` | Factory used to allocate new buffers.                                                                                                                                                                                     |
+| `bufferFactory`           | `(size) => new Uint8Array(size)` | Factory used to allocate new buffers.                                                                                                                                                                                     |
 | `initialSharedBufferSize` | `1024`                           | Initial size of the shared buffer used when encoding strings, to reduce allocations.                                                                                                                                      |
 | `textEncoder`             | `DefaultTextEncoder`             | Encoder used to turn strings into bytes. A `NodeTextEncoder` is also provided for faster string encoding on Node.                                                                                                         |
 | `sortKeys`                | `false`                          | Sort object keys before encoding, for deterministic output.                                                                                                                                                               |
@@ -209,7 +209,7 @@ for the full API.
 | Option              | Default                          | Description                                                         |
 | ------------------- | -------------------------------- | ------------------------------------------------------------------- |
 | `initialBufferSize` | `1024`                           | Initial size of the decoding buffer; grows automatically as needed. |
-| `newBufferFn`       | `(size) => new Uint8Array(size)` | Factory used to allocate new buffers.                               |
+| `bufferFactory`     | `(size) => new Uint8Array(size)` | Factory used to allocate new buffers.                               |
 
 ## Error handling
 

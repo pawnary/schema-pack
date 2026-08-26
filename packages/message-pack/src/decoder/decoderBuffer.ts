@@ -19,9 +19,9 @@ class DecoderBuffer<TBuffer extends Uint8Array = Uint8Array>
   constructor(options?: DecoderBufferOptions<TBuffer>) {
     super();
 
-    const newBufferFn = options?.newBufferFn ?? defaultNewBufferFn<TBuffer>;
+    const bufferFactory = options?.bufferFactory ?? defaultNewBufferFn<TBuffer>;
 
-    this.buffer = newBufferFn(
+    this.buffer = bufferFactory(
       options?.initialBufferSize ?? DEFAULT_ALLOCATION_SIZE,
     );
     this.view = new DataView(this.buffer.buffer);

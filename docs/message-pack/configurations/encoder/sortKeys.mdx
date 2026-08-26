@@ -1,0 +1,74 @@
+---
+title: sortKeys
+---
+
+- **Type:** `boolean`
+- **Default:** `false`
+
+Whether to sort the keys of objects before encoding, for deterministic output.
+This is useful when you want to ensure that the same object always produces the
+same binary representation, which can be important for caching or hashing.
+
+---
+
+Example with `sortKeys` **enabled**:
+
+```ts
+import { Encoder, decode } from '@schema-pack/message-pack';
+
+const encoder = new Encoder({
+  sortKeys: true,
+});
+
+encoder.writeObject({
+  b: 2,
+  c: 3,
+  a: 1,
+});
+
+const decoded = decode(encoder.flush());
+
+console.log(decoded);
+```
+
+Results in:
+
+```ts
+{
+  a: 1,
+  b: 2,
+  c: 3,
+}
+```
+
+---
+
+Example with `sortKeys` **disabled**:
+
+```ts
+import { Encoder, decode } from '@schema-pack/message-pack';
+
+const encoder = new Encoder({
+  sortKeys: false,
+});
+
+encoder.writeObject({
+  b: 2,
+  c: 3,
+  a: 1,
+});
+
+const decoded = decode(encoder.flush());
+
+console.log(decoded);
+```
+
+Results in:
+
+```ts
+{
+  b: 2,
+  c: 3,
+  a: 1,
+}
+```

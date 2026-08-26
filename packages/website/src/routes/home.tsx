@@ -1,5 +1,12 @@
 import { HomeLayout } from 'fumadocs-ui/layouts/home';
-import { Binary, Bug, Gauge, TestTube2, ArrowRight, ExternalLink } from 'lucide-react';
+import {
+  Binary,
+  Bug,
+  Gauge,
+  TestTube2,
+  ArrowRight,
+  ExternalLink,
+} from 'lucide-react';
 import { Link } from 'react-router';
 
 import { baseOptions } from '@/lib/layout.shared';
@@ -22,19 +29,22 @@ const packages = [
   {
     icon: Binary,
     name: '@schema-pack/message-pack',
-    description: 'Incremental MessagePack encoder/decoder with a pluggable extension system.',
+    description:
+      'Incremental MessagePack encoder/decoder with a pluggable extension system.',
     href: '/docs/message-pack',
   },
   {
     icon: Bug,
     name: '@schema-pack/debugger',
-    description: 'Format-agnostic, byte-level debugger for binary serialization formats.',
+    description:
+      'Format-agnostic, byte-level debugger for binary serialization formats.',
     href: '/docs/debugger',
   },
   {
     icon: Gauge,
     name: '@schema-pack/benchmark',
-    description: 'Benchmark suite for comparing serializer implementations across data types.',
+    description:
+      'Benchmark suite for comparing serializer implementations across data types.',
     href: '/docs/benchmark',
   },
   {
@@ -68,8 +78,9 @@ export default function Home() {
           </h1>
 
           <p className='max-w-xl text-balance text-fd-muted-foreground sm:text-lg'>
-            Encoders and decoders, a byte-level debugger, a benchmark harness, and
-            test matchers for binary formats — built for TypeScript and JavaScript.
+            Encoders and decoders, a byte-level debugger, a benchmark harness,
+            and test matchers for binary formats — built for TypeScript and
+            JavaScript.
           </p>
 
           <div className='flex flex-wrap items-center justify-center gap-3'>
@@ -90,14 +101,6 @@ export default function Home() {
               <ExternalLink className='size-4' />
             </a>
           </div>
-
-          <pre className='mt-4 w-full max-w-lg overflow-x-auto rounded-xl border border-fd-border bg-fd-card p-4 text-left font-mono text-sm text-fd-card-foreground'>
-            <code>{`import { encode, decode } from '@schema-pack/message-pack';
-
-const buffer = encode({ hello: 'world', values: [1, 2, 3] });
-const value = decode(buffer);
-// { hello: 'world', values: [1, 2, 3] }`}</code>
-          </pre>
         </section>
 
         <section className='border-t border-fd-border px-4 py-16'>
@@ -112,7 +115,9 @@ const value = decode(buffer);
                   <Icon className='size-4' />
                 </div>
                 <h2 className='font-mono text-sm font-semibold'>{name}</h2>
-                <p className='text-sm text-fd-muted-foreground'>{description}</p>
+                <p className='text-sm text-fd-muted-foreground'>
+                  {description}
+                </p>
               </Link>
             ))}
           </div>
