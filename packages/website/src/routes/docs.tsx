@@ -6,7 +6,6 @@ import {
   DocsDescription,
   DocsPage,
   DocsTitle,
-  MarkdownCopyButton,
   ViewOptionsPopover,
 } from 'fumadocs-ui/layouts/docs/page';
 import { use } from 'react';
@@ -14,12 +13,14 @@ import { use } from 'react';
 import { useMDXComponents } from '@/components/mdx';
 import { baseOptions } from '@/lib/layout.shared';
 import { gitConfig, getPageImagePath } from '@/lib/shared';
-import { docs, getPageMarkdownUrl, source } from '@/lib/source';
+import { docs, source } from '@/lib/source';
 
 import type { Route } from './+types/docs';
 
 export async function loader({ params }: Route.LoaderArgs) {
-  const slugs = params['*'].split('/').filter((v) => v.length > 0);
+  const splat = params['*'] ?? '';
+  const slugs = splat.split('/').filter((v) => v.length > 0);
+
   const page = source.getPage(slugs);
   if (!page) throw new Response('Not found', { status: 404 });
 
@@ -53,7 +54,7 @@ function Content({ path, imagePath }: { path: string; imagePath: string }) {
       <DocsDescription className='flex justify-between items-center gap-2'>
         {page.description}
         <ViewOptionsPopover
-          githubUrl={`https://github.com/${gitConfig.user}/${gitConfig.repo}/blob/${gitConfig.branch}/content/docs/${path}`}
+          githubUrl={`https://github.com/${gitConfig.user}/${gitConfig.repo}/blob/${gitConfig.branch}/docs/${path}`}
         />
       </DocsDescription>
       <DocsBody>

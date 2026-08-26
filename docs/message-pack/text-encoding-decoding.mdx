@@ -15,7 +15,11 @@ This implementation uses under the hood the built-in JavaScript
 class. This is the default text encoder used by the library.
 
 ```ts
-import { DefaultTextEncoder } from '@schema-pack/message-pack';
+import { DefaultTextEncoder, EncoderBuffer } from '@schema-pack/message-pack';
+
+const encoder = new EncoderBuffer({
+  textEncoder: new DefaultTextEncoder(),
+});
 ```
 
 ### `NodeTextEncoder`
@@ -24,7 +28,11 @@ This implementation uses under the hood the built-in NodeJS
 [`Buffer`](https://nodejs.org/api/buffer.html) class.
 
 ```ts
-import { NodeTextEncoder } from '@schema-pack/message-pack';
+import { NodeTextEncoder, EncoderBuffer } from '@schema-pack/message-pack';
+
+const encoder = new EncoderBuffer({
+  textEncoder: new NodeTextEncoder(),
+});
 ```
 
 ## Decoding
@@ -36,7 +44,11 @@ This implementation uses under the hood the built-in JavaScript
 class.
 
 ```ts
-import { DefaultTextDecoder } from '@schema-pack/message-pack';
+import { DefaultTextDecoder, DecoderBuffer } from '@schema-pack/message-pack';
+
+const decoder = new DecoderBuffer({
+  textDecoder: new DefaultTextDecoder(),
+});
 ```
 
 ### `NodeTextDecoder`
@@ -45,7 +57,11 @@ This implementation uses under the hood the built-in NodeJS
 [`Buffer`](https://nodejs.org/api/buffer.html) class.
 
 ```ts
-import { NodeTextDecoder } from '@schema-pack/message-pack';
+import { NodeTextDecoder, DecoderBuffer } from '@schema-pack/message-pack';
+
+const decoder = new DecoderBuffer({
+  textDecoder: new NodeTextDecoder(),
+});
 ```
 
 ---

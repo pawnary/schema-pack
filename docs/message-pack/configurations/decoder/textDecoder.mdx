@@ -1,0 +1,21 @@
+---
+title: textDecoder
+---
+
+- **Type:** `MessagePackTextDecoder`
+- **Default:** `DefaultTextDecoder`
+
+Decoder used to turn bytes into strings. A `NodeTextDecoder` is also provided
+for faster string decoding on Node.
+
+---
+
+Example:
+
+```ts
+import { DecoderBuffer, NodeTextDecoder } from '@schema-pack/message-pack';
+
+const decoder = new DecoderBuffer({
+  textDecoder: new NodeTextDecoder(),
+});
+```

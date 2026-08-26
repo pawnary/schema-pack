@@ -16,8 +16,8 @@ import { Decoder, Encoder, BigIntExtension } from '@schema-pack/message-pack';
 
 const extension = new BigIntExtension();
 
-const encoder = new Encoder().addInternalExtension(extension);
-const decoder = new Decoder().addInternalExtension(extension);
+const encoder = new Encoder().addExtension(extension);
+const decoder = new Decoder().addExtension(extension);
 
 const buffer = encoder.encode(12345678901234567890n);
 

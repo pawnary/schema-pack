@@ -33,29 +33,3 @@ For example, `{ a: 1, b: 2 }` encodes to these 7 bytes:
   Inspect any buffer like this yourself with
   [`@schema-pack/debugger`](/docs/debugger).
 </Callout>
-
-### Encoder options
-
-| Option                    | Default                          | Description                                                                                                                                                                                                               |
-| ------------------------- | -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `initialBufferSize`       | `1024`                           | Initial size of the encoding buffer; grows automatically as needed.                                                                                                                                                       |
-| `newBufferFn`             | `(size) => new Uint8Array(size)` | Factory used to allocate new buffers.                                                                                                                                                                                     |
-| `initialSharedBufferSize` | `1024`                           | Initial size of the shared buffer used when encoding strings, to reduce allocations.                                                                                                                                      |
-| `textEncoder`             | `DefaultTextEncoder`             | Encoder used to turn strings into bytes. A `NodeTextEncoder` is also provided for faster string encoding on Node.                                                                                                         |
-| `sortKeys`                | `false`                          | Sort object keys before encoding, for deterministic output.                                                                                                                                                               |
-| `forceFloat32`            | `false`                          | Always encode floating point numbers as `float32` instead of `float64`. This may lose precision for values that don't fit exactly in 32 bits (e.g. `1.2`) — only enable it if you know your floats can round-trip safely. |
-
-### Decoder options
-
-| Option              | Default                          | Description                                                         |
-| ------------------- | -------------------------------- | ------------------------------------------------------------------- |
-| `initialBufferSize` | `1024`                           | Initial size of the decoding buffer; grows automatically as needed. |
-| `newBufferFn`       | `(size) => new Uint8Array(size)` | Factory used to allocate new buffers.                               |
-
-### Error handling
-
-The encoder and decoder currently throw plain `Error`s for invalid usage — e.g.
-registering a duplicate or out-of-range extension type, looking up an extension
-that isn't registered, or decoding a malformed timestamp payload. There's no
-dedicated error class hierarchy yet, so catch `Error` and inspect `message` if
-you need to branch on failure.
