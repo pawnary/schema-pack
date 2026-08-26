@@ -8,14 +8,15 @@
   "scripts": {
     "build": "tsdown",
     "clean": "git clean -dfqX -- packages/**/dist packages/**/tsconfig*tsbuildinfo node_modules packages/**/node_modules",
+    "docs": "pnpm --filter @schema-pack/website run dev",
     "fmt": "oxfmt --check",
     "fmt:fix": "oxfmt --write",
     "lint": "oxlint",
     "lint-staged": "lint-staged",
     "lint:fix": "oxlint --fix",
     "test": "vitest",
-    "test:ci": "vitest --run",
-    "tsc": "tsc",
+    "test:ci": "CI=true vitest",
+    "tsc": "tsc && pnpm --filter @schema-pack/website run types:check",
     "watch": "tsdown --watch"
   },
   "devDependencies": {

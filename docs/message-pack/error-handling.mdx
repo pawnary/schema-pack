@@ -1,0 +1,10 @@
+---
+title: Error handling
+description: How the encoder and decoder handle errors, and how to catch them.
+---
+
+The encoder and decoder currently throw plain `Error`s for invalid usage — e.g.
+registering a duplicate or out-of-range extension type, looking up an extension
+that isn't registered, or decoding a malformed timestamp payload. There's no
+dedicated error class hierarchy yet, so catch `Error` and inspect `message` if
+you need to branch on failure.

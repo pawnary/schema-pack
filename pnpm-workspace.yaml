@@ -13,16 +13,36 @@ catalog:
   '@pawnary/oxfmt-config': 0.0.0-commit.46c4a819fae0ab33ac972df5568e165efce9add9
   '@pawnary/oxlint-config': 0.0.0-commit.46c4a819fae0ab33ac972df5568e165efce9add9
   '@pawnary/tsdown-fix-exports': 0.0.1-next.ff1c982bcc87e5c8032af934ee04b0fedb4e3793
+  '@react-router/dev': ^8.3.0
+  '@react-router/node': ^8.3.0
+  '@react-router/serve': ^8.3.0
+  '@tailwindcss/vite': ^4.3.3
   '@types/bun': ^1.3.14
+  '@types/mdx': ^2.0.14
   '@types/node': ^26.2.0
+  '@types/react': ^19.2.18
+  cnfast: ^0.1.0
   console-table-printer: ^2.16.1
+  fumadocs-core: ^16.15.1
+  fumadocs-mdx: ^15.3.1
+  fumadocs-ui: ^16.15.1
+  isbot: ^5.2.1
   jsdom: ^30.0.1
+  lucide-react: ^1.34.0
   msgpackr: ^2.0.5
+  oxc-transform-react: ^0.147.0
   oxfmt: ^0.64.0
   oxlint: ^1.79.0
   oxlint-tsgolint: ^7.0.2001
   publint: ^0.3.23
+  react: ^19.2.8
+  react-dom: ^19.2.8
+  react-router: ^8.3.0
+  react-router-devtools: ^6.2.3
+  tailwindcss: ^4.3.3
   tinybench: ^6.1.3
   tsdown: ^0.22.14
   typescript: ^7.0.2
+  vite: ^8.2.2
+  vite-tsconfig-paths: ^6.1.1
   vitest: ^4.1.11

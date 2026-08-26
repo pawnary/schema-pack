@@ -1,0 +1,20 @@
+---
+title: initialBufferSize
+---
+
+- **Type:** `number`
+- **Default:** `1024`
+
+Initial size of the encoding buffer; grows automatically as needed.
+
+---
+
+Example:
+
+```ts
+import { EncoderBuffer } from '@schema-pack/message-pack';
+
+const encoder = new EncoderBuffer({
+  initialBufferSize: 2048,
+});
+```

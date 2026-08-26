@@ -1,0 +1,49 @@
+{
+  "name": "@schema-pack/website",
+  "version": "0.0.0-commit.26afe064c7a56c37bf7fb74f67222a4decd06fd4",
+  "private": true,
+  "description": "Website for Schema Pack",
+  "homepage": "https://github.com/pawnary/schema-pack/tree/master/packages/website#readme",
+  "bugs": {
+    "url": "https://github.com/pawnary/schema-pack/issues"
+  },
+  "license": "MIT",
+  "author": "Elvis Muñoz <elvis.munoz.f@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pawnary/schema-pack.git"
+  },
+  "files": [
+    "./dist"
+  ],
+  "type": "module",
+  "scripts": {
+    "build": "react-router build",
+    "dev": "react-router dev",
+    "types:check": "react-router typegen && tsc --noEmit"
+  },
+  "dependencies": {
+    "@react-router/node": "catalog:",
+    "@react-router/serve": "catalog:",
+    "cnfast": "catalog:",
+    "fumadocs-core": "catalog:",
+    "fumadocs-mdx": "catalog:",
+    "fumadocs-ui": "catalog:",
+    "isbot": "catalog:",
+    "lucide-react": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "react-router": "catalog:"
+  },
+  "devDependencies": {
+    "@react-router/dev": "catalog:",
+    "@tailwindcss/vite": "catalog:",
+    "@types/mdx": "catalog:",
+    "@types/react": "catalog:",
+    "oxc-transform-react": "catalog:",
+    "react-router-devtools": "catalog:",
+    "tailwindcss": "catalog:",
+    "vite": "catalog:",
+    "vite-tsconfig-paths": "catalog:"
+  }
+}

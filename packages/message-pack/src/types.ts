@@ -1,4 +1,4 @@
-export type NewBufferFn<TBuffer extends Uint8Array = Uint8Array> = (
+export type BufferFactory<TBuffer extends Uint8Array = Uint8Array> = (
   requiredSize: number,
 ) => TBuffer;
 
@@ -16,5 +16,5 @@ export interface BufferOptions<TBuffer extends Uint8Array = Uint8Array> {
    *
    * @default (size) => new Uint8Array(size)
    */
-  newBufferFn?: NewBufferFn<TBuffer>;
+  bufferFactory?: BufferFactory<TBuffer>;
 }

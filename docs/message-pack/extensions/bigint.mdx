@@ -1,0 +1,25 @@
+---
+title: BigIntExtension
+description: Handle large JavaScript integers
+---
+
+The `BigIntExtension` allows you to encode and decode JavaScript
+[`bigint`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/BigInt)
+values using a variable-length representation of the value's magnitude plus
+sign. This is particularly useful for handling 64-bit integers that exceed the
+safe integer range of JavaScript's `number` type.
+
+## Usage
+
+```ts
+import { Decoder, Encoder, BigIntExtension } from '@schema-pack/message-pack';
+
+const extension = new BigIntExtension();
+
+const encoder = new Encoder().addInternalExtension(extension);
+const decoder = new Decoder().addInternalExtension(extension);
+
+const buffer = encoder.encode(12345678901234567890n);
+
+decoder.decode(buffer); // 12345678901234567890n
+```

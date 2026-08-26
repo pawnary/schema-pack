@@ -1,0 +1,21 @@
+---
+title: initialSharedBufferSize
+---
+
+- **Type:** `number`
+- **Default:** `1024`
+
+Initial size of the shared buffer used when encoding strings, to reduce
+allocations; grows automatically as needed.
+
+---
+
+Example:
+
+```ts
+import { EncoderBuffer } from '@schema-pack/message-pack';
+
+const encoder = new EncoderBuffer({
+  initialSharedBufferSize: 2048,
+});
+```

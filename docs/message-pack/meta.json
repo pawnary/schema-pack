@@ -1,0 +1,14 @@
+{
+  "title": "Message Pack",
+  "pages": [
+    "index",
+    "install",
+    "advanced",
+    "caveats",
+    "extensions",
+    "error-handling",
+    "text-encoding-decoding",
+    "specification",
+    "..."
+  ]
+}

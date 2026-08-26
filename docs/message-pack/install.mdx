@@ -1,0 +1,39 @@
+---
+title: 'Installation'
+description: Installing @schema-pack/message-pack
+---
+
+{/* prettier-ignore */}
+<Tabs items={['pnpm', 'npm', 'yarn', 'bun']}>
+  <Tab value='pnpm'>
+    ```bash
+    pnpm add @schema-pack/message-pack@next
+    ```
+  </Tab>
+  <Tab value='npm'>
+    ```bash
+    npm install @schema-pack/message-pack@next
+    ```
+  </Tab>
+  <Tab value='yarn'>
+    ```bash
+    yarn add @schema-pack/message-pack@next
+    ```
+  </Tab>
+  <Tab value='bun'>
+    ```bash
+    bun add @schema-pack/message-pack@next
+    ```
+  </Tab>
+</Tabs>
+
+## Quick start
+
+```ts
+import { encode, decode } from '@schema-pack/message-pack';
+
+const buffer = encode({ hello: 'world', values: [1, 2, 3] });
+
+const value = decode(buffer);
+// { hello: 'world', values: [1, 2, 3] }
+```

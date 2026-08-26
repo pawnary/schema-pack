@@ -1,0 +1,29 @@
+---
+title: Caveats
+description: JavaScript caveats when using MessagePack
+---
+
+## 64-bit integers
+
+JavaScript numbers are IEEE 754 double-precision floats, so they can only
+represent integers safely between `Number.MIN_SAFE_INTEGER`
+(`-9007199254740991`) and `Number.MAX_SAFE_INTEGER` (`9007199254740991`) —
+exported here as `INT64_MIN` and `UINT64_MAX`.
+
+```ts
+import { INT64_MIN, UINT64_MAX } from '@schema-pack/message-pack';
+```
+
+By default, the encoder and decoder read and write these formats as regular JS
+`number`s, which is safe as long as your values stay within that safe integer
+range.
+
+We recommend using JavaScript
+[`BigInt`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/BigInt)
+to encode and decode 64-bit integer values outside the safe integer range.
+
+## JavaScript `BigInt`
+
+MessagePack does not have native support for large integers, but you can use the
+built-in [`BigIntExtension`](./../extensions/bigint) to encode and decode
+`bigint` values outside the safe integer.

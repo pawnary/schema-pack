@@ -1,0 +1,30 @@
+---
+title: TimestampDateExtension
+description: Handle JavaScript Date objects
+---
+
+The `TimestampDateExtension` allows you to encode and decode JavaScript
+[`Date`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date)
+objects using the standard MessagePack
+[timestamp extension type](https://github.com/msgpack/msgpack/blob/master/spec.md#timestamp-extension-type),
+automatically choosing the 32-bit, 64-bit, or 96-bit format based on the date's
+range and precision.
+
+## Usage
+
+```ts
+import {
+  Decoder,
+  Encoder,
+  TimestampDateExtension,
+} from '@schema-pack/message-pack';
+
+const extension = new TimestampDateExtension();
+
+const encoder = new Encoder().addInternalExtension(extension);
+const decoder = new Decoder().addInternalExtension(extension);
+
+const buffer = encoder.encode(new Date('2000-01-02'));
+
+decoder.decode(buffer); // Date instance representing 2000-01-02T00:00:00.000Z
+```

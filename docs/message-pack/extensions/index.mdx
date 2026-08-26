@@ -1,0 +1,42 @@
+---
+title: Available extensions
+description: Extensions for @schema-pack/message-pack
+---
+
+## Built-in extensions
+
+- [BigIntExtension](./bigint)
+- [TimestampDateExtension](./timestamp-date)
+
+## Writing your own extensions
+
+To handle
+[MessagePack extension types](https://github.com/msgpack/msgpack/blob/master/spec.md#extension-types),
+this library provides a simple interface for creating custom extensions:
+
+```ts
+import { MessagePackExtension } from '@schema-pack/message-pack';
+
+class MyCustomExtension implements MessagePackExtension<MyType> {
+  readonly type = 123; // extension type (0-127)
+
+  encode(value: object | bigint, buffer: MessagePackEncoderBuffer): void {
+    // encode the value into the buffer
+  }
+
+  decode(decoderBuffer: MessagePackDecoderBuffer, size: number): MyType {
+    // decode the value from the buffer
+  }
+}
+```
+
+Then register it on both the encoder and the decoder:
+
+```ts
+import { Encoder, Decoder } from '@schema-pack/message-pack';
+
+const myExtension = new MyCustomExtension();
+
+const encoder = new Encoder().addExtension(myExtension);
+const decoder = new Decoder().addExtension(myExtension);
+```
