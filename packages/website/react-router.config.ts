@@ -1,14 +1,35 @@
-import { glob } from 'node:fs/promises';
+import { glob, rename } from 'node:fs/promises';
 
 import type { Config } from '@react-router/dev/config';
 import { createGetUrl, getSlugs } from 'fumadocs-core/source';
 
-import { getPageImagePath } from './src/lib/shared';
+import { basename, isProd } from './src/constants.ts';
+import { getPageImagePath, gitConfig } from './src/lib/shared.ts';
 
 const getUrl = createGetUrl('/docs');
 
-export default {
+const config: Config = {
   appDirectory: 'src',
+  basename,
+  buildEnd: async (args): Promise<void> => {
+    if (!isProd) {
+      return;
+    }
+
+    const clientDirectory = `${args.reactRouterConfig.buildDirectory}/client`;
+
+    const iterator = glob('*', {
+      cwd: clientDirectory,
+      exclude: [gitConfig.repo],
+    });
+
+    for await (const entry of iterator) {
+      await rename(
+        `${clientDirectory}/${entry}`,
+        `${clientDirectory}/${gitConfig.repo}/${entry}`,
+      );
+    }
+  },
   async prerender({ getStaticPaths }): Promise<string[]> {
     const paths: string[] = [];
 
@@ -25,4 +46,6 @@ export default {
     return paths;
   },
   ssr: false,
-} satisfies Config;
+};
+
+export default config;
