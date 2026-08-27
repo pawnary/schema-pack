@@ -3,8 +3,10 @@ on:
   push:
     branches:
       - master
-    # paths:
-    #   - 'docs/**'
+    paths:
+      - '.github/workflows/publish-docs.yml'
+      - 'docs/**'
+      - 'packages/website/**'
 concurrency:
   group: ${{ github.workflow }}
   cancel-in-progress: true

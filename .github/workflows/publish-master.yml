@@ -4,8 +4,10 @@ on:
     branches:
       - master
     paths-ignore:
+      - '.vscode/**'
       - '**/README.md'
-      - .vscode/**
+      - 'docs/**'
+      - 'packages/website/**'
 jobs:
   publish:
     name: 'Publish to NPM registry'
