@@ -106,10 +106,6 @@
       "import": "./dist/esm/encoder/encoder.mjs",
       "require": "./dist/cjs/encoder/encoder.cjs"
     },
-    "./encoder/encoderBuffer": {
-      "import": "./dist/esm/encoder/encoderBuffer.mjs",
-      "require": "./dist/cjs/encoder/encoderBuffer.cjs"
-    },
     "./encoder/interfaces": {
       "import": "./dist/esm/encoder/interfaces/index.mjs",
       "require": "./dist/cjs/encoder/interfaces/index.cjs"
