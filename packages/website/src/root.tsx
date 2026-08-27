@@ -11,6 +11,7 @@ import {
 import type { Route } from './+types/root';
 
 import './app.css';
+import { favicon } from './constants';
 import NotFound from './routes/not-found';
 
 export const links: Route.LinksFunction = () => [
@@ -37,6 +38,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <meta
           name='viewport'
           content='width=device-width, initial-scale=1'
+        />
+        <link
+          rel='icon'
+          type='image/x-icon'
+          href={favicon}
         />
         <Meta />
         <Links />
