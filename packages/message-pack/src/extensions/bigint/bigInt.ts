@@ -1,5 +1,5 @@
 import type MessagePackDecoderBuffer from '../../decoder/interfaces/messagePackDecoderBuffer.ts';
-import type { ExtensionEncoderBuffer } from '../../encoder/types.ts';
+import type { ExtensionEncoder } from '../../encoder/types.ts';
 import UntypedExtension from '../../untypedExtension.ts';
 
 const BIGINT_MASK = 0xff_ff_ff_ff_ff_ff_ff_ffn;
@@ -24,12 +24,9 @@ class BigIntExtension<
    * indicate negativity.
    *
    * @param value - The BigInt value to encode.
-   * @param buffer - The buffer to write the encoded data to.
+   * @param encoder - The extension encoder to write the encoded data to.
    */
-  encode(
-    value: object | bigint,
-    buffer: ExtensionEncoderBuffer<TBuffer>,
-  ): void {
+  encode(value: object | bigint, encoder: ExtensionEncoder<TBuffer>): void {
     if (typeof value === 'bigint') {
       let magnitude: bigint;
 
@@ -40,9 +37,13 @@ class BigIntExtension<
       }
 
       while (magnitude > 0n) {
-        buffer.ensureCapacity(8);
-        buffer.view.setBigUint64(buffer.offset, magnitude & BIGINT_MASK, false);
-        buffer.offset += 8;
+        encoder.ensureCapacity(8);
+        encoder.view.setBigUint64(
+          encoder.offset,
+          magnitude & BIGINT_MASK,
+          false,
+        );
+        encoder.offset += 8;
         magnitude >>= 64n;
       }
     }

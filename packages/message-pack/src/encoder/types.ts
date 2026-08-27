@@ -1,8 +1,8 @@
 import type { BufferOptions } from '../types.ts';
-import type MessagePackEncoderBuffer from './interfaces/messagePackEncoderBuffer.ts';
+import type MessagePackEncoder from './interfaces/messagePackEncoder.ts';
 import type MessagePackTextEncoder from './interfaces/messagePackTextEncoder.ts';
 
-export interface EncoderBufferOptions<
+export interface EncoderOptions<
   TBuffer extends Uint8Array = Uint8Array,
 > extends BufferOptions<TBuffer> {
   /**
@@ -48,8 +48,8 @@ export type OmitByPattern<TRecord, Pattern extends string> = {
   [TKey in keyof TRecord as TKey extends Pattern ? never : TKey]: TRecord[TKey];
 };
 
-export type ExtensionEncoderBuffer<TBuffer extends Uint8Array = Uint8Array> =
+export type ExtensionEncoder<TBuffer extends Uint8Array = Uint8Array> =
   OmitByPattern<
-    MessagePackEncoderBuffer<TBuffer>,
+    MessagePackEncoder<TBuffer>,
     `${string}Extension` | 'resetBuffer' | 'extensions'
   >;

@@ -1,5 +1,5 @@
 import type MessagePackDecoderBuffer from './decoder/interfaces/messagePackDecoderBuffer.ts';
-import type MessagePackEncoderBuffer from './encoder/interfaces/messagePackEncoderBuffer.ts';
+import type { ExtensionEncoder } from './encoder/types.ts';
 import type MessagePackExtension from './extensions/interfaces/messagePackExtension.ts';
 
 abstract class UntypedExtension<
@@ -18,7 +18,7 @@ abstract class UntypedExtension<
 
   abstract encode(
     value: object | bigint,
-    buffer: MessagePackEncoderBuffer<TBuffer>,
+    encoder: ExtensionEncoder<TBuffer>,
   ): void;
 
   abstract decode(

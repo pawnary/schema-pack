@@ -1,5 +1,5 @@
 import type MessagePackDecoderBuffer from '../../decoder/interfaces/messagePackDecoderBuffer.ts';
-import type MessagePackEncoderBuffer from '../../encoder/interfaces/messagePackEncoderBuffer.ts';
+import type { ExtensionEncoder } from '../../encoder/types.ts';
 
 export default interface MessagePackExtension<
   TValue = unknown,
@@ -18,12 +18,9 @@ export default interface MessagePackExtension<
    *
    * @param value - The value to be encoded. This can be of any type, but the
    *   implementation should handle specific types as needed.
-   * @param buffer - The buffer where the encoded data will be written.
+   * @param encoder - The extension encoder where the data will be written.
    */
-  encode(
-    value: object | bigint,
-    buffer: MessagePackEncoderBuffer<TBuffer>,
-  ): void;
+  encode(value: object | bigint, encoder: ExtensionEncoder<TBuffer>): void;
 
   /**
    * Decodes a value from the provided DataView starting at the specified

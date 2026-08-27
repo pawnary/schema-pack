@@ -15,27 +15,40 @@ To handle
 this library provides a simple interface for creating custom extensions:
 
 ```ts
-import { MessagePackExtension } from '@schema-pack/message-pack';
+import {
+  MessagePackExtension,
+  ExtensionEncoder,
+  MessagePackDecoderBuffer,
+} from '@schema-pack/message-pack';
 
-class MyCustomExtension implements MessagePackExtension<MyType> {
+class CustomExtension<
+  TBuffer extends Uint8Array = Uint8Array,
+> implements MessagePackExtension<string, TBuffer> {
   readonly type = 123; // extension type (0-127)
 
-  encode(value: object | bigint, buffer: MessagePackEncoderBuffer): void {
-    // encode the value into the buffer
+  encode(value: object | bigint, encoder: ExtensionEncoder<TBuffer>): void {
+    // encode the value into the encoder buffer
   }
 
-  decode(decoderBuffer: MessagePackDecoderBuffer, size: number): MyType {
-    // decode the value from the buffer
+  decode(decoderBuffer: MessagePackDecoderBuffer, size: number): string {
+    // decode the value from the encoder buffer
   }
 }
 ```
+
+Where:
+
+- `CustomExtension` is your custom extension class
+- `string` is the type it handles.
+- `TBuffer` is not needed unless you want to customize the buffer type, but is
+  recommended to include it for consistency.
 
 Then register it on both the encoder and the decoder:
 
 ```ts
 import { Encoder, Decoder } from '@schema-pack/message-pack';
 
-const myExtension = new MyCustomExtension();
+const myExtension = new CustomExtension();
 
 const encoder = new Encoder().addExtension(myExtension);
 const decoder = new Decoder().addExtension(myExtension);

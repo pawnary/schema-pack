@@ -5,14 +5,14 @@ import {
   DEFAULT_ALLOCATION_SIZE,
   INT64_MIN,
   UINT64_MAX,
-} from '../../src/constants.ts';
-import EncoderBuffer from '../../src/encoder/encoderBuffer.ts';
-import DefaultTextEncoder from '../../src/encoder/textEncoders/defaultTextEncoder.ts';
-import type MessagePackExtension from '../../src/extensions/interfaces/messagePackExtension.ts';
-import Symbols from '../../src/symbols.ts';
+} from '../../../src/constants.ts';
+import Encoder from '../../../src/encoder/encoder.ts';
+import DefaultTextEncoder from '../../../src/encoder/textEncoders/defaultTextEncoder.ts';
+import type MessagePackExtension from '../../../src/extensions/interfaces/messagePackExtension.ts';
+import Symbols from '../../../src/symbols.ts';
 
 describe('internal properties', () => {
-  class MockBuffer extends EncoderBuffer {
+  class MockBuffer extends Encoder {
     public getSharedBuffer(): Uint8Array {
       return this.sharedBuffer;
     }
@@ -32,10 +32,10 @@ describe('internal properties', () => {
     expect(buffer.getSharedBuffer()).toHaveLength(DEFAULT_ALLOCATION_SIZE);
   });
 
-  it('getExtensionBuffer', () => {
+  it('getExtensionEncoder', () => {
     const buffer = new MockBuffer();
 
-    const extensionBuffer = buffer.getExtensionBuffer();
+    const extensionBuffer = buffer.getExtensionEncoder();
 
     expect(extensionBuffer).not.toBe(buffer);
     expect(extensionBuffer.buffer).not.toBe(buffer.buffer);
@@ -83,7 +83,7 @@ describe('internal properties', () => {
 
 describe('write primitive types', () => {
   it('writePositiveFixInt', () => {
-    const buffer = new EncoderBuffer({
+    const buffer = new Encoder({
       initialBufferSize: 1,
     });
 
@@ -94,7 +94,7 @@ describe('write primitive types', () => {
   });
 
   it('writeNegativeFixInt', () => {
-    const buffer = new EncoderBuffer({
+    const buffer = new Encoder({
       initialBufferSize: 1,
     });
 
@@ -105,7 +105,7 @@ describe('write primitive types', () => {
   });
 
   it('writeBin', () => {
-    const buffer = new EncoderBuffer({
+    const buffer = new Encoder({
       initialBufferSize: 3,
     });
 
@@ -118,7 +118,7 @@ describe('write primitive types', () => {
   });
 
   it('writeFloat32', () => {
-    const buffer = new EncoderBuffer({
+    const buffer = new Encoder({
       initialBufferSize: 4,
     });
 
@@ -129,7 +129,7 @@ describe('write primitive types', () => {
   });
 
   it('writeFloat64', () => {
-    const buffer = new EncoderBuffer({
+    const buffer = new Encoder({
       initialBufferSize: 8,
     });
 
@@ -140,7 +140,7 @@ describe('write primitive types', () => {
   });
 
   it('writeUint8', () => {
-    const buffer = new EncoderBuffer({
+    const buffer = new Encoder({
       initialBufferSize: 1,
     });
 
@@ -151,7 +151,7 @@ describe('write primitive types', () => {
   });
 
   it('writeUint16', () => {
-    const buffer = new EncoderBuffer({
+    const buffer = new Encoder({
       initialBufferSize: 2,
     });
 
@@ -162,7 +162,7 @@ describe('write primitive types', () => {
   });
 
   it('writeUint32', () => {
-    const buffer = new EncoderBuffer({
+    const buffer = new Encoder({
       initialBufferSize: 4,
     });
 
@@ -173,7 +173,7 @@ describe('write primitive types', () => {
   });
 
   it('writeUint64', () => {
-    const buffer = new EncoderBuffer({
+    const buffer = new Encoder({
       initialBufferSize: 8,
     });
 
@@ -188,7 +188,7 @@ describe('write primitive types', () => {
   });
 
   it('writeInt8', () => {
-    const buffer = new EncoderBuffer({
+    const buffer = new Encoder({
       initialBufferSize: 1,
     });
 
@@ -199,7 +199,7 @@ describe('write primitive types', () => {
   });
 
   it('writeInt16', () => {
-    const buffer = new EncoderBuffer({
+    const buffer = new Encoder({
       initialBufferSize: 2,
     });
 
@@ -210,7 +210,7 @@ describe('write primitive types', () => {
   });
 
   it('writeInt32', () => {
-    const buffer = new EncoderBuffer({
+    const buffer = new Encoder({
       initialBufferSize: 4,
     });
 
@@ -221,7 +221,7 @@ describe('write primitive types', () => {
   });
 
   it('writeInt64', () => {
-    const buffer = new EncoderBuffer({
+    const buffer = new Encoder({
       initialBufferSize: 8,
     });
 
@@ -236,7 +236,7 @@ describe('write primitive types', () => {
   });
 
   it('writeStr', () => {
-    const buffer = new EncoderBuffer({
+    const buffer = new Encoder({
       initialBufferSize: 3,
     });
 
@@ -249,7 +249,7 @@ describe('write primitive types', () => {
 
 describe('write symbols', () => {
   it('writeNilSymbol', () => {
-    const buffer = new EncoderBuffer({
+    const buffer = new Encoder({
       initialBufferSize: 1,
     });
 
@@ -260,7 +260,7 @@ describe('write symbols', () => {
   });
 
   it('writeFalseSymbol', () => {
-    const buffer = new EncoderBuffer({
+    const buffer = new Encoder({
       initialBufferSize: 1,
     });
 
@@ -271,7 +271,7 @@ describe('write symbols', () => {
   });
 
   it('writeTrueSymbol', () => {
-    const buffer = new EncoderBuffer({
+    const buffer = new Encoder({
       initialBufferSize: 1,
     });
 
@@ -282,7 +282,7 @@ describe('write symbols', () => {
   });
 
   it('writeFixMapSymbol', () => {
-    const buffer = new EncoderBuffer({
+    const buffer = new Encoder({
       initialBufferSize: 1,
     });
 
@@ -293,7 +293,7 @@ describe('write symbols', () => {
   });
 
   it('writeFixArraySymbol', () => {
-    const buffer = new EncoderBuffer({
+    const buffer = new Encoder({
       initialBufferSize: 1,
     });
 
@@ -304,7 +304,7 @@ describe('write symbols', () => {
   });
 
   it('writeFixStrSymbol', () => {
-    const buffer = new EncoderBuffer({
+    const buffer = new Encoder({
       initialBufferSize: 1,
     });
 
@@ -315,7 +315,7 @@ describe('write symbols', () => {
   });
 
   it('writeBin8Symbol', () => {
-    const buffer = new EncoderBuffer({
+    const buffer = new Encoder({
       initialBufferSize: 2,
     });
 
@@ -326,7 +326,7 @@ describe('write symbols', () => {
   });
 
   it('writeBin16Symbol', () => {
-    const buffer = new EncoderBuffer({
+    const buffer = new Encoder({
       initialBufferSize: 3,
     });
 
@@ -337,7 +337,7 @@ describe('write symbols', () => {
   });
 
   it('writeBin32Symbol', () => {
-    const buffer = new EncoderBuffer({
+    const buffer = new Encoder({
       initialBufferSize: 5,
     });
 
@@ -348,7 +348,7 @@ describe('write symbols', () => {
   });
 
   it('writeFloat32Symbol', () => {
-    const buffer = new EncoderBuffer({
+    const buffer = new Encoder({
       initialBufferSize: 1,
     });
 
@@ -359,7 +359,7 @@ describe('write symbols', () => {
   });
 
   it('writeFloat64Symbol', () => {
-    const buffer = new EncoderBuffer({
+    const buffer = new Encoder({
       initialBufferSize: 1,
     });
 
@@ -370,7 +370,7 @@ describe('write symbols', () => {
   });
 
   it('writeUint8Symbol', () => {
-    const buffer = new EncoderBuffer({
+    const buffer = new Encoder({
       initialBufferSize: 1,
     });
 
@@ -381,7 +381,7 @@ describe('write symbols', () => {
   });
 
   it('writeUint16Symbol', () => {
-    const buffer = new EncoderBuffer({
+    const buffer = new Encoder({
       initialBufferSize: 1,
     });
 
@@ -392,7 +392,7 @@ describe('write symbols', () => {
   });
 
   it('writeUint32Symbol', () => {
-    const buffer = new EncoderBuffer({
+    const buffer = new Encoder({
       initialBufferSize: 1,
     });
 
@@ -403,7 +403,7 @@ describe('write symbols', () => {
   });
 
   it('writeUint64Symbol', () => {
-    const buffer = new EncoderBuffer({
+    const buffer = new Encoder({
       initialBufferSize: 1,
     });
 
@@ -414,7 +414,7 @@ describe('write symbols', () => {
   });
 
   it('writeInt8Symbol', () => {
-    const buffer = new EncoderBuffer({
+    const buffer = new Encoder({
       initialBufferSize: 1,
     });
 
@@ -425,7 +425,7 @@ describe('write symbols', () => {
   });
 
   it('writeInt16Symbol', () => {
-    const buffer = new EncoderBuffer({
+    const buffer = new Encoder({
       initialBufferSize: 1,
     });
 
@@ -436,7 +436,7 @@ describe('write symbols', () => {
   });
 
   it('writeInt32Symbol', () => {
-    const buffer = new EncoderBuffer({
+    const buffer = new Encoder({
       initialBufferSize: 1,
     });
 
@@ -447,7 +447,7 @@ describe('write symbols', () => {
   });
 
   it('writeInt64Symbol', () => {
-    const buffer = new EncoderBuffer({
+    const buffer = new Encoder({
       initialBufferSize: 1,
     });
 
@@ -458,7 +458,7 @@ describe('write symbols', () => {
   });
 
   it('writeStr8Symbol', () => {
-    const buffer = new EncoderBuffer({
+    const buffer = new Encoder({
       initialBufferSize: 2,
     });
 
@@ -469,7 +469,7 @@ describe('write symbols', () => {
   });
 
   it('writeStr16Symbol', () => {
-    const buffer = new EncoderBuffer({
+    const buffer = new Encoder({
       initialBufferSize: 3,
     });
 
@@ -480,7 +480,7 @@ describe('write symbols', () => {
   });
 
   it('writeStr32Symbol', () => {
-    const buffer = new EncoderBuffer({
+    const buffer = new Encoder({
       initialBufferSize: 5,
     });
 
@@ -491,7 +491,7 @@ describe('write symbols', () => {
   });
 
   it('writeArray16Symbol', () => {
-    const buffer = new EncoderBuffer({
+    const buffer = new Encoder({
       initialBufferSize: 3,
     });
 
@@ -502,7 +502,7 @@ describe('write symbols', () => {
   });
 
   it('writeArray32Symbol', () => {
-    const buffer = new EncoderBuffer({
+    const buffer = new Encoder({
       initialBufferSize: 5,
     });
 
@@ -513,7 +513,7 @@ describe('write symbols', () => {
   });
 
   it('writeMap16Symbol', () => {
-    const buffer = new EncoderBuffer({
+    const buffer = new Encoder({
       initialBufferSize: 3,
     });
 
@@ -524,7 +524,7 @@ describe('write symbols', () => {
   });
 
   it('writeMap32Symbol', () => {
-    const buffer = new EncoderBuffer({
+    const buffer = new Encoder({
       initialBufferSize: 5,
     });
 
@@ -535,7 +535,7 @@ describe('write symbols', () => {
   });
 
   it('writeFixExt1Symbol', () => {
-    const buffer = new EncoderBuffer({
+    const buffer = new Encoder({
       initialBufferSize: 2,
     });
 
@@ -546,7 +546,7 @@ describe('write symbols', () => {
   });
 
   it('writeFixExt2Symbol', () => {
-    const buffer = new EncoderBuffer({
+    const buffer = new Encoder({
       initialBufferSize: 2,
     });
 
@@ -557,7 +557,7 @@ describe('write symbols', () => {
   });
 
   it('writeFixExt4Symbol', () => {
-    const buffer = new EncoderBuffer({
+    const buffer = new Encoder({
       initialBufferSize: 2,
     });
 
@@ -568,7 +568,7 @@ describe('write symbols', () => {
   });
 
   it('writeFixExt8Symbol', () => {
-    const buffer = new EncoderBuffer({
+    const buffer = new Encoder({
       initialBufferSize: 2,
     });
 
@@ -579,7 +579,7 @@ describe('write symbols', () => {
   });
 
   it('writeFixExt16Symbol', () => {
-    const buffer = new EncoderBuffer({
+    const buffer = new Encoder({
       initialBufferSize: 2,
     });
 
@@ -590,7 +590,7 @@ describe('write symbols', () => {
   });
 
   it('writeExt8Symbol', () => {
-    const buffer = new EncoderBuffer({
+    const buffer = new Encoder({
       initialBufferSize: 3,
     });
 
@@ -601,7 +601,7 @@ describe('write symbols', () => {
   });
 
   it('writeExt16Symbol', () => {
-    const buffer = new EncoderBuffer({
+    const buffer = new Encoder({
       initialBufferSize: 4,
     });
 
@@ -612,7 +612,7 @@ describe('write symbols', () => {
   });
 
   it('writeExt32Symbol', () => {
-    const buffer = new EncoderBuffer({
+    const buffer = new Encoder({
       initialBufferSize: 6,
     });
 
@@ -626,7 +626,7 @@ describe('write symbols', () => {
 describe('general writing', () => {
   describe('writeString', () => {
     it('should write a fix str', () => {
-      const buffer = new EncoderBuffer({
+      const buffer = new Encoder({
         initialBufferSize: 1,
       });
 
@@ -639,7 +639,7 @@ describe('general writing', () => {
     });
 
     it('should write a str8', () => {
-      const buffer = new EncoderBuffer({
+      const buffer = new Encoder({
         initialBufferSize: 1,
       });
 
@@ -653,7 +653,7 @@ describe('general writing', () => {
     });
 
     it('should write a str8 with a multi-byte character', () => {
-      const buffer = new EncoderBuffer({
+      const buffer = new Encoder({
         initialBufferSize: 1,
       });
 
@@ -668,7 +668,7 @@ describe('general writing', () => {
     });
 
     it('should write a str8 bypassing the threshold', () => {
-      const buffer = new EncoderBuffer({
+      const buffer = new Encoder({
         initialBufferSize: 1,
       });
 
@@ -682,7 +682,7 @@ describe('general writing', () => {
     });
 
     it('should write a str16', () => {
-      const buffer = new EncoderBuffer({
+      const buffer = new Encoder({
         initialBufferSize: 1,
       });
 
@@ -698,7 +698,7 @@ describe('general writing', () => {
     });
 
     it('should write a str32', () => {
-      const buffer = new EncoderBuffer({
+      const buffer = new Encoder({
         initialBufferSize: 1,
       });
 
@@ -718,7 +718,7 @@ describe('general writing', () => {
 
   describe('writeNumber', () => {
     it('should encode a negative fix int', () => {
-      const buffer = new EncoderBuffer({
+      const buffer = new Encoder({
         initialBufferSize: 1,
       });
 
@@ -730,7 +730,7 @@ describe('general writing', () => {
     });
 
     it('should encode a int 8', () => {
-      const buffer = new EncoderBuffer({
+      const buffer = new Encoder({
         initialBufferSize: 1,
       });
 
@@ -743,7 +743,7 @@ describe('general writing', () => {
     });
 
     it('should encode a int 16', () => {
-      const buffer = new EncoderBuffer({
+      const buffer = new Encoder({
         initialBufferSize: 1,
       });
 
@@ -757,7 +757,7 @@ describe('general writing', () => {
     });
 
     it('should encode a int 32', () => {
-      const buffer = new EncoderBuffer({
+      const buffer = new Encoder({
         initialBufferSize: 1,
       });
 
@@ -773,7 +773,7 @@ describe('general writing', () => {
     });
 
     it('should encode a int 64', () => {
-      const buffer = new EncoderBuffer({
+      const buffer = new Encoder({
         initialBufferSize: 1,
       });
 
@@ -793,7 +793,7 @@ describe('general writing', () => {
     });
 
     it('should encode a positive fix int', () => {
-      const buffer = new EncoderBuffer({
+      const buffer = new Encoder({
         initialBufferSize: 1,
       });
 
@@ -803,7 +803,7 @@ describe('general writing', () => {
     });
 
     it('should encode a uint 8', () => {
-      const buffer = new EncoderBuffer({
+      const buffer = new Encoder({
         initialBufferSize: 1,
       });
 
@@ -816,7 +816,7 @@ describe('general writing', () => {
     });
 
     it('should encode a uint 16', () => {
-      const buffer = new EncoderBuffer({
+      const buffer = new Encoder({
         initialBufferSize: 1,
       });
 
@@ -830,7 +830,7 @@ describe('general writing', () => {
     });
 
     it('should encode a uint 32', () => {
-      const buffer = new EncoderBuffer({
+      const buffer = new Encoder({
         initialBufferSize: 1,
       });
 
@@ -846,7 +846,7 @@ describe('general writing', () => {
     });
 
     it('should encode a uint 64', () => {
-      const buffer = new EncoderBuffer({
+      const buffer = new Encoder({
         initialBufferSize: 1,
       });
 
@@ -866,7 +866,7 @@ describe('general writing', () => {
     });
 
     it('should encode a float 64', () => {
-      const buffer = new EncoderBuffer({
+      const buffer = new Encoder({
         initialBufferSize: 1,
       });
 
@@ -889,7 +889,7 @@ describe('general writing', () => {
   describe('writeMap', () => {
     describe('openMap', () => {
       it('should open a fixmap', () => {
-        const buffer = new EncoderBuffer({
+        const buffer = new Encoder({
           initialBufferSize: 1,
         });
 
@@ -899,7 +899,7 @@ describe('general writing', () => {
       });
 
       it('should open a map16', () => {
-        const buffer = new EncoderBuffer({
+        const buffer = new Encoder({
           initialBufferSize: 1,
         });
 
@@ -909,7 +909,7 @@ describe('general writing', () => {
       });
 
       it('should open a map32', () => {
-        const buffer = new EncoderBuffer({
+        const buffer = new Encoder({
           initialBufferSize: 1,
         });
 
@@ -919,7 +919,7 @@ describe('general writing', () => {
       });
 
       it('should throw an error if the map is too big', () => {
-        const buffer = new EncoderBuffer({
+        const buffer = new Encoder({
           initialBufferSize: 1,
         });
 
@@ -930,7 +930,7 @@ describe('general writing', () => {
     });
 
     it('should write a fix map', () => {
-      const buffer = new EncoderBuffer({
+      const buffer = new Encoder({
         initialBufferSize: 1,
       });
 
@@ -1007,7 +1007,7 @@ describe('general writing', () => {
     });
 
     it('should write a map 16', () => {
-      const buffer = new EncoderBuffer({
+      const buffer = new Encoder({
         initialBufferSize: 1,
       });
 
@@ -1090,7 +1090,7 @@ describe('general writing', () => {
     });
 
     it('should write a map 32', () => {
-      const buffer = new EncoderBuffer({
+      const buffer = new Encoder({
         initialBufferSize: 1,
       });
 
@@ -1119,7 +1119,7 @@ describe('general writing', () => {
   describe('writeArray', () => {
     describe('openArray', () => {
       it('should open a fixarray', () => {
-        const buffer = new EncoderBuffer({
+        const buffer = new Encoder({
           initialBufferSize: 1,
         });
 
@@ -1129,7 +1129,7 @@ describe('general writing', () => {
       });
 
       it('should open an array16', () => {
-        const buffer = new EncoderBuffer({
+        const buffer = new Encoder({
           initialBufferSize: 1,
         });
 
@@ -1139,7 +1139,7 @@ describe('general writing', () => {
       });
 
       it('should open an array32', () => {
-        const buffer = new EncoderBuffer({
+        const buffer = new Encoder({
           initialBufferSize: 1,
         });
 
@@ -1149,7 +1149,7 @@ describe('general writing', () => {
       });
 
       it('should throw an error if the array is too big', () => {
-        const buffer = new EncoderBuffer({
+        const buffer = new Encoder({
           initialBufferSize: 1,
         });
 
@@ -1160,7 +1160,7 @@ describe('general writing', () => {
     });
 
     it('should write a fix array', () => {
-      const buffer = new EncoderBuffer({
+      const buffer = new Encoder({
         initialBufferSize: 1,
       });
 
@@ -1175,7 +1175,7 @@ describe('general writing', () => {
     });
 
     it('should write an array 16', () => {
-      const buffer = new EncoderBuffer({
+      const buffer = new Encoder({
         initialBufferSize: 1,
       });
 
@@ -1192,7 +1192,7 @@ describe('general writing', () => {
     });
 
     it('should write an array 32', () => {
-      const buffer = new EncoderBuffer({
+      const buffer = new Encoder({
         initialBufferSize: 1,
       });
 
@@ -1213,7 +1213,7 @@ describe('general writing', () => {
 
   describe('writeUint8Array', () => {
     it('should write a bin 8', () => {
-      const buffer = new EncoderBuffer({
+      const buffer = new Encoder({
         initialBufferSize: 1,
       });
 
@@ -1231,7 +1231,7 @@ describe('general writing', () => {
     });
 
     it('should write a bin 16', () => {
-      const buffer = new EncoderBuffer({
+      const buffer = new Encoder({
         initialBufferSize: 1,
       });
 
@@ -1248,7 +1248,7 @@ describe('general writing', () => {
     });
 
     it('should write a bin 32', () => {
-      const buffer = new EncoderBuffer({
+      const buffer = new Encoder({
         initialBufferSize: 1,
       });
 
@@ -1267,7 +1267,7 @@ describe('general writing', () => {
     });
 
     it('should throw an error if the uint8 array is too big', () => {
-      const buffer = new EncoderBuffer({
+      const buffer = new Encoder({
         initialBufferSize: 1,
       });
 
@@ -1284,11 +1284,11 @@ describe('general writing', () => {
 
   describe('writeExtension', () => {
     it('should encode a fixext 1', () => {
-      const buffer = new EncoderBuffer({
+      const buffer = new Encoder({
         initialBufferSize: 1,
       });
 
-      const extensionBuffer = new EncoderBuffer({
+      const extensionBuffer = new Encoder({
         initialBufferSize: 1,
       });
 
@@ -1310,11 +1310,11 @@ describe('general writing', () => {
     });
 
     it('should encode a fixext 2', () => {
-      const buffer = new EncoderBuffer({
+      const buffer = new Encoder({
         initialBufferSize: 1,
       });
 
-      const extensionBuffer = new EncoderBuffer({
+      const extensionBuffer = new Encoder({
         initialBufferSize: 2,
       });
 
@@ -1336,11 +1336,11 @@ describe('general writing', () => {
     });
 
     it('should encode a fixext 4', () => {
-      const buffer = new EncoderBuffer({
+      const buffer = new Encoder({
         initialBufferSize: 1,
       });
 
-      const extensionBuffer = new EncoderBuffer({
+      const extensionBuffer = new Encoder({
         initialBufferSize: 4,
       });
 
@@ -1362,11 +1362,11 @@ describe('general writing', () => {
     });
 
     it('should encode a fixext 8', () => {
-      const buffer = new EncoderBuffer({
+      const buffer = new Encoder({
         initialBufferSize: 1,
       });
 
-      const extensionBuffer = new EncoderBuffer({
+      const extensionBuffer = new Encoder({
         initialBufferSize: 8,
       });
 
@@ -1388,11 +1388,11 @@ describe('general writing', () => {
     });
 
     it('should encode a fixext 16', () => {
-      const buffer = new EncoderBuffer({
+      const buffer = new Encoder({
         initialBufferSize: 1,
       });
 
-      const extensionBuffer = new EncoderBuffer({
+      const extensionBuffer = new Encoder({
         initialBufferSize: 16,
       });
 
@@ -1414,11 +1414,11 @@ describe('general writing', () => {
     });
 
     it('should encode a ext 8', () => {
-      const buffer = new EncoderBuffer({
+      const buffer = new Encoder({
         initialBufferSize: 1,
       });
 
-      const extensionBuffer = new EncoderBuffer({
+      const extensionBuffer = new Encoder({
         initialBufferSize: 3,
       });
 
@@ -1441,11 +1441,11 @@ describe('general writing', () => {
     });
 
     it('should encode a ext 16', () => {
-      const buffer = new EncoderBuffer({
+      const buffer = new Encoder({
         initialBufferSize: 1,
       });
 
-      const extensionBuffer = new EncoderBuffer({
+      const extensionBuffer = new Encoder({
         initialBufferSize: 256,
       });
 
@@ -1469,11 +1469,11 @@ describe('general writing', () => {
     });
 
     it('should encode a ext 32', () => {
-      const buffer = new EncoderBuffer({
+      const buffer = new Encoder({
         initialBufferSize: 1,
       });
 
-      const extensionBuffer = new EncoderBuffer({
+      const extensionBuffer = new Encoder({
         initialBufferSize: 65_536,
       });
 
@@ -1499,11 +1499,11 @@ describe('general writing', () => {
     });
 
     it('should throw an error if the extension is too big', () => {
-      const buffer = new EncoderBuffer({
+      const buffer = new Encoder({
         initialBufferSize: 1,
       });
 
-      const extensionBuffer = new EncoderBuffer({
+      const extensionBuffer = new Encoder({
         initialBufferSize: 1,
       });
 
@@ -1524,7 +1524,7 @@ describe('general writing', () => {
   });
 
   it('should fails with bigint with no extensions', () => {
-    const buffer = new EncoderBuffer({
+    const buffer = new Encoder({
       initialBufferSize: 1,
     });
 
@@ -1537,7 +1537,7 @@ describe('general writing', () => {
 
   describe('writeObject', () => {
     it('should call writeArray', () => {
-      const buffer = new EncoderBuffer({
+      const buffer = new Encoder({
         initialBufferSize: 1,
       });
 
@@ -1550,7 +1550,7 @@ describe('general writing', () => {
     });
 
     it('should call writeExtension', () => {
-      const buffer = new EncoderBuffer({
+      const buffer = new Encoder({
         initialBufferSize: 1,
       });
 
@@ -1559,8 +1559,8 @@ describe('general writing', () => {
       };
 
       const encodeFn = vi.fn<
-        (value: unknown, extensionBuffer: EncoderBuffer) => void
-      >((_value, extensionBuffer: EncoderBuffer) => {
+        (value: unknown, extensionBuffer: Encoder) => void
+      >((_value, extensionBuffer: Encoder) => {
         extensionBuffer.writeUint8(42);
       });
 
@@ -1575,15 +1575,15 @@ describe('general writing', () => {
       buffer.addExtension(extension);
       buffer.writeObject(value);
 
-      expect(encodeFn).toHaveBeenCalledWith(value, expect.any(EncoderBuffer));
+      expect(encodeFn).toHaveBeenCalledWith(value, expect.any(Encoder));
       expect(writeExtensionSpy).toHaveBeenCalledWith(
         extension,
-        expect.any(EncoderBuffer),
+        expect.any(Encoder),
       );
     });
 
     it('should call writeUint8Array', () => {
-      const buffer = new EncoderBuffer({
+      const buffer = new Encoder({
         initialBufferSize: 1,
       });
 
@@ -1596,7 +1596,7 @@ describe('general writing', () => {
     });
 
     it('should call writeMap', () => {
-      const buffer = new EncoderBuffer({
+      const buffer = new Encoder({
         initialBufferSize: 1,
       });
 
@@ -1614,7 +1614,7 @@ describe('general writing', () => {
 
   describe('write', () => {
     it('should call writeTrueFlag, ensuring capacity', () => {
-      const buffer = new EncoderBuffer({
+      const buffer = new Encoder({
         initialBufferSize: 1,
       });
 
@@ -1630,7 +1630,7 @@ describe('general writing', () => {
     });
 
     it('should call writeFalseFlag, ensuring capacity', () => {
-      const buffer = new EncoderBuffer({
+      const buffer = new Encoder({
         initialBufferSize: 1,
       });
 
@@ -1646,7 +1646,7 @@ describe('general writing', () => {
     });
 
     it('should call writeNumber', () => {
-      const buffer = new EncoderBuffer({
+      const buffer = new Encoder({
         initialBufferSize: 1,
       });
 
@@ -1660,7 +1660,7 @@ describe('general writing', () => {
     });
 
     it('should call writeString', () => {
-      const buffer = new EncoderBuffer({
+      const buffer = new Encoder({
         initialBufferSize: 1,
       });
 
@@ -1676,7 +1676,7 @@ describe('general writing', () => {
     });
 
     it('should call writeNilFlag, ensuring capacity with a `null` value', () => {
-      const buffer = new EncoderBuffer({
+      const buffer = new Encoder({
         initialBufferSize: 1,
       });
 
@@ -1692,7 +1692,7 @@ describe('general writing', () => {
     });
 
     it('should call writeNilFlag, ensuring capacity with a `undefined` value', () => {
-      const buffer = new EncoderBuffer({
+      const buffer = new Encoder({
         initialBufferSize: 1,
       });
 
@@ -1708,7 +1708,7 @@ describe('general writing', () => {
     });
 
     it('should fails to encode a negative number that not fit in 64 bytes', () => {
-      const buffer = new EncoderBuffer({
+      const buffer = new Encoder({
         initialBufferSize: 1,
       });
 
@@ -1718,7 +1718,7 @@ describe('general writing', () => {
     });
 
     it('should call writeObject', () => {
-      const buffer = new EncoderBuffer({
+      const buffer = new Encoder({
         initialBufferSize: 1,
       });
 
@@ -1738,7 +1738,7 @@ describe('general writing', () => {
 describe('extensions', () => {
   describe('addExtension', () => {
     it('should throw an error if the extension type is already registered', () => {
-      const buffer = new EncoderBuffer({
+      const buffer = new Encoder({
         initialBufferSize: 1,
       });
 
@@ -1756,7 +1756,7 @@ describe('extensions', () => {
     });
 
     it('should throw an error if the extension type has a value that is not between 0 and 127', () => {
-      const buffer = new EncoderBuffer({
+      const buffer = new Encoder({
         initialBufferSize: 1,
       });
 
@@ -1782,7 +1782,7 @@ describe('extensions', () => {
     });
 
     it('should add an extension correctly', () => {
-      const buffer = new EncoderBuffer({
+      const buffer = new Encoder({
         initialBufferSize: 1,
       });
 
@@ -1799,7 +1799,7 @@ describe('extensions', () => {
 
   describe('addInternalExtension', () => {
     it('should throw an error if the extension type is already registered', () => {
-      const buffer = new EncoderBuffer({
+      const buffer = new Encoder({
         initialBufferSize: 1,
       });
 
@@ -1817,7 +1817,7 @@ describe('extensions', () => {
     });
 
     it('should throw an error if the extension type has a value that is not between -128 and -1', () => {
-      const buffer = new EncoderBuffer({
+      const buffer = new Encoder({
         initialBufferSize: 1,
       });
 
@@ -1843,7 +1843,7 @@ describe('extensions', () => {
     });
 
     it('should add an internal extension correctly', () => {
-      const buffer = new EncoderBuffer({
+      const buffer = new Encoder({
         initialBufferSize: 1,
       });
 
@@ -1869,7 +1869,7 @@ describe('chaining', () => {
       },
     };
 
-    const buffer = new EncoderBuffer();
+    const buffer = new Encoder();
 
     const chainedResult = buffer
       .openMap(3)

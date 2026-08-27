@@ -13,7 +13,7 @@ test('positive fixint', () => {
     index <= Symbols.POSITIVE_FIXINT_END;
     index++
   ) {
-    const encoded = encoder.encode(index);
+    const encoded = encoder.write(index).flush();
     const chunks = serializerDebugger.debug(encoded);
 
     expect(chunks).toHaveLength(1);
@@ -44,7 +44,7 @@ test('fixstr', () => {
       expectedEndOffset = strLength;
     }
 
-    const encoded = encoder.encode(str);
+    const encoded = encoder.write(str).flush();
     const chunks = serializerDebugger.debug(encoded);
 
     expect(chunks).toHaveLength(1);
@@ -76,7 +76,7 @@ test('fixmap', () => {
       map[index] = index;
     }
 
-    const encoded = encoder.encode(map);
+    const encoded = encoder.write(map).flush();
     const chunks = serializerDebugger.debug(encoded);
 
     expect(chunks).toHaveLength(1);
@@ -107,7 +107,7 @@ test('fixarray', () => {
       array.push(index);
     }
 
-    const encoded = encoder.encode(array);
+    const encoded = encoder.write(array).flush();
     const chunks = serializerDebugger.debug(encoded);
 
     expect(chunks).toHaveLength(1);
@@ -125,7 +125,7 @@ test('fixarray', () => {
 });
 
 test('nil', () => {
-  const encoded = encoder.encode(null);
+  const encoded = encoder.write(null).flush();
   const chunks = serializerDebugger.debug(encoded);
 
   expect(chunks).toHaveLength(1);
@@ -138,7 +138,7 @@ test('nil', () => {
 });
 
 test('false', () => {
-  const encoded = encoder.encode(false);
+  const encoded = encoder.write(false).flush();
   const chunks = serializerDebugger.debug(encoded);
 
   expect(chunks).toHaveLength(1);
@@ -151,7 +151,7 @@ test('false', () => {
 });
 
 test('true', () => {
-  const encoded = encoder.encode(true);
+  const encoded = encoder.write(true).flush();
   const chunks = serializerDebugger.debug(encoded);
 
   expect(chunks).toHaveLength(1);
@@ -165,7 +165,7 @@ test('true', () => {
 
 test('bin8', () => {
   const data = new Uint8Array([1, 2, 3, 4, 5]);
-  const encoded = encoder.encode(data);
+  const encoded = encoder.write(data).flush();
   const chunks = serializerDebugger.debug(encoded);
 
   expect(chunks).toHaveLength(1);
@@ -189,7 +189,7 @@ test('bin8', () => {
 
 test('bin16', () => {
   const data = new Uint8Array(256).fill(42); // 256 bytes of data
-  const encoded = encoder.encode(data);
+  const encoded = encoder.write(data).flush();
   const chunks = serializerDebugger.debug(encoded);
 
   expect(chunks).toHaveLength(1);
@@ -213,7 +213,7 @@ test('bin16', () => {
 
 test('bin32', () => {
   const data = new Uint8Array(65_536).fill(99); // 65536 bytes of data
-  const encoded = encoder.encode(data);
+  const encoded = encoder.write(data).flush();
   const chunks = serializerDebugger.debug(encoded);
 
   expect(chunks).toHaveLength(1);
@@ -245,7 +245,7 @@ test('ext 8', () => {
     type: 1,
   });
 
-  const encoded = encoderWithExtension.encode({});
+  const encoded = encoderWithExtension.write({}).flush();
 
   const chunks = serializerDebugger.debug(encoded);
 
@@ -282,7 +282,7 @@ test('ext 16', () => {
     type: 1,
   });
 
-  const encoded = encoderWithExtension.encode({});
+  const encoded = encoderWithExtension.write({}).flush();
 
   const chunks = serializerDebugger.debug(encoded);
 
@@ -325,7 +325,7 @@ test('ext 32', () => {
     type: 1,
   });
 
-  const encoded = encoderWithExtension.encode({});
+  const encoded = encoderWithExtension.write({}).flush();
 
   const chunks = serializerDebugger.debug(encoded);
 
@@ -356,7 +356,7 @@ test('float 32', () => {
   const encoderWithFloat32 = new Encoder({
     forceFloat32: true,
   });
-  const encoded = encoderWithFloat32.encode(3.14);
+  const encoded = encoderWithFloat32.write(3.14).flush();
   const chunks = serializerDebugger.debug(encoded);
 
   expect(chunks).toHaveLength(1);
@@ -373,7 +373,7 @@ test('float 32', () => {
 });
 
 test('float 64', () => {
-  const encoded = encoder.encode(3.14);
+  const encoded = encoder.write(3.14).flush();
   const chunks = serializerDebugger.debug(encoded);
 
   expect(chunks).toHaveLength(1);
@@ -390,7 +390,7 @@ test('float 64', () => {
 });
 
 test('uint 8', () => {
-  const encoded = encoder.encode(255);
+  const encoded = encoder.write(255).flush();
   const chunks = serializerDebugger.debug(encoded);
 
   expect(chunks).toHaveLength(1);
@@ -407,7 +407,7 @@ test('uint 8', () => {
 });
 
 test('uint 16', () => {
-  const encoded = encoder.encode(65_535);
+  const encoded = encoder.write(65_535).flush();
   const chunks = serializerDebugger.debug(encoded);
 
   expect(chunks).toHaveLength(1);
@@ -424,7 +424,7 @@ test('uint 16', () => {
 });
 
 test('uint 32', () => {
-  const encoded = encoder.encode(65_536);
+  const encoded = encoder.write(65_536).flush();
   const chunks = serializerDebugger.debug(encoded);
 
   expect(chunks).toHaveLength(1);
@@ -442,7 +442,7 @@ test('uint 32', () => {
 
 test('uint 64', () => {
   // JavaScript cannot represent integers larger than Number.MAX_SAFE_INTEGER accurately
-  const encoded = encoder.encode(Number.MAX_SAFE_INTEGER);
+  const encoded = encoder.write(Number.MAX_SAFE_INTEGER).flush();
   const chunks = serializerDebugger.debug(encoded);
 
   expect(chunks).toHaveLength(1);
@@ -459,7 +459,7 @@ test('uint 64', () => {
 });
 
 test('int 8', () => {
-  const encoded = encoder.encode(-123);
+  const encoded = encoder.write(-123).flush();
   const chunks = serializerDebugger.debug(encoded);
 
   expect(chunks).toHaveLength(1);
@@ -476,7 +476,7 @@ test('int 8', () => {
 });
 
 test('int 16', () => {
-  const encoded = encoder.encode(-32_768);
+  const encoded = encoder.write(-32_768).flush();
   const chunks = serializerDebugger.debug(encoded);
 
   expect(chunks).toHaveLength(1);
@@ -493,7 +493,7 @@ test('int 16', () => {
 });
 
 test('int 32', () => {
-  const encoded = encoder.encode(-32_769);
+  const encoded = encoder.write(-32_769).flush();
   const chunks = serializerDebugger.debug(encoded);
 
   expect(chunks).toHaveLength(1);
@@ -511,7 +511,7 @@ test('int 32', () => {
 
 test('int 64', () => {
   // JavaScript cannot represent integers smaller than Number.MIN_SAFE_INTEGER accurately
-  const encoded = encoder.encode(Number.MIN_SAFE_INTEGER);
+  const encoded = encoder.write(Number.MIN_SAFE_INTEGER).flush();
   const chunks = serializerDebugger.debug(encoded);
 
   expect(chunks).toHaveLength(1);
@@ -537,7 +537,7 @@ test('fixext 1', () => {
     type: 1,
   });
 
-  const encoded = encoderWithExtension.encode({});
+  const encoded = encoderWithExtension.write({}).flush();
   const chunks = serializerDebugger.debug(encoded);
 
   expect(chunks).toHaveLength(1);
@@ -569,7 +569,7 @@ test('fixext 2', () => {
     type: 1,
   });
 
-  const encoded = encoderWithExtension.encode({});
+  const encoded = encoderWithExtension.write({}).flush();
   const chunks = serializerDebugger.debug(encoded);
 
   expect(chunks).toHaveLength(1);
@@ -601,7 +601,7 @@ test('fixext 4', () => {
     type: 1,
   });
 
-  const encoded = encoderWithExtension.encode({});
+  const encoded = encoderWithExtension.write({}).flush();
   const chunks = serializerDebugger.debug(encoded);
 
   expect(chunks).toHaveLength(1);
@@ -633,7 +633,7 @@ test('fixext 8', () => {
     type: 1,
   });
 
-  const encoded = encoderWithExtension.encode({});
+  const encoded = encoderWithExtension.write({}).flush();
   const chunks = serializerDebugger.debug(encoded);
 
   expect(chunks).toHaveLength(1);
@@ -665,7 +665,7 @@ test('fixext 16', () => {
     type: 1,
   });
 
-  const encoded = encoderWithExtension.encode({});
+  const encoded = encoderWithExtension.write({}).flush();
   const chunks = serializerDebugger.debug(encoded);
 
   expect(chunks).toHaveLength(1);
@@ -689,7 +689,7 @@ test('fixext 16', () => {
 
 test('str 8', () => {
   const str = 'a'.repeat(33);
-  const encoded = encoder.encode(str);
+  const encoded = encoder.write(str).flush();
   const chunks = serializerDebugger.debug(encoded);
 
   expect(chunks).toHaveLength(1);
@@ -713,7 +713,7 @@ test('str 8', () => {
 
 test('str 16', () => {
   const str = 'a'.repeat(256);
-  const encoded = encoder.encode(str);
+  const encoded = encoder.write(str).flush();
   const chunks = serializerDebugger.debug(encoded);
 
   expect(chunks).toHaveLength(1);
@@ -737,7 +737,7 @@ test('str 16', () => {
 
 test('str 32', () => {
   const str = 'a'.repeat(65_536);
-  const encoded = encoder.encode(str);
+  const encoded = encoder.write(str).flush();
   const chunks = serializerDebugger.debug(encoded);
 
   expect(chunks).toHaveLength(1);
@@ -761,7 +761,7 @@ test('str 32', () => {
 
 test('array 16', () => {
   const array = new Array(16).fill(123);
-  const encoded = encoder.encode(array);
+  const encoded = encoder.write(array).flush();
   const chunks = serializerDebugger.debug(encoded);
 
   expect(chunks).toHaveLength(1);
@@ -781,7 +781,7 @@ test('array 16', () => {
 
 test('array 32', () => {
   const array = new Array(65_536).fill(123);
-  const encoded = encoder.encode(array);
+  const encoded = encoder.write(array).flush();
   const chunks = serializerDebugger.debug(encoded);
 
   expect(chunks).toHaveLength(1);
@@ -805,7 +805,7 @@ test('map 16', () => {
     map[`key${index}`] = index;
   }
 
-  const encoded = encoder.encode(map);
+  const encoded = encoder.write(map).flush();
   const chunks = serializerDebugger.debug(encoded);
 
   expect(chunks).toHaveLength(1);
@@ -829,7 +829,7 @@ test('map 32', () => {
     map[`key${index}`] = index;
   }
 
-  const encoded = encoder.encode(map);
+  const encoded = encoder.write(map).flush();
   const chunks = serializerDebugger.debug(encoded);
 
   expect(chunks).toHaveLength(1);
@@ -849,7 +849,7 @@ test('map 32', () => {
 
 test('negative fixint', () => {
   for (let index = -32; index <= -1; index++) {
-    const encoded = encoder.encode(index);
+    const encoded = encoder.write(index).flush();
     const chunks = serializerDebugger.debug(encoded);
 
     expect(chunks).toHaveLength(1);

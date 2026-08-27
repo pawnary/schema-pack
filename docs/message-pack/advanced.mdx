@@ -5,9 +5,9 @@ description: Advanced usage of @schema-pack/message-pack
 
 ## Incremental encoding
 
-Use the `EncoderBuffer` class for incremental encoding of MessagePack data. This
-is useful when you want to build a MessagePack buffer piece by piece, rather
-than encoding a single value at once.
+Use the `Encoder` class for incremental encoding of MessagePack data. This is
+useful when you want to build a MessagePack buffer piece by piece, rather than
+encoding a single value at once.
 
 Here we're encoding the following object:
 
@@ -25,9 +25,9 @@ Here we're encoding the following object:
 <Tabs items={['Classic', 'Chaineable']}>
   <Tab value='Classic'>
     ```ts
-    import { EncoderBuffer, decode } from '@schema-pack/message-pack';
+    import { Encoder, decode } from '@schema-pack/message-pack';
 
-    const encoder = new EncoderBuffer();
+    const encoder = new Encoder();
 
     encoder.openMap(3); // open a map with 3 key-value pairs
 
@@ -50,12 +50,16 @@ Here we're encoding the following object:
     const buffer = encoder.flush();
 
     const value = decode(buffer);
+
+    console.log(value);
     ```
 
   </Tab>
   <Tab value='Chaineable'>
     ```ts
-    const encoder = new EncoderBuffer();
+    import { Encoder, decode } from '@schema-pack/message-pack';
+
+    const encoder = new Encoder();
 
     const buffer = encoder
       .openMap(3)
@@ -71,20 +75,35 @@ Here we're encoding the following object:
       .writeString('nested') // nested key
       .writeTrueSymbol() // nested value
       .flush();
+
+    const value = decode(buffer);
+
+    console.log(value);
     ```
 
   </Tab>
 </Tabs>
 
+Will produce the following output in the console:
+
+```ts
+{ first: 'a', second: [ 1, 2, 3 ], third: { nested: true } }
+```
+
 <Callout
   type='warning'
   title='Careful with incremental encoding'
 >
-  The encoder does not track the structure of the data being encoded. You must
+  The `Encoder` does not track the structure of the data being encoded. You must
   ensure that you open and fill maps/arrays correctly, or you may end up with
   malformed MessagePack data.
 
 You can always use the `decode` function to verify that the encoded data is
 valid MessagePack.
 
+</Callout>
+
+<Callout type='info'>
+  Inspect any buffer like this yourself with
+  [`@schema-pack/debugger`](/docs/debugger).
 </Callout>

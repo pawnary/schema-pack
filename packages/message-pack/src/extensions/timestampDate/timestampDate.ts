@@ -1,5 +1,5 @@
 import type MessagePackDecoderBuffer from '../../decoder/interfaces/messagePackDecoderBuffer.ts';
-import type MessagePackEncoderBuffer from '../../encoder/interfaces/messagePackEncoderBuffer.ts';
+import type { ExtensionEncoder } from '../../encoder/types.ts';
 import type MessagePackExtension from '../interfaces/messagePackExtension.ts';
 import type { MessagePackTime } from './types.ts';
 
@@ -45,27 +45,24 @@ class TimestampDateExtension<
     };
   }
 
-  encode(
-    value: object | bigint,
-    buffer: MessagePackEncoderBuffer<TBuffer>,
-  ): void {
+  encode(value: object | bigint, encoder: ExtensionEncoder<TBuffer>): void {
     if (value instanceof Date) {
       const time = this.parseToMessagePackTime(value);
 
       if (time.sec >= 0 && time.nsec >= 0 && time.sec <= TIMESTAMP64_MAX_SEC) {
         // Here sec >= 0 && nsec >= 0
         if (time.nsec === 0 && time.sec <= TIMESTAMP32_MAX_SEC) {
-          buffer.writeUint32(time.sec);
+          encoder.writeUint32(time.sec);
         } else {
           // timestamp 64 = { nsec30 (unsigned), sec34 (unsigned) }
           const secHigh = time.sec / 0x1_00_00_00_00;
           const secLow = time.sec & 0xff_ff_ff_ff;
-          buffer.writeUint32((time.nsec << 2) | (secHigh & 0x3));
-          buffer.writeUint32(secLow);
+          encoder.writeUint32((time.nsec << 2) | (secHigh & 0x3));
+          encoder.writeUint32(secLow);
         }
       } else {
-        buffer.writeUint32(time.nsec);
-        buffer.writeInt64(time.sec);
+        encoder.writeUint32(time.nsec);
+        encoder.writeInt64(time.sec);
       }
     }
   }

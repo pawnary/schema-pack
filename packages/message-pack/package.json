@@ -114,9 +114,9 @@
       "import": "./dist/esm/encoder/interfaces/index.mjs",
       "require": "./dist/cjs/encoder/interfaces/index.cjs"
     },
-    "./encoder/interfaces/messagePackEncoderBuffer": {
-      "import": "./dist/esm/encoder/interfaces/messagePackEncoderBuffer.mjs",
-      "require": "./dist/cjs/encoder/interfaces/messagePackEncoderBuffer.cjs"
+    "./encoder/interfaces/messagePackEncoder": {
+      "import": "./dist/esm/encoder/interfaces/messagePackEncoder.mjs",
+      "require": "./dist/cjs/encoder/interfaces/messagePackEncoder.cjs"
     },
     "./encoder/interfaces/messagePackTextEncoder": {
       "import": "./dist/esm/encoder/interfaces/messagePackTextEncoder.mjs",

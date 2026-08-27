@@ -32,7 +32,7 @@ suite
   .add('@jsonjoy.com/json-pack shared encoder', (value) =>
     sharedJsonJoyMsgpackEncoder.encode(value),
   )
-  .add('@schema-pack/message-pack shared Encoder.encode', (value) =>
-    sharedSchemaPackEncoder.encode(value),
+  .add('@schema-pack/message-pack shared Encoder.write.flush', (value) =>
+    sharedSchemaPackEncoder.write(value).flush(),
   )
   .run();

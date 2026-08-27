@@ -12,7 +12,7 @@ const encoder = new Encoder().addExtension(extension);
 describe('encode', () => {
   it('should not encode a uint64 and int64 values that are within the safe integer range', () => {
     // by default must encode a MessagePack uint 64
-    expect(encoder.encode(UINT64_MAX)).toBeBytes([
+    expect(encoder.write(UINT64_MAX).flush()).toBeBytes([
       Symbols.UINT64,
       0,
       31,
@@ -25,7 +25,7 @@ describe('encode', () => {
     ]);
 
     // by default must encode a MessagePack int 64
-    expect(encoder.encode(INT64_MIN)).toBeBytes([
+    expect(encoder.write(INT64_MIN).flush()).toBeBytes([
       Symbols.INT64,
       255,
       224,
@@ -41,7 +41,7 @@ describe('encode', () => {
   it('should encode a BigInt value that is outside the safe integer range', () => {
     const value = BigInt(UINT64_MAX) + 1n;
 
-    const result = encoder.encode(value);
+    const result = encoder.write(value).flush();
 
     expect(result).toBeBytes([Symbols.FIXEXT8, 123, 0, 64, 0, 0, 0, 0, 0, 0]);
   });
@@ -49,7 +49,7 @@ describe('encode', () => {
   it('should encode a small BigInt', () => {
     const value = 123n;
 
-    const result = encoder.encode(value);
+    const result = encoder.write(value).flush();
 
     expect(result).toBeBytes([Symbols.FIXEXT8, 123, 0, 0, 0, 0, 0, 0, 0, 246]);
   });
@@ -65,7 +65,7 @@ describe('encode and decode', () => {
   it('positive large bigint', () => {
     const value = 123_456_789_012_345_678_901_234_567_890n;
 
-    const encoded = encoder.encode(value);
+    const encoded = encoder.write(value).flush();
 
     expect(encoded).toBeBytes([
       Symbols.FIXEXT16,
@@ -96,7 +96,7 @@ describe('encode and decode', () => {
   it('negative large bigint', () => {
     const value = -123_456_789_012_345_678_901_234_567_890n;
 
-    const encoded = encoder.encode(value);
+    const encoded = encoder.write(value).flush();
 
     expect(encoded).toBeBytes([
       Symbols.FIXEXT16,

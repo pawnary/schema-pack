@@ -72,6 +72,6 @@ suite
   )
   .add('@msgpack/msgpack encode', (value) => encode(value, { extensionCodec }))
   .add('@schema-pack/message-pack shared Encoder.encode', (value) =>
-    sharedSchemaPackEncoderDefault.encode(value),
+    sharedSchemaPackEncoderDefault.write(value).flush(),
   )
   .run();

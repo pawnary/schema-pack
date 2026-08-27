@@ -1,6 +1,6 @@
 import type MessagePackExtension from '../../extensions/interfaces/messagePackExtension.ts';
 import type MessagePackBufferWithExtensions from '../../interfaces/messagePackBufferWithExtensions.ts';
-import type { ExtensionEncoderBuffer } from '../types.ts';
+import type { ExtensionEncoder } from '../types.ts';
 import type MessagePackTextEncoder from './messagePackTextEncoder.ts';
 
 /**
@@ -8,7 +8,7 @@ import type MessagePackTextEncoder from './messagePackTextEncoder.ts';
  * for buffer management in the encoding process, allowing for efficient
  * handling of binary data while adhering to the MessagePack format.
  */
-export default interface MessagePackEncoderBuffer<
+export default interface MessagePackEncoder<
   TBuffer extends Uint8Array = Uint8Array,
 > extends MessagePackBufferWithExtensions<TBuffer> {
   /** Buffer management * */
@@ -955,6 +955,6 @@ export default interface MessagePackEncoderBuffer<
    */
   writeExtension(
     extension: MessagePackExtension,
-    buffer: ExtensionEncoderBuffer<TBuffer>,
+    buffer: ExtensionEncoder<TBuffer>,
   ): this;
 }

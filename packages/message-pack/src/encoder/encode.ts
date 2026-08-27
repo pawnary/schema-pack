@@ -1,9 +1,9 @@
-import EncoderBuffer from './encoderBuffer.ts';
+import Encoder from './encoder.ts';
 
-const sharedEncoderBuffer = new EncoderBuffer();
+const sharedEncoder = new Encoder();
 
 export default function encode(value: unknown): Uint8Array {
-  sharedEncoderBuffer.write(value);
+  sharedEncoder.write(value);
 
-  return sharedEncoderBuffer.flush();
+  return sharedEncoder.flush();
 }

@@ -1,4 +1,4 @@
-import { Symbols } from '@schema-pack/message-pack';
+import Symbols from '@schema-pack/message-pack/symbols';
 
 import type Debugger from '../debugger.ts';
 import type {

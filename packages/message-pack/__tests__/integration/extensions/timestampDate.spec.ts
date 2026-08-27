@@ -18,7 +18,7 @@ describe('encode and decode Date', () => {
   it('encode 32 bits date', () => {
     const date = new Date('2001-02-03T04:05:06.000Z');
 
-    const encoded = encoder.encode(date);
+    const encoded = encoder.write(date).flush();
 
     expect(encoded).toBeBytes([FLAG.FIXEXT4, 255, 58, 123, 131, 114]);
 
@@ -30,7 +30,7 @@ describe('encode and decode Date', () => {
   it('encode 64 bits date', () => {
     const date = new Date('2654-03-02T01:09:08.765Z');
 
-    const encoded = encoder.encode(date);
+    const encoded = encoder.write(date).flush();
 
     // @see https://github.com/msgpack/msgpack-javascript/issues/216
     expect(encoded).toBeBytes([
@@ -59,7 +59,7 @@ describe('encode and decode Date', () => {
   it('encode 96 bits date', () => {
     const date = new Date('+275760-09-11T23:59:59.9999Z');
 
-    const encoded = encoder.encode(date);
+    const encoded = encoder.write(date).flush();
 
     // @see https://github.com/msgpack/msgpack-javascript/issues/216
     expect(encoded).toBeBytes([

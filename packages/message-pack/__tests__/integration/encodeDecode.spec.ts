@@ -14,7 +14,7 @@ import Symbols from '../../src/symbols.ts';
 function encode(value: unknown): Uint8Array {
   const encoder = new Encoder();
 
-  return encoder.encode(value);
+  return encoder.write(value).flush();
 }
 
 function decode(buffer: Uint8Array): unknown {
@@ -340,7 +340,7 @@ describe('ext', () => {
     const decoder = new Decoder();
     decoder.addExtension(extension);
 
-    const encoded = encoder.encode({});
+    const encoded = encoder.write({}).flush();
 
     expect(encoded).toBeByteAt(0, Symbols.EXT8);
     expect(decoder.decode(encoded)).toStrictEqual({});
@@ -363,7 +363,7 @@ describe('ext', () => {
     const decoder = new Decoder();
     decoder.addExtension(extension);
 
-    const encoded = encoder.encode({});
+    const encoded = encoder.write({}).flush();
 
     expect(encoded).toBeByteAt(0, Symbols.EXT16);
     expect(decoder.decode(encoded)).toStrictEqual({});
@@ -386,7 +386,7 @@ describe('ext', () => {
     const decoder = new Decoder();
     decoder.addExtension(extension);
 
-    const encoded = encoder.encode({});
+    const encoded = encoder.write({}).flush();
 
     expect(encoded).toBeByteAt(0, Symbols.EXT32);
     expect(decoder.decode(encoded)).toStrictEqual({});
@@ -407,7 +407,7 @@ describe('ext', () => {
     const decoder = new Decoder();
     decoder.addExtension(extension);
 
-    const encoded = encoder.encode({});
+    const encoded = encoder.write({}).flush();
 
     expect(encoded).toBeByteAt(0, Symbols.FIXEXT1);
     expect(decoder.decode(encoded)).toStrictEqual({});
@@ -429,7 +429,7 @@ describe('ext', () => {
     const decoder = new Decoder();
     decoder.addExtension(extension);
 
-    const encoded = encoder.encode({});
+    const encoded = encoder.write({}).flush();
 
     expect(encoded).toBeByteAt(0, Symbols.FIXEXT2);
     expect(decoder.decode(encoded)).toStrictEqual({});
@@ -453,7 +453,7 @@ describe('ext', () => {
     const decoder = new Decoder();
     decoder.addExtension(extension);
 
-    const encoded = encoder.encode({});
+    const encoded = encoder.write({}).flush();
 
     expect(encoded).toBeByteAt(0, Symbols.FIXEXT4);
     expect(decoder.decode(encoded)).toStrictEqual({});
@@ -476,7 +476,7 @@ describe('ext', () => {
     const decoder = new Decoder();
     decoder.addExtension(extension);
 
-    const encoded = encoder.encode({});
+    const encoded = encoder.write({}).flush();
 
     expect(encoded).toBeByteAt(0, Symbols.FIXEXT8);
     expect(decoder.decode(encoded)).toStrictEqual({});
@@ -499,7 +499,7 @@ describe('ext', () => {
     const decoder = new Decoder();
     decoder.addExtension(extension);
 
-    const encoded = encoder.encode({});
+    const encoded = encoder.write({}).flush();
 
     expect(encoded).toBeByteAt(0, Symbols.FIXEXT16);
     expect(decoder.decode(encoded)).toStrictEqual({});
@@ -527,7 +527,7 @@ describe('float', () => {
       float32,
     );
 
-    const encoded = float32Encoder.encode(float32);
+    const encoded = float32Encoder.write(float32).flush();
 
     expect(encoded).toBeByteAt(0, Symbols.FLOAT32);
     expect(decode(encoded)).toBe(float32);
@@ -536,7 +536,7 @@ describe('float', () => {
   it('float 64', () => {
     const float64 = -1.2;
 
-    const encoded = encode(float64);
+    const encoded = new Encoder().write(float64).flush();
 
     expect(encoded).toBeByteAt(0, Symbols.FLOAT64);
     expect(decode(encoded)).toBe(float64);
