@@ -16,7 +16,8 @@
     "lint:fix": "oxlint --fix",
     "test": "vitest",
     "test:ci": "CI=true vitest",
-    "tsc": "tsc && pnpm --filter @schema-pack/website run types:check",
+    "tsc": "tsc",
+    "tsc:check": "pnpm run tsc && pnpm --filter @schema-pack/website run types:check",
     "watch": "tsdown --watch"
   },
   "devDependencies": {
