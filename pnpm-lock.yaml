@@ -244,6 +244,9 @@ catalogs:
     '@types/react':
       specifier: ^19.2.18
       version: 19.2.18
+    '@vitest/expect':
+      specifier: ^4.1.11
+      version: 4.1.11
     cnfast:
       specifier: ^0.1.0
       version: 0.1.0
@@ -402,6 +405,9 @@ importers:
 
   packages/vitest:
     dependencies:
+      '@vitest/expect':
+        specifier: 'catalog:'
+        version: 4.1.11
       vitest:
         specifier: 'catalog:'
         version: 4.1.11(@types/node@26.2.0)(jsdom@30.0.1)(vite@8.2.2(@types/node@26.2.0)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))

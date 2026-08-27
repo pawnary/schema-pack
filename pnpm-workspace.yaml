@@ -21,6 +21,7 @@ catalog:
   '@types/mdx': ^2.0.14
   '@types/node': ^26.2.0
   '@types/react': ^19.2.18
+  '@vitest/expect': ^4.1.11
   cnfast: ^0.1.0
   console-table-printer: ^2.16.1
   fumadocs-core: ^16.15.1

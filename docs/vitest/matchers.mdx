@@ -1,0 +1,146 @@
+---
+title: 'Matchers'
+description: Vitest matchers for asserting on the contents of a buffer.
+---
+
+The following type is used in the type signatures below:
+
+```ts
+type BufferLike<TArrayBuffer extends ArrayBufferLike = ArrayBufferLike> =
+  | Uint8Array<TArrayBuffer>
+  | Uint8ClampedArray<TArrayBuffer>
+  | Uint16Array<TArrayBuffer>
+  | Uint32Array<TArrayBuffer>
+  | Int8Array<TArrayBuffer>
+  | Int16Array<TArrayBuffer>
+  | Int32Array<TArrayBuffer>
+  | Float32Array<TArrayBuffer>
+  | Float64Array<TArrayBuffer>
+  | BigInt64Array<TArrayBuffer>
+  | BigUint64Array<TArrayBuffer>
+  | Buffer<TArrayBuffer>
+  | number[]
+  | bigint[]
+  | (number | bigint)[];
+```
+
+That means any of the matchers that accept a `BufferLike` argument can work with
+any of the types listed above, including
+[typed arrays](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Typed_arrays),
+[Node.js `Buffer`](https://nodejs.org/api/buffer.html), `number[]`, `bigint[]`,
+or mixed arrays of numbers and bigints.
+
+In the examples below we will use
+[`Uint8Array`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array)
+and `number[]` as the buffer types for simplicity.
+
+## Reference
+
+- [toBeByteAt(index: number, expectedByte: number)](#tobebyteat)
+- [toBeBytes(expectedBytes: BufferLike)](#tobebytes)
+- [toBeBytesBetween(start: number, end: number, expectedBytes: BufferLike)](#tobebytesbetween)
+- [toBeBytesLength(expectedLength: number)](#tobebyteslength)
+- [toContainBytes(expectedBytes: BufferLike)](#tocontainbytes)
+- [toContainBytesFrom(start: number, expectedBytes: BufferLike)](#tocontainbytesfrom)
+
+---
+
+### toBeByteAt
+
+- **type:** `(index: number, expectedByte: number) => void`
+
+Assert that the byte at the specified `index` matches the `expectedByte`.
+
+```ts
+import { expect, text } from 'vitest';
+
+test('toBeByteAt example', () => {
+  const buffer = new Uint8Array([1, 2, 3]);
+
+  expect(buffer).toBeByteAt(0, 1);
+});
+```
+
+---
+
+### toBeBytes
+
+- **type:** `(expectedBytes: BufferLike) => void`
+
+Assert that the received bytes match the expected bytes.
+
+```ts
+import { expect, text } from 'vitest';
+
+test('toBeBytes example', () => {
+  const buffer = new Uint8Array([1, 2, 3]);
+
+  expect(buffer).toBeBytes([1, 2, 3]);
+});
+```
+
+### toBeBytesBetween
+
+- **type:** `(start: number, end: number, expectedBytes: BufferLike) => void`
+
+Assert that the bytes between the specified `start` and `end` indices match the
+`expectedBytes`.
+
+```ts
+import { expect, test } from 'vitest';
+
+test('toBeBytesBetween example', () => {
+  const buffer = new Uint8Array([1, 2, 3, 4, 5]);
+
+  expect(buffer).toBeBytesBetween(1, 4, [2, 3, 4]);
+});
+```
+
+### toBeBytesLength
+
+- **type:** `(expectedLength: number) => void`
+
+Assert that the received bytes have the specified length.
+
+```ts
+import { expect, test } from 'vitest';
+
+test('toBeBytesLength example', () => {
+  const buffer = new Uint8Array([1, 2, 3]);
+
+  expect(buffer).toBeBytesLength(3);
+});
+```
+
+### toContainBytes
+
+- **type:** `(expectedBytes: BufferLike) => void`
+
+Assert that the received bytes contain the expected bytes.
+
+```ts
+import { expect, test } from 'vitest';
+
+test('toContainBytes example', () => {
+  const buffer = new Uint8Array([1, 2, 3, 4, 5]);
+
+  expect(buffer).toContainBytes([2, 3, 4]);
+});
+```
+
+### toContainBytesFrom
+
+- **type:** `(start: number, expectedBytes: BufferLike) => void`
+
+Assert that the received bytes contain the expected bytes from the specified
+index.
+
+```ts
+import { expect, test } from 'vitest';
+
+test('toContainBytesFrom example', () => {
+  const buffer = new Uint8Array([1, 2, 3, 4, 5]);
+
+  expect(buffer).toContainBytesFrom(2, [3, 4, 5]);
+});
+```

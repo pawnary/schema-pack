@@ -1,5 +1,7 @@
+import type { BufferLike } from '../types.ts';
+
 export default function extractDisplayBytes(
-  received: Uint8Array | number[],
+  received: BufferLike,
   startOffset = 0,
   endOffset = 10,
 ): string {

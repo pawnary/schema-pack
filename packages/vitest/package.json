@@ -36,6 +36,10 @@
       "import": "./dist/esm/bytesAssertions.mjs",
       "require": "./dist/cjs/bytesAssertions.cjs"
     },
+    "./types": {
+      "import": "./dist/esm/types.mjs",
+      "require": "./dist/cjs/types.cjs"
+    },
     "./utils/extractDisplayBytes": {
       "import": "./dist/esm/utils/extractDisplayBytes.mjs",
       "require": "./dist/cjs/utils/extractDisplayBytes.cjs"
@@ -47,6 +51,7 @@
     "./package.json": "./package.json"
   },
   "dependencies": {
+    "@vitest/expect": "catalog:",
     "vitest": "catalog:"
   }
 }

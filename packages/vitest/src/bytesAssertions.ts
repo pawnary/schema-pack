@@ -1,10 +1,17 @@
+import './extensions.d.ts';
+import type { SyncExpectationResult } from '@vitest/expect';
 import { expect } from 'vitest';
 
+import type { BufferLike } from './types.ts';
 import extractDisplayBytes from './utils/extractDisplayBytes.ts';
 import isNot from './utils/isNot.ts';
 
 expect.extend({
-  toBeByteAt(received: Uint8Array, index: number, expectedByte: number) {
+  toBeByteAt(
+    received: BufferLike,
+    index: number,
+    expectedByte: number,
+  ): SyncExpectationResult {
     const pass = received[index] === expectedByte;
 
     return {
@@ -17,8 +24,11 @@ expect.extend({
       pass,
     };
   },
-  toBeBytes(received: Uint8Array, expectedBytes: number[] | Uint8Array) {
-    const missingBytes: number[] = [];
+  toBeBytes(
+    received: BufferLike,
+    expectedBytes: BufferLike,
+  ): SyncExpectationResult {
+    const missingBytes: (number | bigint)[] = [];
 
     let length = received.length;
 
@@ -50,13 +60,13 @@ expect.extend({
     };
   },
   toBeBytesBetween(
-    received: Uint8Array,
+    received: BufferLike,
     start: number,
     end: number,
-    expectedBytes: number[] | Uint8Array,
-  ) {
+    expectedBytes: BufferLike,
+  ): SyncExpectationResult {
     let pass = true;
-    const currentBytes: number[] = [];
+    const currentBytes: (number | bigint)[] = [];
 
     for (let offset = start; offset <= end; offset++) {
       currentBytes.push(received[offset]);
@@ -79,19 +89,25 @@ expect.extend({
       pass,
     };
   },
-  toBeBytesLength(received: Uint8Array, expectedLength: number) {
-    const pass = received.byteLength === expectedLength;
+  toBeBytesLength(
+    received: BufferLike,
+    expectedLength: number,
+  ): SyncExpectationResult {
+    const pass = received.length === expectedLength;
 
     return {
       message: (): string =>
         [
           `Expected ${extractDisplayBytes(received)}`,
-          `${isNot(this)}to have bytes length ${expectedLength} but got ${received.byteLength}`,
+          `${isNot(this)}to have bytes length ${expectedLength} but got ${received.length}`,
         ].join(' '),
       pass,
     };
   },
-  toHaveBytes(received: Uint8Array, expectedBytes: number[] | Uint8Array) {
+  toContainBytes(
+    received: BufferLike,
+    expectedBytes: BufferLike,
+  ): SyncExpectationResult {
     let pass = true;
 
     for (let offset = 0; offset < expectedBytes.length; offset++) {
@@ -110,11 +126,11 @@ expect.extend({
       pass,
     };
   },
-  toHaveBytesFrom(
-    received: Uint8Array,
+  toContainBytesFrom(
+    received: BufferLike,
     start: number,
-    expectedBytes: number[] | Uint8Array,
-  ) {
+    expectedBytes: BufferLike,
+  ): SyncExpectationResult {
     let pass = true;
 
     for (let offset = 0; offset < expectedBytes.length; offset++) {
