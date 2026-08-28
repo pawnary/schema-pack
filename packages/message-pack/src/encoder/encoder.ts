@@ -163,7 +163,6 @@ class Encoder<TBuffer extends Uint8Array = Uint8Array>
   }
 
   writeNegativeFixInt(value: number): this {
-    // this.buffer[this.offset++] = NEGATIVE_FIXINT_START | (value + 32);
     this.buffer[this.offset++] = value + 0x1_00;
 
     return this;
@@ -626,70 +625,70 @@ class Encoder<TBuffer extends Uint8Array = Uint8Array>
     return this;
   }
 
-  writeNumber(value: number): this {
-    if (Number.isInteger(value)) {
-      if (value < 0) {
-        // siged integers
-        if (value > -33) {
-          this.ensureCapacity(1);
-          return this.writeNegativeFixInt(value);
-        } else if (value > -129) {
-          this.ensureCapacity(2);
-          this.writeInt8Symbol();
-          return this.writeInt8(value);
-        } else if (value > -32_769) {
-          this.ensureCapacity(3);
-          this.writeInt16Symbol();
-          return this.writeInt16(value);
-        } else if (value > -2_147_483_649) {
-          this.ensureCapacity(5);
-          this.writeInt32Symbol();
-          return this.writeInt32(value);
-        } else if (value >= INT64_MIN) {
-          this.ensureCapacity(9);
-          this.writeInt64Symbol();
-          return this.writeInt64(value);
-        }
+  writeSignedInteger(value: number): this {
+    if (value > -33) {
+      this.ensureCapacity(1);
+      return this.writeNegativeFixInt(value);
+    } else if (value > -129) {
+      this.ensureCapacity(2);
+      this.writeInt8Symbol();
+      return this.writeInt8(value);
+    } else if (value > -32_769) {
+      this.ensureCapacity(3);
+      this.writeInt16Symbol();
+      return this.writeInt16(value);
+    } else if (value > -2_147_483_649) {
+      this.ensureCapacity(5);
+      this.writeInt32Symbol();
+      return this.writeInt32(value);
+    } else if (value >= INT64_MIN) {
+      this.ensureCapacity(9);
+      this.writeInt64Symbol();
+      return this.writeInt64(value);
+    }
 
-        throw new Error(
-          `Integer too small to encode: ${value}. Consider using BigIntExtension.`,
-        );
-      } else {
-        // unsiged integers
-        if (fitIn7Bits(value)) {
-          this.ensureCapacity(1);
-          return this.writePositiveFixInt(value);
-        }
+    throw new Error(
+      `Integer too small to encode: ${value}. Consider using BigIntExtension.`,
+    );
+  }
 
-        if (fitIn8Bits(value)) {
-          this.ensureCapacity(2);
-          this.writeUint8Symbol();
-          return this.writeUint8(value);
-        }
+  writeUnsignedInteger(value: number): this {
+    if (fitIn7Bits(value)) {
+      this.ensureCapacity(1);
+      return this.writePositiveFixInt(value);
+    }
 
-        if (fitIn16Bits(value)) {
-          this.ensureCapacity(3);
-          this.writeUint16Symbol();
-          return this.writeUint16(value);
-        }
+    if (fitIn8Bits(value)) {
+      this.ensureCapacity(2);
+      this.writeUint8Symbol();
+      return this.writeUint8(value);
+    }
 
-        if (fitIn32Bits(value)) {
-          this.ensureCapacity(5);
-          this.writeUint32Symbol();
-          return this.writeUint32(value);
-        }
+    if (fitIn16Bits(value)) {
+      this.ensureCapacity(3);
+      this.writeUint16Symbol();
+      return this.writeUint16(value);
+    }
 
-        if (value <= UINT64_MAX) {
-          this.ensureCapacity(9);
-          this.writeUint64Symbol();
-          return this.writeUint64(value);
-        }
+    if (fitIn32Bits(value)) {
+      this.ensureCapacity(5);
+      this.writeUint32Symbol();
+      return this.writeUint32(value);
+    }
 
-        throw new Error(
-          `Integer too large to encode: ${value}. Consider using BigIntExtension.`,
-        );
-      }
-    } else if (this.forceFloat32) {
+    if (value <= UINT64_MAX) {
+      this.ensureCapacity(9);
+      this.writeUint64Symbol();
+      return this.writeUint64(value);
+    }
+
+    throw new Error(
+      `Integer too large to encode: ${value}. Consider using BigIntExtension.`,
+    );
+  }
+
+  writeFloat(value: number): this {
+    if (this.forceFloat32) {
       this.ensureCapacity(5);
       this.writeFloat32Symbol();
       return this.writeFloat32(value);
@@ -698,6 +697,18 @@ class Encoder<TBuffer extends Uint8Array = Uint8Array>
     this.ensureCapacity(9);
     this.writeFloat64Symbol();
     return this.writeFloat64(value);
+  }
+
+  writeNumber(value: number): this {
+    if (Number.isInteger(value)) {
+      if (value < 0) {
+        return this.writeSignedInteger(value);
+      }
+
+      return this.writeUnsignedInteger(value);
+    }
+
+    return this.writeFloat(value);
   }
 
   openMap(keysLength: number): this {

@@ -716,13 +716,13 @@ describe('general writing', () => {
     });
   });
 
-  describe('writeNumber', () => {
+  describe('writeSignedInteger', () => {
     it('should encode a negative fix int', () => {
       const buffer = new Encoder({
         initialBufferSize: 1,
       });
 
-      buffer.writeNumber(-10);
+      buffer.writeSignedInteger(-10);
 
       expect(buffer.buffer.slice(0, buffer.offset)).toBeBytes([
         Symbols.NEGATIVE_FIXINT_START | (-10 + 32),
@@ -734,7 +734,7 @@ describe('general writing', () => {
         initialBufferSize: 1,
       });
 
-      buffer.writeNumber(-128);
+      buffer.writeSignedInteger(-128);
 
       expect(buffer.buffer.slice(0, buffer.offset)).toBeBytes([
         Symbols.INT8,
@@ -747,7 +747,7 @@ describe('general writing', () => {
         initialBufferSize: 1,
       });
 
-      buffer.writeNumber(-32_768);
+      buffer.writeSignedInteger(-32_768);
 
       expect(buffer.buffer.slice(0, buffer.offset)).toBeBytes([
         Symbols.INT16,
@@ -761,7 +761,7 @@ describe('general writing', () => {
         initialBufferSize: 1,
       });
 
-      buffer.writeNumber(-2_147_483_648);
+      buffer.writeSignedInteger(-2_147_483_648);
 
       expect(buffer.buffer.slice(0, buffer.offset)).toBeBytes([
         Symbols.INT32,
@@ -777,7 +777,7 @@ describe('general writing', () => {
         initialBufferSize: 1,
       });
 
-      buffer.writeNumber(-2_147_483_649);
+      buffer.writeSignedInteger(-2_147_483_649);
 
       expect(buffer.buffer.slice(0, buffer.offset)).toBeBytes([
         Symbols.INT64,
@@ -791,13 +791,15 @@ describe('general writing', () => {
         255,
       ]);
     });
+  });
 
+  describe('writeUnsignedInteger', () => {
     it('should encode a positive fix int', () => {
       const buffer = new Encoder({
         initialBufferSize: 1,
       });
 
-      buffer.writeNumber(127);
+      buffer.writeUnsignedInteger(127);
 
       expect(buffer.buffer.slice(0, buffer.offset)).toBeBytes([127]);
     });
@@ -807,7 +809,7 @@ describe('general writing', () => {
         initialBufferSize: 1,
       });
 
-      buffer.writeNumber(255);
+      buffer.writeUnsignedInteger(255);
 
       expect(buffer.buffer.slice(0, buffer.offset)).toBeBytes([
         Symbols.UINT8,
@@ -820,7 +822,7 @@ describe('general writing', () => {
         initialBufferSize: 1,
       });
 
-      buffer.writeNumber(65_535);
+      buffer.writeUnsignedInteger(65_535);
 
       expect(buffer.buffer.slice(0, buffer.offset)).toBeBytes([
         Symbols.UINT16,
@@ -834,7 +836,7 @@ describe('general writing', () => {
         initialBufferSize: 1,
       });
 
-      buffer.writeNumber(4_294_967_295);
+      buffer.writeUnsignedInteger(4_294_967_295);
 
       expect(buffer.buffer.slice(0, buffer.offset)).toBeBytes([
         Symbols.UINT32,
@@ -850,7 +852,7 @@ describe('general writing', () => {
         initialBufferSize: 1,
       });
 
-      buffer.writeNumber(Number.MAX_SAFE_INTEGER);
+      buffer.writeUnsignedInteger(Number.MAX_SAFE_INTEGER);
 
       expect(buffer.buffer.slice(0, buffer.offset)).toBeBytes([
         Symbols.UINT64,
@@ -864,13 +866,32 @@ describe('general writing', () => {
         255,
       ]);
     });
+  });
+
+  describe('writeFloat', () => {
+    it('should encode a float 32', () => {
+      const buffer = new Encoder({
+        forceFloat32: true,
+        initialBufferSize: 1,
+      });
+
+      buffer.writeFloat(12_345.15625);
+
+      expect(buffer.buffer.slice(0, buffer.offset)).toBeBytes([
+        Symbols.FLOAT32,
+        70,
+        64,
+        228,
+        160,
+      ]);
+    });
 
     it('should encode a float 64', () => {
       const buffer = new Encoder({
         initialBufferSize: 1,
       });
 
-      buffer.writeNumber(1.1);
+      buffer.writeFloat(1.1);
 
       expect(buffer.buffer.slice(0, buffer.offset)).toBeBytes([
         Symbols.FLOAT64,
@@ -883,6 +904,44 @@ describe('general writing', () => {
         153,
         154,
       ]);
+    });
+  });
+
+  describe('writeNumber', () => {
+    it('check that calls writeSignedInteger', () => {
+      const buffer = new Encoder({
+        initialBufferSize: 1,
+      });
+
+      const writeSignedIntegerSpy = vi.spyOn(buffer, 'writeSignedInteger');
+
+      buffer.writeNumber(-1);
+
+      expect(writeSignedIntegerSpy).toHaveBeenCalledWith(-1);
+    });
+
+    it('check that calls writeUnsignedInteger', () => {
+      const buffer = new Encoder({
+        initialBufferSize: 1,
+      });
+
+      const writeUnsignedIntegerSpy = vi.spyOn(buffer, 'writeUnsignedInteger');
+
+      buffer.writeNumber(1);
+
+      expect(writeUnsignedIntegerSpy).toHaveBeenCalledWith(1);
+    });
+
+    it('check that calls writeFloat', () => {
+      const buffer = new Encoder({
+        initialBufferSize: 1,
+      });
+
+      const writeFloatSpy = vi.spyOn(buffer, 'writeFloat');
+
+      buffer.writeNumber(1.1);
+
+      expect(writeFloatSpy).toHaveBeenCalledWith(1.1);
     });
   });
 

@@ -715,6 +715,87 @@ export default interface MessagePackEncoder<
   writeString(value: string): this;
 
   /**
+   * Writes a MessagePack number using signed integer point formats.
+   *
+   * ```
+   * negative fixint:
+   * +--------+
+   * |111YYYYY|
+   * +--------+
+   *
+   * int 8:
+   * +--------+--------+
+   * |  0xd0  |ZZZZZZZZ|
+   * +--------+--------+
+   *
+   * int 16:
+   * +--------+--------+--------+
+   * |  0xd1  |ZZZZZZZZ|ZZZZZZZZ|
+   * +--------+--------+--------+
+   *
+   * int 32:
+   * +--------+--------+--------+--------+--------+
+   * |  0xd2  |ZZZZZZZZ|ZZZZZZZZ|ZZZZZZZZ|ZZZZZZZZ|
+   * +--------+--------+--------+--------+--------+
+   *
+   * int 64:
+   * +--------+--------+--------+--------+--------+--------+--------+--------+--------+
+   * |  0xd3  |ZZZZZZZZ|ZZZZZZZZ|ZZZZZZZZ|ZZZZZZZZ|ZZZZZZZZ|ZZZZZZZZ|ZZZZZZZZ|ZZZZZZZZ|
+   * +--------+--------+--------+--------+--------+--------+--------+--------+--------+
+   * ```
+   */
+  writeSignedInteger(value: number): this;
+
+  /**
+   * Writes a MessagePack number using unsigned integer point formats.
+   *
+   * ```
+   * positive fixint:
+   * +--------+
+   * |0XXXXXXX|
+   * +--------+
+   *
+   * uint 8:
+   * +--------+--------+
+   * |  0xcc  |ZZZZZZZZ|
+   * +--------+--------+
+   *
+   * uint 16:
+   * +--------+--------+--------+
+   * |  0xcd  |ZZZZZZZZ|ZZZZZZZZ|
+   * +--------+--------+--------+
+   *
+   * uint 32:
+   * +--------+--------+--------+--------+--------+
+   * |  0xce  |ZZZZZZZZ|ZZZZZZZZ|ZZZZZZZZ|ZZZZZZZZ|
+   * +--------+--------+--------+--------+--------+
+   *
+   * uint 64:
+   * +--------+--------+--------+--------+--------+--------+--------+--------+--------+
+   * |  0xcf  |ZZZZZZZZ|ZZZZZZZZ|ZZZZZZZZ|ZZZZZZZZ|ZZZZZZZZ|ZZZZZZZZ|ZZZZZZZZ|ZZZZZZZZ|
+   * +--------+--------+--------+--------+--------+--------+--------+--------+--------+
+   * ```
+   */
+  writeUnsignedInteger(value: number): this;
+
+  /**
+   * Writes a MessagePack number using floating point formats.
+   *
+   * ```
+   * float 32:
+   * +--------+--------+--------+--------+--------+
+   * |  0xca  |XXXXXXXX|XXXXXXXX|XXXXXXXX|XXXXXXXX|
+   * +--------+--------+--------+--------+--------+
+   *
+   * float 64:
+   * +--------+--------+--------+--------+--------+--------+--------+--------+--------+
+   * |  0xcb  |YYYYYYYY|YYYYYYYY|YYYYYYYY|YYYYYYYY|YYYYYYYY|YYYYYYYY|YYYYYYYY|YYYYYYYY|
+   * +--------+--------+--------+--------+--------+--------+--------+--------+--------+
+   * ```
+   */
+  writeFloat(value: number): this;
+
+  /**
    * Writes a MessagePack number using integer or floating point formats.
    *
    * ```
