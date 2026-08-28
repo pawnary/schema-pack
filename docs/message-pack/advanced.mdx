@@ -37,9 +37,9 @@ Here we're encoding the following object:
     encoder.writeString('second'); // second key
     encoder.openArray(3); // second value (an array with 3 elements)
 
-    encoder.writeNumber(1); // first array element
-    encoder.writeNumber(2); // second array element
-    encoder.writeNumber(3); // third array element
+    encoder.writeUnsignedInteger(1); // first array element
+    encoder.writeUnsignedInteger(2); // second array element
+    encoder.writeUnsignedInteger(3); // third array element
 
     encoder.writeString('third'); // third key
     encoder.openMap(1); // third value (a map with 1 key-value pair)
@@ -67,9 +67,9 @@ Here we're encoding the following object:
       .writeString('a') // first value
       .writeString('second') // second key
       .openArray(3) // second value
-      .writeNumber(1)
-      .writeNumber(2)
-      .writeNumber(3)
+      .writeUnsignedInteger(1)
+      .writeUnsignedInteger(2)
+      .writeUnsignedInteger(3)
       .writeString('third') // third key
       .openMap(1) // third value
       .writeString('nested') // nested key
