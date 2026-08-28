@@ -28,9 +28,43 @@ format-agnostic.
 - `packages/schema-pack` — in progress and not yet part of the workspace. Ignore
   it for now.
 
+## Documentation site (Fumadocs)
+
+- Content lives in `docs/` at the repo root, not co-located with the packages
+  it documents. It's Fumadocs MDX.
+- A package with only a few pages gets a single top-level file
+  (`docs/benchmark.mdx`, `docs/debugger.mdx`); a package with more content
+  gets its own folder (`docs/message-pack/`, `docs/vitest/`).
+- The site that renders `docs/` lives in `packages/website`
+  (`@schema-pack/website`), a React Router app built on `fumadocs-core` /
+  `fumadocs-mdx` / `fumadocs-ui`. It isn't listed under "Packages" above
+  because it's the docs site itself, not a published library. Content wiring
+  is in `packages/website/src/lib/source.ts`
+  (`defineDocs({ dir: '../../docs' })`); adding or editing pages doesn't
+  require touching that file.
+- Every folder under `docs/` needs a `meta.json` with `title` and `pages`
+  (controls sidebar title and page order). `"..."` inside `pages` means
+  "include any remaining pages not listed explicitly" (see
+  `docs/message-pack/meta.json`); that's how a subfolder like
+  `configurations/`, which has no `meta.json` of its own, still shows up.
+- A package folder can nest subfolders by concept, e.g.
+  `docs/message-pack/configurations/encoder`,
+  `docs/message-pack/configurations/decoder`,
+  `docs/message-pack/extensions`, each with its own `meta.json` when it needs
+  a title or explicit order.
+- Every `.mdx` file needs frontmatter with `title` and `description`.
+- MDX components already in use: `<Cards>` / `<Card>` for link grids (see
+  `docs/index.mdx`), `<Callout type='info'>` for asides (see
+  `docs/message-pack/index.mdx`).
+- To document a new package: add a top-level `.mdx` (or a folder with a
+  `meta.json` once it grows) under `docs/`, add its slug to
+  `docs/meta.json`'s `pages` array, and add a `<Card>` to `docs/index.mdx`.
+
 ## Commands
 
 - `pnpm install` — install dependencies
+- `pnpm docs`: run the Fumadocs documentation site in dev mode
+  (`packages/website`)
 - `pnpm build` / `pnpm watch` — build with tsdown / build in watch mode
 - `pnpm test` / `pnpm test:ci` — Vitest, watch mode / single run
 - `pnpm vitest run <path>` — run a single test file
