@@ -62,6 +62,14 @@ class SerializerBenchSuite<TDataTypesFactory extends DataTypesFactory> {
     return this;
   }
 
+  withDataTypes(dataTypes: (keyof TDataTypesFactory)[]): this {
+    for (const dataType of dataTypes) {
+      this.withDataType(dataType);
+    }
+
+    return this;
+  }
+
   withCustomDataType<TValue>(
     name: string,
     factoryFn: DataTypeFactoryFn<TValue>,
