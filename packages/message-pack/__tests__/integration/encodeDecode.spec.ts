@@ -516,13 +516,13 @@ describe('float', () => {
     });
 
     /**
-     * 0.5 fits in 32 bits, but 1.2 loses precision.
+     * 12_345.15625 fits in 32 bits.
      *
-     * 1.2 is decoded as 1.2000000476837158 using float32.
+     * 12_345.67891 loses precision, is decoded to 12345.6787109375.
      */
-    const float32 = 0.5;
+    const float32 = 12_345.15625;
 
-    // check that float32 fits in 32 bits
+    // check that float32 fits in 32 bits without losing precision
     expect(Math.fround(float32), 'The number must fit in 32 bits').toBe(
       float32,
     );
@@ -534,7 +534,7 @@ describe('float', () => {
   });
 
   it('float 64', () => {
-    const float64 = -1.2;
+    const float64 = -12_345.67891;
 
     const encoded = new Encoder().write(float64).flush();
 
