@@ -1,8 +1,6 @@
 // oxlint-disable typescript/consistent-type-imports
-import {
-  dataTypesFactory,
-  SerializersBenchSuite,
-} from '@schema-pack/benchmark';
+import dataTypesFactory from '@schema-pack/benchmark/dataTypesFactory';
+import SerializersBenchSuite from '@schema-pack/benchmark/serializersBenchSuite';
 
 const suite = new SerializersBenchSuite({
   dataTypesFactory,
