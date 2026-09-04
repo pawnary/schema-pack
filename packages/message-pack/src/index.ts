@@ -1,7 +1,6 @@
 export { default as BufferWithExtensions } from './bufferWithExtensions.ts';
 export { default as Symbols } from './symbols.ts';
 export { default as UntypedExtension } from './untypedExtension.ts';
-export { default as decoderDataTypesFactory } from './benchmark/decoderDataTypesFactory.ts';
 export * from './constants.ts';
 export * from './decoder/index.ts';
 export * from './encoder/index.ts';
