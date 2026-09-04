@@ -542,3 +542,181 @@ describe('float', () => {
     expect(decode(encoded)).toBe(float64);
   });
 });
+
+describe('bigint', () => {
+  it('big int8', () => {
+    const value = -(1n << 7n);
+
+    const encoded = encode(value);
+
+    expect(decode(encoded)).toBe(value);
+  });
+
+  it('big int16', () => {
+    const value = -(1n << 15n);
+
+    const encoded = encode(value);
+
+    expect(decode(encoded)).toBe(value);
+  });
+
+  it('big int32', () => {
+    const value = -(1n << 31n);
+
+    const encoded = encode(value);
+
+    expect(decode(encoded)).toBe(value);
+  });
+
+  it('big int64', () => {
+    const value = -(1n << 63n);
+
+    const encoded = encode(value);
+
+    expect(decode(encoded)).toBe(value);
+  });
+
+  it('big int96', () => {
+    const value = -(1n << 95n);
+
+    const encoded = encode(value);
+
+    expect(decode(encoded)).toBe(value);
+  });
+
+  it('big int128', () => {
+    const value = -(1n << 127n);
+
+    const encoded = encode(value);
+
+    expect(decode(encoded)).toBe(value);
+  });
+
+  it('big int256', () => {
+    const value = -(1n << 255n);
+
+    const encoded = encode(value);
+
+    expect(decode(encoded)).toBe(value);
+  });
+
+  it('big int512', () => {
+    const value = -(1n << 511n);
+
+    const encoded = encode(value);
+
+    expect(decode(encoded)).toBe(value);
+  });
+
+  it('big uint8', () => {
+    const value = (1n << 8n) - 1n;
+
+    const encoded = encode(value);
+
+    expect(decode(encoded)).toBe(value);
+  });
+
+  it('big uint16', () => {
+    const value = (1n << 16n) - 1n;
+
+    const encoded = encode(value);
+
+    expect(decode(encoded)).toBe(value);
+  });
+
+  it('big uint32', () => {
+    const value = (1n << 32n) - 1n;
+
+    const encoded = encode(value);
+
+    expect(decode(encoded)).toBe(value);
+  });
+
+  it('big uint64', () => {
+    const value = (1n << 64n) - 1n;
+
+    const encoded = encode(value);
+
+    expect(decode(encoded)).toBe(value);
+  });
+
+  it('big uint96', () => {
+    const value = (1n << 96n) - 1n;
+
+    const encoded = encode(value);
+
+    expect(decode(encoded)).toBe(value);
+  });
+
+  it('big uint128', () => {
+    const value = (1n << 128n) - 1n;
+
+    const encoded = encode(value);
+
+    expect(decode(encoded)).toBe(value);
+  });
+
+  it('big uint256', () => {
+    const value = (1n << 256n) - 1n;
+
+    const encoded = encode(value);
+
+    expect(decode(encoded)).toBe(value);
+  });
+
+  it('big uint512', () => {
+    const value = (1n << 512n) - 1n;
+
+    const encoded = encode(value);
+
+    expect(decode(encoded)).toBe(value);
+  });
+
+  it('should write a bigint (`0n`) with default options', () => {
+    const value = 0n;
+    const encoded = encode(value);
+
+    expect(decode(encoded)).toBe(value);
+  });
+});
+
+describe('decode with encoder chaining', () => {
+  it('openArray', () => {
+    const encoder = new Encoder();
+
+    const encoded = encoder
+      .openArray(6)
+      .writeString('foo')
+      .writeSignedInteger(-123)
+      .writeUnsignedInteger(123)
+      .writeFloat(1.2)
+      .writeNumber(1234)
+      .writeBigInt(123n)
+      .flush();
+
+    expect(decode(encoded)).toStrictEqual(['foo', -123, 123, 1.2, 1234, 123n]);
+  });
+
+  it('openMap', () => {
+    const encoder = new Encoder();
+
+    const encoded = encoder
+      .openMap(4)
+      .writeString('foo')
+      .writeSignedInteger(-123)
+      .writeString('bar')
+      .writeUnsignedInteger(123)
+      .writeString('baz')
+      .writeFloat(1.2)
+      .writeString('qux')
+      .writeBigInt(123n)
+      .flush();
+
+    expect(decode(encoded)).toStrictEqual({
+      bar: 123,
+      baz: 1.2,
+      foo: -123,
+      qux: 123n,
+    });
+  });
+});

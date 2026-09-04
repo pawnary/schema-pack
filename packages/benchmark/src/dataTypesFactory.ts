@@ -38,9 +38,6 @@ const dataTypesFactory = {
   int32: () => -32_769,
   int64: () => Number.MIN_SAFE_INTEGER,
   str8: () => '🔥'.repeat(64), // 255 bytes with 64 length
-  // oxlint-disable-next-line no-warning-comments
-  // TODO: set str8 to 200 bytes with 50 length?
-  // str8: () => 'é'.repeat(50), // 100 bytes with 50 length
   str16: () => 'a'.repeat(128) + '🔥'.repeat(32), // (128 + 128) bytes = 256 bytes with 160 length
   str32: () => 'a'.repeat(32_768) + '🔥'.repeat(8192), // (32768 + 32768) bytes = 65536 bytes with 40960 length
   array16: (): unknown[] =>
@@ -80,8 +77,21 @@ const dataTypesFactory = {
   negativeFixint: () => -1,
 
   // JavaScript types
-  // oxlint-disable-next-line no-undefined
   undefined: (): undefined => undefined,
+  bigint8: (): bigint => -(1n << 7n),
+  bigint16: (): bigint => -(1n << 15n),
+  bigint32: (): bigint => -(1n << 31n),
+  bigint64: (): bigint => -(1n << 63n),
+  bigint96: (): bigint => -(1n << 95n),
+  bigint128: (): bigint => -(1n << 127n),
+  bigint256: (): bigint => -(1n << 255n),
+  bigUint8: (): bigint => (1n << 8n) - 1n,
+  bigUint16: (): bigint => (1n << 16n) - 1n,
+  bigUint32: (): bigint => (1n << 32n) - 1n,
+  bigUint64: (): bigint => (1n << 64n) - 1n,
+  bigUint96: (): bigint => (1n << 96n) - 1n,
+  bigUint128: (): bigint => (1n << 128n) - 1n,
+  bigUint256: (): bigint => (1n << 256n) - 1n,
 } as const;
 
 export type RecordLike = Record<string | number, unknown>;

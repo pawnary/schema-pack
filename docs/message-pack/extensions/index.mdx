@@ -5,13 +5,12 @@ description: Extensions for @schema-pack/message-pack
 
 ## Built-in extensions
 
-- [BigIntExtension](./bigint)
+- [BigInt](./bigint)
 - [TimestampDateExtension](./timestamp-date)
 
 ## Writing your own extensions
 
-To handle
-[MessagePack extension types](https://github.com/msgpack/msgpack/blob/master/spec.md#extension-types),
+To handle [MessagePack extension types](./../specification#extension-types),
 this library provides a simple interface for creating custom extensions:
 
 ```ts
@@ -26,7 +25,7 @@ class CustomExtension<
 > implements MessagePackExtension<string, TBuffer> {
   readonly type = 123; // extension type (0-127)
 
-  encode(value: object | bigint, encoder: ExtensionEncoder<TBuffer>): void {
+  encode(value: object, encoder: ExtensionEncoder<TBuffer>): void {
     // encode the value into the encoder buffer
   }
 

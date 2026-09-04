@@ -45,7 +45,7 @@ class TimestampDateExtension<
     };
   }
 
-  encode(value: object | bigint, encoder: ExtensionEncoder<TBuffer>): void {
+  encode(value: object, encoder: ExtensionEncoder<TBuffer>): void {
     if (value instanceof Date) {
       const time = this.parseToMessagePackTime(value);
 

@@ -1,25 +1,199 @@
 ---
-title: BigIntExtension
+title: BigInt
 description: Handle large JavaScript integers
 ---
 
-The `BigIntExtension` allows you to encode and decode JavaScript
+## About
+
+The built-in `BigInt` extension allows you to encode and decode JavaScript
 [`bigint`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/BigInt)
 values using a variable-length representation of the value's magnitude plus
-sign. This is particularly useful for handling 64-bit integers that exceed the
-safe integer range of JavaScript's `number` type.
+sign. This is particularly useful for handling integers that exceed the
+JavaScript's
+[`Number.MAX_SAFE_INTEGER`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/MAX_SAFE_INTEGER).
 
-## Usage
+By default, the `BigInt` extension is enabled in the encoder and decoder,
+allowing you to seamlessly work with `bigint` values without any additional
+configuration.
+
+Usage example:
 
 ```ts
-import { Decoder, Encoder, BigIntExtension } from '@schema-pack/message-pack';
+import { Decoder, Encoder } from '@schema-pack/message-pack';
 
-const extension = new BigIntExtension();
+const encoder = new Encoder();
+const decoder = new Decoder();
 
-const encoder = new Encoder().addExtension(extension);
-const decoder = new Decoder().addExtension(extension);
-
-const buffer = encoder.encode(12345678901234567890n);
+const buffer = encoder.writeBigInt(12345678901234567890n).flush();
 
 decoder.decode(buffer); // 12345678901234567890n
+```
+
+## Configuration
+
+### Disable
+
+If you need to disable the extension, you can do so by providing the appropriate
+configuration when creating the encoder/decoder.
+
+```ts
+import { Decoder, Encoder } from '@schema-pack/message-pack';
+
+const encoder = new Encoder({
+  bigIntExtension: {
+    enabled: false,
+  },
+});
+
+const decoder = new Decoder({
+  bigIntExtension: {
+    enabled: false,
+  },
+});
+```
+
+### Extension type
+
+By default, the `BigInt` extension is assigned to extension type `0`. You can
+change this by providing a different `type` value in the `bigIntExtension`
+configuration when creating the encoder/decoder.
+
+```ts
+import { Decoder, Encoder } from '@schema-pack/message-pack';
+
+const encoder = new Encoder({
+  bigIntExtension: {
+    type: 1,
+  },
+});
+
+const decoder = new Decoder({
+  bigIntExtension: {
+    type: 1,
+  },
+});
+```
+
+---
+
+## Specification
+
+The `BigInt` extension is assigned to extension type `0` by default
+(configurable). Also, as a dynamic extension, it depends on the actual value
+being encoded, which determines the number of 64-bit chunks required to
+represent the magnitude. That means the actual number of 64-bit chunks used will
+vary depending on the value and will be encoded as a `fixext8`, `fixext16`,
+`ext8`, `ext16`, or `ext32` MessagePack extension, depending on the resulting
+payload length.
+
+Positive and negative values are combined into a single unsigned **magnitude**
+using zigzag encoding: the value is doubled, and negative values are
+additionally negated and decremented by one, so the magnitude's least
+significant bit doubles as a sign flag. Because `bigint` has no fixed bit width,
+the magnitude is then split into a variable number of 64-bit big-endian unsigned
+integers, least significant first.
+
+Pseudo code for serialization:
+
+```
+magnitude = value >= 0 ? (value << 1) : ((-value << 1) - 1)
+
+buffer = []
+while magnitude > 0:
+  buffer.append(magnitude & 0xFF_FF_FF_FF_FF_FF_FF_FF as a 64-bit big-endian unsigned integer)
+  magnitude = magnitude >> 64
+```
+
+### Notation diagrams
+
+<Callout type='info'>
+  How to read the MessagePack notation diagrams?, take a look at the
+  [MessagePack specification](./../../specification#notation-in-diagrams).
+</Callout>
+
+#### fixext8
+
+bigints between `-(1n << 63n)` and `(1n << 63n) - 1n`:
+
+```
++-------+--------+--------+--------+--------+--------+--------+--------+--------+--------+
+| 0xd7  |   0    |                                 data                                  |
++-------+--------+--------+--------+--------+--------+--------+--------+--------+--------+
+
+where:
+
+* 0xd7 is the fixext8 MessagePack extension byte
+* 0 is the default extension type for BigInt
+* data is the actual magnitude of the bigint, stored as a 64-bit big-endian unsigned integer
+```
+
+#### fixext16
+
+bigints between `-(1n << 127n)` and `(1n << 127n) - 1n`:
+
+```
++-------+--------+--------+--------+--------+--------+--------+--------+--------+--------+
+| 0xd8  |   0    |                                 data
++-------+--------+--------+--------+--------+--------+--------+--------+--------+--------+
+
+--------+--------+--------+--------+--------+--------+--------+
+                      data (cont.)                            |
+--------+--------+--------+--------+--------+--------+--------+
+
+where:
+
+* 0xd8 is the fixext16 MessagePack extension byte
+* 0 is the default extension type for BigInt
+* data is the actual magnitude of the bigint, stored as a 128-bit big-endian unsigned integer
+```
+
+#### ext8
+
+bigints between `-(1n << 1983n)` and `(1n << 1983n) - 1n`:
+
+```
++--------+--------+--------+========+
+|  0xc7  |XXXXXXXX|   0    |  data  |
++--------+--------+--------+========+
+
+where:
+
+* 0xc7 is the ext8 MessagePack extension byte
+* XXXXXXXX is the length of the data in bytes
+* 0 is the default extension type for BigInt
+* data is the actual magnitude of the bigint, stored as a variable-length big-endian unsigned integer
+```
+
+#### ext16
+
+bigints between `-(1n << 524_223n)` and `(1n << 524_223n) - 1n`:
+
+```
++--------+--------+--------+--------+========+
+|  0xc8  |YYYYYYYY|YYYYYYYY|   0    |  data  |
++--------+--------+--------+--------+========+
+
+where:
+
+* 0xc8 is the ext16 MessagePack extension byte
+* YYYYYYYY YYYYYYYY is the length of the data in bytes
+* 0 is the default extension type for BigInt
+* data is the actual magnitude of the bigint, stored as a variable-length big-endian unsigned integer
+```
+
+#### ext32
+
+bigints between `-(1n << 34_359_738_303n)` and `(1n << 34_359_738_303n) - 1n`:
+
+```
++--------+--------+--------+--------+--------+--------+========+
+|  0xc9  |ZZZZZZZZ|ZZZZZZZZ|ZZZZZZZZ|ZZZZZZZZ|   0    |  data  |
++--------+--------+--------+--------+--------+--------+========+
+
+where:
+
+* 0xc9 is the ext32 MessagePack extension byte
+* ZZZZZZZZ ZZZZZZZZ ZZZZZZZZ ZZZZZZZZ is the length of the data in bytes
+* 0 is the default extension type for BigInt
+* data is the actual magnitude of the bigint, stored as a variable-length big-endian unsigned integer
 ```

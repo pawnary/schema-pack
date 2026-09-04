@@ -16,10 +16,7 @@ abstract class UntypedExtension<
     this.type = type;
   }
 
-  abstract encode(
-    value: object | bigint,
-    encoder: ExtensionEncoder<TBuffer>,
-  ): void;
+  abstract encode(value: object, encoder: ExtensionEncoder<TBuffer>): void;
 
   abstract decode(
     decoderBuffer: MessagePackDecoderBuffer,
