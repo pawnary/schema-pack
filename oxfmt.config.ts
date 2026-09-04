@@ -5,5 +5,6 @@ export default defineConfig({
     'packages/schema-pack/**',
     'src/**',
     'packages/benchmark/__bench__/**',
+    'packages/website/.react-router/**',
   ],
 });

@@ -1,61 +1,49 @@
 import { HomeLayout } from 'fumadocs-ui/layouts/home';
 import {
+  ArrowRight,
   Binary,
   Bug,
+  ExternalLink,
   Gauge,
   TestTube2,
-  ArrowRight,
-  ExternalLink,
 } from 'lucide-react';
-import { Link } from 'react-router';
+import type { ReactNode } from 'react';
+import { Link, type MetaDescriptor } from 'react-router';
 
-import { baseOptions } from '@/lib/layout.shared';
-import { gitConfig } from '@/lib/shared';
-
-import type { Route } from './+types/home';
-
-export function meta({}: Route.MetaArgs) {
-  return [
-    { title: 'Schema Pack' },
-    {
-      name: 'description',
-      content:
-        'Serialization tooling for TypeScript and JavaScript — encoders/decoders, byte-level debugging, benchmarking, and test utilities for binary formats.',
-    },
-  ];
-}
+import { baseOptions } from '@/lib/layout.shared.tsx';
+import { gitConfig } from '@/lib/shared.ts';
 
 const packages = [
   {
-    icon: Binary,
-    name: '@schema-pack/message-pack',
     description:
       'Incremental MessagePack encoder/decoder with a pluggable extension system.',
     href: '/docs/message-pack',
+    icon: Binary,
+    name: '@schema-pack/message-pack',
   },
   {
-    icon: Bug,
-    name: '@schema-pack/debugger',
     description:
       'Format-agnostic, byte-level debugger for binary serialization formats.',
     href: '/docs/debugger',
+    icon: Bug,
+    name: '@schema-pack/debugger',
   },
   {
-    icon: Gauge,
-    name: '@schema-pack/benchmark',
     description:
       'Benchmark suite for comparing serializer implementations across data types.',
     href: '/docs/benchmark',
+    icon: Gauge,
+    name: '@schema-pack/benchmark',
   },
   {
-    icon: TestTube2,
-    name: '@schema-pack/vitest',
     description: 'Vitest matchers for asserting on Uint8Array byte content.',
     href: '/docs/vitest',
+    icon: TestTube2,
+    name: '@schema-pack/vitest',
   },
 ];
 
-export default function Home() {
+export default function Home(): ReactNode {
   return (
     <HomeLayout {...baseOptions()}>
       <div className='flex flex-1 flex-col'>
@@ -125,4 +113,15 @@ export default function Home() {
       </div>
     </HomeLayout>
   );
+}
+
+export function meta(): MetaDescriptor[] {
+  return [
+    { title: 'Schema Pack' },
+    {
+      content:
+        'Serialization tooling for TypeScript and JavaScript — encoders/decoders, byte-level debugging, benchmarking, and test utilities for binary formats.',
+      name: 'description',
+    },
+  ];
 }

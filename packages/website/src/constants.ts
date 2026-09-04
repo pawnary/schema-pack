@@ -1,3 +1,4 @@
+// oxlint-disable no-ternary
 import { gitConfig } from './lib/shared.ts';
 
 export const isProd = process.env.NODE_ENV === 'production';
