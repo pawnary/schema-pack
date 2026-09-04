@@ -212,11 +212,11 @@ catalogs:
       specifier: ^3.1.3
       version: 3.1.3
     '@pawnary/oxfmt-config':
-      specifier: 0.0.0-commit.46c4a819fae0ab33ac972df5568e165efce9add9
-      version: 0.0.0-commit.46c4a819fae0ab33ac972df5568e165efce9add9
+      specifier: 0.0.0-commit.b54a860da5e5f5fe1f745a9ce98bf11d15af5c1e
+      version: 0.0.0-commit.b54a860da5e5f5fe1f745a9ce98bf11d15af5c1e
     '@pawnary/oxlint-config':
-      specifier: 0.0.0-commit.46c4a819fae0ab33ac972df5568e165efce9add9
-      version: 0.0.0-commit.46c4a819fae0ab33ac972df5568e165efce9add9
+      specifier: 0.0.0-commit.b54a860da5e5f5fe1f745a9ce98bf11d15af5c1e
+      version: 0.0.0-commit.b54a860da5e5f5fe1f745a9ce98bf11d15af5c1e
     '@pawnary/tsdown-fix-exports':
       specifier: 0.0.1-next.ff1c982bcc87e5c8032af934ee04b0fedb4e3793
       version: 0.0.1-next.ff1c982bcc87e5c8032af934ee04b0fedb4e3793
@@ -341,10 +341,10 @@ importers:
     devDependencies:
       '@pawnary/oxfmt-config':
         specifier: 'catalog:'
-        version: 0.0.0-commit.46c4a819fae0ab33ac972df5568e165efce9add9
+        version: 0.0.0-commit.b54a860da5e5f5fe1f745a9ce98bf11d15af5c1e
       '@pawnary/oxlint-config':
         specifier: 'catalog:'
-        version: 0.0.0-commit.46c4a819fae0ab33ac972df5568e165efce9add9
+        version: 0.0.0-commit.b54a860da5e5f5fe1f745a9ce98bf11d15af5c1e
       '@pawnary/tsdown-fix-exports':
         specifier: 'catalog:'
         version: 0.0.1-next.ff1c982bcc87e5c8032af934ee04b0fedb4e3793
@@ -1585,11 +1585,11 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@pawnary/oxfmt-config@0.0.0-commit.46c4a819fae0ab33ac972df5568e165efce9add9':
-    resolution: {integrity: sha512-KEKZD3Dk8oc2JiUXjLqf7OiH1gmKaCxibrN/1O7pWsiP/dtV+lGd9makitH2aNQQjMMqM7yNIY8HjdyTSmUzBA==}
+  '@pawnary/oxfmt-config@0.0.0-commit.b54a860da5e5f5fe1f745a9ce98bf11d15af5c1e':
+    resolution: {integrity: sha512-Ia2JAmotm9lgfkEltrvsZK7AbY3kXV6kUQm9iuVJh6QHJHAHIS2+HSAuJCra3GkBJUNrM3RysPZ5LtH1iEE4mw==}
 
-  '@pawnary/oxlint-config@0.0.0-commit.46c4a819fae0ab33ac972df5568e165efce9add9':
-    resolution: {integrity: sha512-xBG5CNOsGSEmhDj7/rpKEW2z+vRnh6Px1sDo4cwgDwy/0gn5AmolxYloZ0HkGALFxzV/NuMezSw+KzSWcTByPA==}
+  '@pawnary/oxlint-config@0.0.0-commit.b54a860da5e5f5fe1f745a9ce98bf11d15af5c1e':
+    resolution: {integrity: sha512-geDVOJIszThBslMmB7mUJOGoB/P8dpoGa9aNCjyKLLTjJrwbDU0y9GTwkfOrLbd/ihqtA9hxlKffkZA9+In/zg==}
 
   '@pawnary/tsdown-fix-exports@0.0.1-next.ff1c982bcc87e5c8032af934ee04b0fedb4e3793':
     resolution: {integrity: sha512-s6xVmZqU+TWs4ctWjmHXpS5QED7RPLNEGY6bpbZQzibz865siKnuENGp1fO7yVWj8WsqxZSrJw/yI2Zmuwmpyg==}
@@ -5770,14 +5770,14 @@ snapshots:
   '@oxlint/binding-win32-x64-msvc@1.79.0':
     optional: true
 
-  '@pawnary/oxfmt-config@0.0.0-commit.46c4a819fae0ab33ac972df5568e165efce9add9':
+  '@pawnary/oxfmt-config@0.0.0-commit.b54a860da5e5f5fe1f745a9ce98bf11d15af5c1e':
     dependencies:
       oxfmt: 0.63.0
     transitivePeerDependencies:
       - svelte
       - vite-plus
 
-  '@pawnary/oxlint-config@0.0.0-commit.46c4a819fae0ab33ac972df5568e165efce9add9':
+  '@pawnary/oxlint-config@0.0.0-commit.b54a860da5e5f5fe1f745a9ce98bf11d15af5c1e':
     dependencies:
       oxlint: 1.79.0(oxlint-tsgolint@7.0.2001)
       oxlint-tsgolint: 7.0.2001
