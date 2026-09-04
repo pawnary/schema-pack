@@ -16,7 +16,7 @@ class DecoderBuffer<TBuffer extends Uint8Array = Uint8Array>
   textDecoder = new DefaultTextDecoder();
 
   constructor(options?: DecoderBufferOptions<TBuffer>) {
-    super();
+    super(options);
 
     const bufferFactory = options?.bufferFactory ?? defaultNewBufferFn<TBuffer>;
 
@@ -123,6 +123,26 @@ class DecoderBuffer<TBuffer extends Uint8Array = Uint8Array>
     return decodedMap;
   }
 
+  decodeBigInt(length: number): bigint {
+    if (!this.bigIntExtensionEnabled) {
+      throw new Error(`BigInt extension is disabled, cannot decode BigInt.`);
+    }
+
+    let encoded = 0n;
+    let shift = 0n;
+
+    for (let offset = this.offset; offset < length; offset += 8) {
+      encoded |= this.view.getBigUint64(offset, false) << shift;
+      shift += 64n;
+    }
+
+    if ((encoded & 1n) === 1n) {
+      return -((encoded + 1n) >> 1n);
+    }
+
+    return encoded >> 1n;
+  }
+
   // Cold path: everything in the 0xc0-0xdf control-code range that isn't Symbols.NIL/Symbols.FALSE/Symbols.TRUE/Symbols.UINT8/16/32.
   // Kept out of nextValue() on purpose (see comment above) so the hot switch stays small.
   decodeControlSlow(headerByte: number): unknown {
@@ -156,6 +176,11 @@ class DecoderBuffer<TBuffer extends Uint8Array = Uint8Array>
       case Symbols.EXT8: {
         const length = this.buffer[this.offset++];
         const extensionId = this.view.getInt8(this.offset++);
+
+        if (extensionId === this.bigIntExtensionType) {
+          return this.decodeBigInt(length);
+        }
+
         const extension = this.fetchExtension(extensionId);
 
         return extension.decode(this, length);
@@ -166,6 +191,10 @@ class DecoderBuffer<TBuffer extends Uint8Array = Uint8Array>
 
         const extensionId = this.buffer[this.offset++];
 
+        if (extensionId === this.bigIntExtensionType) {
+          return this.decodeBigInt(length);
+        }
+
         return this.fetchExtension(extensionId).decode(this, length);
       }
       case Symbols.EXT32: {
@@ -173,6 +202,10 @@ class DecoderBuffer<TBuffer extends Uint8Array = Uint8Array>
         this.offset += 4;
 
         const extensionId = this.buffer[this.offset++];
+
+        if (extensionId === this.bigIntExtensionType) {
+          return this.decodeBigInt(length);
+        }
 
         return this.fetchExtension(extensionId).decode(this, length);
       }
@@ -194,9 +227,6 @@ class DecoderBuffer<TBuffer extends Uint8Array = Uint8Array>
         this.offset += 4;
 
         return high * 0x1_00_00_00_00 + low;
-        // const decodedUint64 = this.view.getBigUint64(this.offset);
-        // this.offset += 8;
-        // return decodedUint64;
       }
       case Symbols.INT8: {
         const decodedInt8 = this.view.getInt8(this.offset);
@@ -242,10 +272,18 @@ class DecoderBuffer<TBuffer extends Uint8Array = Uint8Array>
       case Symbols.FIXEXT8: {
         const extensionId = this.view.getInt8(this.offset++);
 
+        if (extensionId === this.bigIntExtensionType) {
+          return this.decodeBigInt(8);
+        }
+
         return this.fetchExtension(extensionId).decode(this, 8);
       }
       case Symbols.FIXEXT16: {
         const extensionId = this.view.getInt8(this.offset++);
+
+        if (extensionId === this.bigIntExtensionType) {
+          return this.decodeBigInt(16);
+        }
 
         return this.fetchExtension(extensionId).decode(this, 16);
       }
@@ -255,7 +293,6 @@ class DecoderBuffer<TBuffer extends Uint8Array = Uint8Array>
       }
       case Symbols.STR16: {
         const valueStartOffset = this.offset;
-        // const byteLength = (buffer[valueStartOffset] << 8) | buffer[valueStartOffset + 1];
         const byteLength = this.view.getUint16(valueStartOffset);
         this.offset = valueStartOffset + 2;
         return this.readStr(byteLength);
@@ -267,7 +304,6 @@ class DecoderBuffer<TBuffer extends Uint8Array = Uint8Array>
       }
       case Symbols.ARRAY16: {
         const valueStartOffset = this.offset;
-        // const elementCount = (buffer[valueStartOffset] << 8) | buffer[valueStartOffset + 1];
         const elementCount = this.view.getUint16(valueStartOffset);
         this.offset = valueStartOffset + 2;
         return this.readArray(elementCount);
@@ -304,14 +340,6 @@ class DecoderBuffer<TBuffer extends Uint8Array = Uint8Array>
   nextValue<TValue = unknown>(): TValue {
     const { buffer } = this;
     const headerByte = buffer[this.offset++];
-
-    // if (
-    //   headerByte >= Symbols.FIXMAP_START &&
-    //   headerByte <= Symbols.FIXMAP_END
-    // ) {
-    //   const length = headerByte & 0b1111;
-    //   return this.readMap(length) as T;
-    // }
 
     if ((headerByte & 0xe0) === Symbols.NIL) {
       // 0xc0-0xdf control codes, single bitmask test

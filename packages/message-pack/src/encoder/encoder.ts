@@ -21,6 +21,8 @@ import type {
 import DefaultTextEncoder from './textEncoders/defaultTextEncoder.ts';
 import type { EncoderOptions, ExtensionEncoder } from './types.ts';
 
+const BIGINT_MASK = 0xff_ff_ff_ff_ff_ff_ff_ffn;
+
 class Encoder<TBuffer extends Uint8Array = Uint8Array>
   extends BufferWithExtensions<TBuffer>
   implements MessagePackEncoder<TBuffer>
@@ -79,7 +81,7 @@ class Encoder<TBuffer extends Uint8Array = Uint8Array>
   #extensionEncoder?: Encoder<TBuffer>;
 
   constructor(options?: Partial<EncoderOptions<TBuffer>>) {
-    super();
+    super(options);
 
     this.offset = 0;
     this.textEncoder = options?.textEncoder ?? new DefaultTextEncoder();
@@ -254,20 +256,6 @@ class Encoder<TBuffer extends Uint8Array = Uint8Array>
 
     return this;
   }
-
-  // writeBigInt64(value: bigint): this {
-  //   this.view.setBigInt64(this.offset, value);
-  //   this.offset += 8;
-
-  //   return this;
-  // }
-
-  // writeBigUint64(value: bigint): this {
-  //   this.view.setBigUint64(this.offset, value);
-  //   this.offset += 8;
-
-  //   return this;
-  // }
 
   writeStr(value: string): this {
     this.offset += this.textEncoder.writeBytes(value, this.buffer);
@@ -787,18 +775,6 @@ class Encoder<TBuffer extends Uint8Array = Uint8Array>
     return this;
   }
 
-  // writeBigInt(value: bigint): this {
-  //   this.ensureCapacity(9);
-
-  //   if (value < 0n) {
-  //     this.writeInt64Symbol();
-  //     return this.writeBigInt64(value);
-  //   }
-
-  //   this.writeUint64Symbol();
-  //   return this.writeBigUint64(value);
-  // }
-
   writeUint8Array(value: Uint8Array): this {
     if (fitIn8Bits(value.length)) {
       this.ensureCapacity(2 + value.length);
@@ -867,7 +843,7 @@ class Encoder<TBuffer extends Uint8Array = Uint8Array>
     return this;
   }
 
-  tryToWriteExtensionValue(value: object | bigint): number {
+  tryToWriteExtensionValue(value: object): number {
     if (this.extensions.size > 0) {
       const iterator = this.extensions.values();
       const extensionEncoder = this.getExtensionEncoder();
@@ -889,15 +865,76 @@ class Encoder<TBuffer extends Uint8Array = Uint8Array>
   }
 
   writeBigInt(value: bigint): this {
-    const writtenBytes = this.tryToWriteExtensionValue(value);
+    if (!this.bigIntExtensionEnabled) {
+      throw new Error(`BigInt extension is disabled, cannot encode BigInt.`);
+    }
 
-    if (writtenBytes > 0) {
+    let magnitude: bigint;
+
+    if (value < 0n) {
+      magnitude = (-value << 1n) - 1n;
+    } else {
+      magnitude = value << 1n;
+    }
+
+    let sizeOffset: undefined | number;
+    let size = 0;
+
+    if (magnitude >> 64n === 0n) {
+      this.writeFixExt8Symbol(this.bigIntExtensionType);
+    } else if (magnitude >> 128n === 0n) {
+      this.writeFixExt16Symbol(this.bigIntExtensionType);
+    } else if (magnitude >> 1984n === 0n) {
+      this.buffer[this.offset++] = Symbols.EXT8;
+
+      sizeOffset = this.offset++;
+
+      this.buffer[this.offset++] = this.bigIntExtensionType;
+    } else if (magnitude >> 524_224n === 0n) {
+      this.buffer[this.offset++] = Symbols.EXT16;
+
+      sizeOffset = this.offset;
+
+      this.offset += 2;
+
+      this.buffer[this.offset++] = this.bigIntExtensionType;
+    } else {
+      this.buffer[this.offset++] = Symbols.EXT32;
+
+      sizeOffset = this.offset;
+
+      this.offset += 4;
+
+      this.buffer[this.offset++] = this.bigIntExtensionType;
+    }
+
+    if (magnitude === 0n) {
+      this.ensureCapacity(8);
+      this.view.setBigUint64(this.offset, 0n, false);
+      this.offset += 8;
       return this;
     }
 
-    throw new TypeError(
-      '"bigint" encoding is not supported by default. Consider using BigIntExtension',
-    );
+    while (magnitude > 0n) {
+      this.ensureCapacity(8);
+      this.view.setBigUint64(this.offset, magnitude & BIGINT_MASK, false);
+      this.offset += 8;
+      magnitude >>= 64n;
+
+      size += 8;
+    }
+
+    if (sizeOffset !== undefined) {
+      if (fitIn8Bits(size)) {
+        this.buffer[sizeOffset] = size;
+      } else if (fitIn16Bits(size)) {
+        this.view.setUint16(sizeOffset, size, false);
+      } else {
+        this.view.setUint32(sizeOffset, size, false);
+      }
+    }
+
+    return this;
   }
 
   writeObject(value: object): this {

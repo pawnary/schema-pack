@@ -34,10 +34,6 @@
       "import": "./dist/esm/index.mjs",
       "require": "./dist/cjs/index.cjs"
     },
-    "./benchmark/decoderDataTypesFactory": {
-      "import": "./dist/esm/benchmark/decoderDataTypesFactory.mjs",
-      "require": "./dist/cjs/benchmark/decoderDataTypesFactory.cjs"
-    },
     "./bufferWithExtensions": {
       "import": "./dist/esm/bufferWithExtensions.mjs",
       "require": "./dist/cjs/bufferWithExtensions.cjs"
@@ -138,13 +134,9 @@
       "import": "./dist/esm/extensions/index.mjs",
       "require": "./dist/cjs/extensions/index.cjs"
     },
-    "./extensions/bigint": {
-      "import": "./dist/esm/extensions/bigint/index.mjs",
-      "require": "./dist/cjs/extensions/bigint/index.cjs"
-    },
-    "./extensions/bigint/bigInt": {
-      "import": "./dist/esm/extensions/bigint/bigInt.mjs",
-      "require": "./dist/cjs/extensions/bigint/bigInt.cjs"
+    "./extensions/error/error": {
+      "import": "./dist/esm/extensions/error/error.mjs",
+      "require": "./dist/cjs/extensions/error/error.cjs"
     },
     "./extensions/interfaces": {
       "import": "./dist/esm/extensions/interfaces/index.mjs",

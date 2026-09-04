@@ -1,13 +1,20 @@
 import type MessagePackExtension from './extensions/interfaces/messagePackExtension.ts';
 import type MessagePackBufferWithExtensions from './interfaces/messagePackBufferWithExtensions.ts';
+import type { BufferWithExtensionsOptions } from './types.ts';
 
 abstract class BufferWithExtensions<
   TBuffer extends Uint8Array = Uint8Array,
 > implements MessagePackBufferWithExtensions<TBuffer> {
   protected extensions: Map<number, MessagePackExtension<unknown, TBuffer>>;
 
-  constructor() {
+  readonly bigIntExtensionEnabled: boolean;
+  readonly bigIntExtensionType: number;
+
+  constructor(options?: BufferWithExtensionsOptions) {
     this.extensions = new Map();
+
+    this.bigIntExtensionEnabled = options?.bigIntExtension?.enabled ?? true;
+    this.bigIntExtensionType = options?.bigIntExtension?.type ?? 0;
   }
 
   addExtension(extension: MessagePackExtension<unknown, TBuffer>): this {

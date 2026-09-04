@@ -1,0 +1,67 @@
+---
+title: bigIntExtension
+---
+
+- **Type:** `{ enabled?: boolean; type?: number; }`
+- **Default:** `{ enabled: true; type: 0; }`
+
+The `bigIntExtension` configuration allows you to enable or disable the built-in
+`BigInt` extension and specify its type identifier.
+
+By default, the `bigIntExtension` is enabled and its type identifier is set to
+`0`.
+
+If you disable this extension, you will not be able to encode JavaScript
+[`bigint`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/BigInt)
+values.
+
+---
+
+Example:
+
+{/* prettier-ignore */}
+<Tabs items={['Default (enabled)', 'Disabled']}>
+  <Tab value='Default (enabled)'>
+    ```ts
+    import assert from 'node:assert';
+
+    import { Decoder, encode } from '@schema-pack/message-pack';
+
+    const value = 123n;
+
+    const encoded = encode(value);
+
+    const decoder = new Decoder();
+
+    assert.ok(value === decoder.decode(encoded));
+    ```
+
+  </Tab>
+  <Tab value='Disabled'>
+    ```ts
+    import assert from 'node:assert';
+
+    import { Decoder, encode } from '@schema-pack/message-pack';
+
+    const value = 123n;
+
+    const encoded = encode(value);
+
+    const decoder = new Decoder({
+      bigIntExtension: {
+        enabled: false,
+      },
+    });
+
+    assert.ok(value === decoder.decode(encoded));
+    ```
+
+    Will fails:
+
+    ```
+    Error: BigInt extension is disabled, cannot decode BigInt.
+    at DecoderBuffer.decodeBigInt
+    ```
+
+  </Tab>
+</Tabs>

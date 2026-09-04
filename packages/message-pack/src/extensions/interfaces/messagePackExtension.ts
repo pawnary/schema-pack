@@ -1,6 +1,9 @@
 import type MessagePackDecoderBuffer from '../../decoder/interfaces/messagePackDecoderBuffer.ts';
 import type { ExtensionEncoder } from '../../encoder/types.ts';
 
+// // oxlint-disable-next-line typescript/no-explicit-any
+// export type ExtensionMatcher<TValue> = abstract new (...args: any[]) => TValue;
+
 export default interface MessagePackExtension<
   TValue = unknown,
   TBuffer extends Uint8Array = Uint8Array,
@@ -11,6 +14,7 @@ export default interface MessagePackExtension<
    * process.
    */
   readonly type: number;
+  // readonly matchers: ExtensionMatcher<TValue>[];
 
   /**
    * Encodes the given value into the provided buffer according to the
@@ -20,7 +24,7 @@ export default interface MessagePackExtension<
    *   implementation should handle specific types as needed.
    * @param encoder - The extension encoder where the data will be written.
    */
-  encode(value: object | bigint, encoder: ExtensionEncoder<TBuffer>): void;
+  encode(value: object, encoder: ExtensionEncoder<TBuffer>): void;
 
   /**
    * Decodes a value from the provided DataView starting at the specified
