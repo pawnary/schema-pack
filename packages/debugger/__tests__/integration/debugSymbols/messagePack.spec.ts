@@ -1,4 +1,5 @@
-import { Encoder, Symbols } from '@schema-pack/message-pack';
+import Encoder from '@schema-pack/message-pack/encoder/encoder';
+import Symbols from '@schema-pack/message-pack/symbols';
 import { expect, test, vi } from 'vitest';
 
 import Debugger from '../../../src/debugger.ts';

@@ -1,4 +1,7 @@
-import type { BenchOptions, FnOptions } from 'tinybench';
+import type { FnOptions } from 'tinybench';
+
+import type BenchAdapter from './instrumentedBench/adapters/benchAdapter.ts';
+import type { InstrumentedBenchOptions } from './instrumentedBench/types.ts';
 
 export type DataTypeFactoryFn<TValue = unknown> = () => TValue;
 
@@ -16,17 +19,40 @@ export type SerializerTaskOptions<TDataTypesFactory extends DataTypesFactory> =
 
 export type SerializerFn<TValue = unknown> = (value: TValue) => unknown;
 
-export interface SerializerTask<TDataTypesFactory extends DataTypesFactory> {
-  name: string;
-  fn: SerializerFn<ReturnType<TDataTypesFactory[keyof TDataTypesFactory]>>;
-  options?: SerializerTaskOptions<TDataTypesFactory>;
+export interface SetupFnResult<
+  TValue = unknown,
+  TBuffer extends Uint8Array = Uint8Array,
+> {
+  encodeFn(value: TValue): TBuffer;
+  decodeFn(value: TBuffer): TValue;
 }
 
-export type SerializerDataTypeBenchOptions<
+export interface Serializer<
+  TDataTypesFactory extends DataTypesFactory,
+  TValue = unknown,
+  TBuffer extends Uint8Array = Uint8Array,
+> {
+  name: string;
+  setup(): Promise<SetupFnResult<TValue, TBuffer>>;
+  options?: FnOptions & {
+    skip?: (keyof TDataTypesFactory)[];
+    only?: (keyof TDataTypesFactory)[];
+  };
+}
+
+export type SerializersDataTypeBenchOptions<
   TDataTypesFactory extends DataTypesFactory,
   TDataType extends keyof TDataTypesFactory,
-> = BenchOptions & {
+> = Omit<InstrumentedBenchOptions, 'name'> & {
   dataType: TDataType;
   dataTypeFactory: TDataTypesFactory[TDataType] | DataTypeFactoryFn;
-  tasks: Map<string, SerializerTask<TDataTypesFactory>>;
+  serializers: Map<string, Serializer<TDataTypesFactory>>;
+  disableGarbageCollection?: boolean;
 };
+
+export interface SerializersBenchSuiteOptions<
+  TDataTypesFactory extends DataTypesFactory,
+> {
+  dataTypesFactory: TDataTypesFactory;
+  adapter?: BenchAdapter;
+}
