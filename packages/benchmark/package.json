@@ -69,12 +69,12 @@
     },
     "./package.json": "./package.json"
   },
-  "devDependencies": {
-    "console-table-printer": "catalog:",
-    "tinybench": "catalog:"
-  },
   "dependencies": {
     "es-toolkit": "catalog:",
     "log-update": "catalog:"
+  },
+  "devDependencies": {
+    "console-table-printer": "catalog:",
+    "tinybench": "catalog:"
   }
 }
