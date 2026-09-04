@@ -1,5 +1,5 @@
 // oxlint-disable unicorn/prefer-code-point
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import {
   DEFAULT_ALLOCATION_SIZE,
@@ -946,19 +946,16 @@ describe('general writing', () => {
   });
 
   describe('writeBigInt', () => {
-    const encoder = new Encoder({
-      bigIntExtension: {
-        enabled: true,
-        type: 123,
-      },
-    });
-
-    afterEach(() => {
-      encoder.flush();
-    });
-
     describe('writes a bigint as fixext8', () => {
       it('write 0n', () => {
+        const encoder = new Encoder({
+          bigIntExtension: {
+            enabled: true,
+            type: 123,
+          },
+          initialBufferSize: 1,
+        });
+
         encoder.writeBigInt(0n);
 
         expect(encoder.buffer.slice(0, encoder.offset)).toBeBytes([
@@ -969,6 +966,13 @@ describe('general writing', () => {
       });
 
       it('write a positive bigint', () => {
+        const encoder = new Encoder({
+          bigIntExtension: {
+            enabled: true,
+            type: 123,
+          },
+          initialBufferSize: 1,
+        });
         encoder.writeBigInt(1n);
 
         expect(encoder.buffer.slice(0, encoder.offset)).toBeBytes([
@@ -980,6 +984,14 @@ describe('general writing', () => {
       });
 
       it('write a negative bigint', () => {
+        const encoder = new Encoder({
+          bigIntExtension: {
+            enabled: true,
+            type: 123,
+          },
+          initialBufferSize: 1,
+        });
+
         encoder.writeBigInt(-1n);
 
         expect(encoder.buffer.slice(0, encoder.offset)).toBeBytes([
@@ -993,6 +1005,14 @@ describe('general writing', () => {
 
     describe('writes a bigint as fixext16', () => {
       it('write a positive bigint', () => {
+        const encoder = new Encoder({
+          bigIntExtension: {
+            enabled: true,
+            type: 123,
+          },
+          initialBufferSize: 1,
+        });
+
         const value = 1n << 63n;
 
         encoder.writeBigInt(value);
@@ -1006,6 +1026,14 @@ describe('general writing', () => {
       });
 
       it('write a negative bigint', () => {
+        const encoder = new Encoder({
+          bigIntExtension: {
+            enabled: true,
+            type: 123,
+          },
+          initialBufferSize: 1,
+        });
+
         const value = -(1n << 63n) - 1n;
 
         encoder.writeBigInt(value);
@@ -1023,6 +1051,14 @@ describe('general writing', () => {
 
     describe('writes a bigint as ext8', () => {
       it('write a positive bigint', () => {
+        const encoder = new Encoder({
+          bigIntExtension: {
+            enabled: true,
+            type: 123,
+          },
+          initialBufferSize: 1,
+        });
+
         const value = 1n << 127n;
 
         encoder.writeBigInt(value);
@@ -1037,6 +1073,14 @@ describe('general writing', () => {
       });
 
       it('write a negative bigint', () => {
+        const encoder = new Encoder({
+          bigIntExtension: {
+            enabled: true,
+            type: 123,
+          },
+          initialBufferSize: 1,
+        });
+
         const value = -(1n << 127n) - 1n;
 
         encoder.writeBigInt(value);
@@ -1055,6 +1099,14 @@ describe('general writing', () => {
 
     describe('write a bigint as ext16', () => {
       it('write a positive bigint', () => {
+        const encoder = new Encoder({
+          bigIntExtension: {
+            enabled: true,
+            type: 123,
+          },
+          initialBufferSize: 1,
+        });
+
         const value = 1n << 1983n;
 
         encoder.writeBigInt(value);
@@ -1070,6 +1122,14 @@ describe('general writing', () => {
       });
 
       it('write a negative bigint', () => {
+        const encoder = new Encoder({
+          bigIntExtension: {
+            enabled: true,
+            type: 123,
+          },
+          initialBufferSize: 1,
+        });
+
         const value = -(1n << 1983n) - 1n;
 
         encoder.writeBigInt(value);
@@ -1089,6 +1149,14 @@ describe('general writing', () => {
 
     describe('write a bigint as ext32', () => {
       it('write a positive bigint', () => {
+        const encoder = new Encoder({
+          bigIntExtension: {
+            enabled: true,
+            type: 123,
+          },
+          initialBufferSize: 1,
+        });
+
         const value = 1n << 524_223n;
 
         encoder.writeBigInt(value);
@@ -1106,6 +1174,14 @@ describe('general writing', () => {
       });
 
       it('write a negative bigint', () => {
+        const encoder = new Encoder({
+          bigIntExtension: {
+            enabled: true,
+            type: 123,
+          },
+          initialBufferSize: 1,
+        });
+
         const value = -(1n << 524_223n) - 1n;
 
         encoder.writeBigInt(value);
