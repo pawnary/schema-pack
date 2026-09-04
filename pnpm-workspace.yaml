@@ -24,11 +24,14 @@ catalog:
   '@vitest/expect': ^4.1.11
   cnfast: ^0.1.0
   console-table-printer: ^2.16.1
+  es-toolkit: ^1.52.0
   fumadocs-core: ^16.15.1
   fumadocs-mdx: ^15.3.1
   fumadocs-ui: ^16.15.1
+  husky: ^9.1.7
   isbot: ^5.2.1
   jsdom: ^30.0.1
+  log-update: ^8.0.0
   lucide-react: ^1.34.0
   msgpackr: ^2.0.5
   oxc-transform-react: ^0.147.0
@@ -43,6 +46,7 @@ catalog:
   tailwindcss: ^4.3.3
   tinybench: ^6.1.3
   tsdown: ^0.22.14
+  tsx: ^4.23.12
   typescript: ^7.0.2
   vite: ^8.2.2
   vite-tsconfig-paths: ^6.1.1

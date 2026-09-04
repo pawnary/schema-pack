@@ -35,13 +35,33 @@
       "import": "./dist/esm/dataTypesFactory.mjs",
       "require": "./dist/cjs/dataTypesFactory.cjs"
     },
-    "./serializerBenchSuite": {
-      "import": "./dist/esm/serializerBenchSuite.mjs",
-      "require": "./dist/cjs/serializerBenchSuite.cjs"
+    "./instrumentedBench/adapters/benchAdapter": {
+      "import": "./dist/esm/instrumentedBench/adapters/benchAdapter.mjs",
+      "require": "./dist/cjs/instrumentedBench/adapters/benchAdapter.cjs"
     },
-    "./serializerDataTypeBench": {
-      "import": "./dist/esm/serializerDataTypeBench.mjs",
-      "require": "./dist/cjs/serializerDataTypeBench.cjs"
+    "./instrumentedBench/adapters/cliAdapter": {
+      "import": "./dist/esm/instrumentedBench/adapters/cliAdapter.mjs",
+      "require": "./dist/cjs/instrumentedBench/adapters/cliAdapter.cjs"
+    },
+    "./instrumentedBench/instrumentedBench": {
+      "import": "./dist/esm/instrumentedBench/instrumentedBench.mjs",
+      "require": "./dist/cjs/instrumentedBench/instrumentedBench.cjs"
+    },
+    "./instrumentedBench/types": {
+      "import": "./dist/esm/instrumentedBench/types.mjs",
+      "require": "./dist/cjs/instrumentedBench/types.cjs"
+    },
+    "./serializersBenchSuite": {
+      "import": "./dist/esm/serializersBenchSuite.mjs",
+      "require": "./dist/cjs/serializersBenchSuite.cjs"
+    },
+    "./serializersDataTypeBench": {
+      "import": "./dist/esm/serializersDataTypeBench.mjs",
+      "require": "./dist/cjs/serializersDataTypeBench.cjs"
+    },
+    "./spbench/cli": {
+      "import": "./dist/esm/spbench/cli.mjs",
+      "require": "./dist/cjs/spbench/cli.cjs"
     },
     "./types": {
       "import": "./dist/esm/types.mjs",
@@ -52,5 +72,9 @@
   "devDependencies": {
     "console-table-printer": "catalog:",
     "tinybench": "catalog:"
+  },
+  "dependencies": {
+    "es-toolkit": "catalog:",
+    "log-update": "catalog:"
   }
 }
