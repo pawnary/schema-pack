@@ -1,7 +1,7 @@
 import type { FnOptions } from 'tinybench';
 
-import type BenchAdapter from './instrumentedBench/adapters/benchAdapter';
-import type { InstrumentedBenchOptions } from './instrumentedBench/types';
+import type BenchAdapter from './instrumentedBench/adapters/benchAdapter.ts';
+import type { InstrumentedBenchOptions } from './instrumentedBench/types.ts';
 
 export type DataTypeFactoryFn<TValue = unknown> = () => TValue;
 

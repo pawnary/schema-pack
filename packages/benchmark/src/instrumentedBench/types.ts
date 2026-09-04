@@ -1,7 +1,7 @@
 import type { BenchOptions, Task } from 'tinybench';
 
-import type BenchAdapter from './adapters/benchAdapter';
-import type InstrumentedBench from './instrumentedBench';
+import type BenchAdapter from './adapters/benchAdapter.ts';
+import type InstrumentedBench from './instrumentedBench.ts';
 
 export type InstrumentedBenchEvent =
   | {

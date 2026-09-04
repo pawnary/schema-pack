@@ -4,9 +4,9 @@ import { Table } from 'console-table-printer';
 import { createLogUpdate } from 'log-update';
 import { formatNumber, mToNs, type Task } from 'tinybench';
 
-import type InstrumentedBench from '../instrumentedBench';
-import type { InstrumentedBenchEvent } from '../types';
-import type BenchAdapter from './benchAdapter';
+import type InstrumentedBench from '../instrumentedBench.ts';
+import type { InstrumentedBenchEvent } from '../types.ts';
+import type BenchAdapter from './benchAdapter.ts';
 
 const statesWithResults = new Set(['aborted-with-statistics', 'completed']);
 

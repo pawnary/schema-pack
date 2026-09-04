@@ -1,7 +1,10 @@
 import { Bench, type Task } from 'tinybench';
 
-import type BenchAdapter from './adapters/benchAdapter';
-import type { InstrumentedBenchEvent, InstrumentedBenchOptions } from './types';
+import type BenchAdapter from './adapters/benchAdapter.ts';
+import type {
+  InstrumentedBenchEvent,
+  InstrumentedBenchOptions,
+} from './types.ts';
 
 class InstrumentedBench extends Bench {
   readonly adapters: readonly BenchAdapter[];

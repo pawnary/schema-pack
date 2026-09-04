@@ -17,7 +17,7 @@ class SerializersBenchSuite<TDataTypesFactory extends DataTypesFactory> {
 
   constructor(options: SerializersBenchSuiteOptions<TDataTypesFactory>) {
     this.dataTypesFactory = options.dataTypesFactory;
-    this.adapter = new CLIAdapter();
+    this.adapter = options.adapter ?? new CLIAdapter();
   }
 
   add(options: Serializer<TDataTypesFactory>): this {
