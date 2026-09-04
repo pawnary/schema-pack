@@ -679,3 +679,44 @@ describe('bigint', () => {
     expect(decode(encoded)).toBe(value);
   });
 });
+
+describe('decode with encoder chaining', () => {
+  it('openArray', () => {
+    const encoder = new Encoder();
+
+    const encoded = encoder
+      .openArray(6)
+      .writeString('foo')
+      .writeSignedInteger(-123)
+      .writeUnsignedInteger(123)
+      .writeFloat(1.2)
+      .writeNumber(1234)
+      .writeBigInt(123n)
+      .flush();
+
+    expect(decode(encoded)).toStrictEqual(['foo', -123, 123, 1.2, 1234, 123n]);
+  });
+
+  it('openMap', () => {
+    const encoder = new Encoder();
+
+    const encoded = encoder
+      .openMap(4)
+      .writeString('foo')
+      .writeSignedInteger(-123)
+      .writeString('bar')
+      .writeUnsignedInteger(123)
+      .writeString('baz')
+      .writeFloat(1.2)
+      .writeString('qux')
+      .writeBigInt(123n)
+      .flush();
+
+    expect(decode(encoded)).toStrictEqual({
+      bar: 123,
+      baz: 1.2,
+      foo: -123,
+      qux: 123n,
+    });
+  });
+});

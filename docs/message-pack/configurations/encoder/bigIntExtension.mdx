@@ -39,8 +39,6 @@ Example:
   </Tab>
   <Tab value='Disabled'>
     ```ts
-    import assert from 'node:assert';
-
     import { decode, Encoder } from '@schema-pack/message-pack';
 
     const encoder = new Encoder({
@@ -51,12 +49,7 @@ Example:
 
     const value = 123n;
 
-    const encoded = encoder.writeBigInt(value).flush();
-
-    console.log({ encoded, value });
-
-    assert.ok(value === decode(encoded));
-
+    encoder.writeBigInt(value).flush();
     ```
 
     Will fails:

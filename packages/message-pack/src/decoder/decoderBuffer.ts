@@ -130,8 +130,9 @@ class DecoderBuffer<TBuffer extends Uint8Array = Uint8Array>
 
     let encoded = 0n;
     let shift = 0n;
+    const endOffset = this.offset + length;
 
-    for (let offset = this.offset; offset < length; offset += 8) {
+    for (let offset = this.offset; offset < endOffset; offset += 8) {
       encoded |= this.view.getBigUint64(offset, false) << shift;
       shift += 64n;
     }

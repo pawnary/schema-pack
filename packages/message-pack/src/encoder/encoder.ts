@@ -881,16 +881,20 @@ class Encoder<TBuffer extends Uint8Array = Uint8Array>
     let size = 0;
 
     if (magnitude >> 64n === 0n) {
+      this.ensureCapacity(2);
       this.writeFixExt8Symbol(this.bigIntExtensionType);
     } else if (magnitude >> 128n === 0n) {
+      this.ensureCapacity(2);
       this.writeFixExt16Symbol(this.bigIntExtensionType);
     } else if (magnitude >> 1984n === 0n) {
+      this.ensureCapacity(3);
       this.buffer[this.offset++] = Symbols.EXT8;
 
       sizeOffset = this.offset++;
 
       this.buffer[this.offset++] = this.bigIntExtensionType;
     } else if (magnitude >> 524_224n === 0n) {
+      this.ensureCapacity(4);
       this.buffer[this.offset++] = Symbols.EXT16;
 
       sizeOffset = this.offset;
@@ -899,6 +903,7 @@ class Encoder<TBuffer extends Uint8Array = Uint8Array>
 
       this.buffer[this.offset++] = this.bigIntExtensionType;
     } else {
+      this.ensureCapacity(6);
       this.buffer[this.offset++] = Symbols.EXT32;
 
       sizeOffset = this.offset;

@@ -39,8 +39,6 @@ Example:
   </Tab>
   <Tab value='Disabled'>
     ```ts
-    import assert from 'node:assert';
-
     import { Decoder, encode } from '@schema-pack/message-pack';
 
     const value = 123n;
@@ -53,7 +51,7 @@ Example:
       },
     });
 
-    assert.ok(value === decoder.decode(encoded));
+    decoder.decode(encoded);
     ```
 
     Will fails:
