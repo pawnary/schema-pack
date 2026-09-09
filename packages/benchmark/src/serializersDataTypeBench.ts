@@ -94,14 +94,14 @@ class SerializersDataTypeBench<
       this.encoderBench.add(name, () => setup.encodeFn(data), {
         ...serializer.options,
         beforeAll,
-        async beforeEach(this: Task) {
+        async beforeEach(this: Task, mode?: HookMode) {
           // always generate a new value for each serializer, to avoid libraries caching
           // effects and ensure that each serializer is working with a fresh instance of
           // the data type, like a real world scenario.
           data = dataTypeFactory();
 
           if (serializer.options?.beforeEach) {
-            await serializer.options.beforeEach.call(this);
+            await serializer.options.beforeEach.call(this, mode);
           }
         },
         signal: abortController.signal,
@@ -110,14 +110,14 @@ class SerializersDataTypeBench<
       this.decoderBench.add(name, () => setup.decodeFn(encoded), {
         ...serializer.options,
         beforeAll,
-        async beforeEach(this: Task) {
+        async beforeEach(this: Task, mode?: HookMode) {
           // always generate a new value for each serializer, to avoid libraries caching
           // effects and ensure that each serializer is working with a fresh instance of
           // the data type, like a real world scenario.
           encoded = setup.encodeFn(dataTypeFactory());
 
           if (serializer.options?.beforeEach) {
-            await serializer.options.beforeEach.call(this);
+            await serializer.options.beforeEach.call(this, mode);
           }
         },
         signal: abortController.signal,
