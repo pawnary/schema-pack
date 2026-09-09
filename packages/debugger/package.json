@@ -37,6 +37,10 @@
       "import": "./dist/esm/debugger.mjs",
       "require": "./dist/cjs/debugger.cjs"
     },
+    "./debuggers/debugMessagePack": {
+      "import": "./dist/esm/debuggers/debugMessagePack.mjs",
+      "require": "./dist/cjs/debuggers/debugMessagePack.cjs"
+    },
     "./debugSymbols/messagePack": {
       "import": "./dist/esm/debugSymbols/messagePack.mjs",
       "require": "./dist/cjs/debugSymbols/messagePack.cjs"

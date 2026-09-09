@@ -10,19 +10,19 @@ allowBuilds:
 catalog:
   '@jsonjoy.com/json-pack': ^18.28.0
   '@msgpack/msgpack': ^3.1.3
-  '@pawnary/oxfmt-config': 0.0.0-commit.b54a860da5e5f5fe1f745a9ce98bf11d15af5c1e
-  '@pawnary/oxlint-config': 0.0.0-commit.b54a860da5e5f5fe1f745a9ce98bf11d15af5c1e
+  '@pawnary/oxfmt-config': 0.0.0-commit.318423ba64b1a8c64bf99fdca89a13d8e482abba
+  '@pawnary/oxlint-config': 0.0.0-commit.318423ba64b1a8c64bf99fdca89a13d8e482abba
   '@pawnary/tsdown-fix-exports': 0.0.1-next.ff1c982bcc87e5c8032af934ee04b0fedb4e3793
   '@react-router/dev': ^8.3.0
   '@react-router/node': ^8.3.0
   '@react-router/serve': ^8.3.0
+  '@schema-pack/benchmark': workspace:*
   '@tailwindcss/vite': ^4.3.3
   '@types/bun': ^1.3.14
   '@types/mdx': ^2.0.14
   '@types/node': ^26.2.0
   '@types/react': ^19.2.18
   '@vitest/expect': ^4.1.11
-  cnfast: ^0.1.0
   console-table-printer: ^2.16.1
   es-toolkit: ^1.52.0
   fumadocs-core: ^16.15.1
@@ -31,10 +31,11 @@ catalog:
   husky: ^9.1.7
   isbot: ^5.2.1
   jsdom: ^30.0.1
+  knip: ^6.35.0
+  lint-staged: ^17.5.0
   log-update: ^8.0.0
   lucide-react: ^1.34.0
   msgpackr: ^2.0.5
-  oxc-transform-react: ^0.147.0
   oxfmt: ^0.64.0
   oxlint: ^1.79.0
   oxlint-tsgolint: ^7.0.2001
@@ -42,7 +43,6 @@ catalog:
   react: ^19.2.8
   react-dom: ^19.2.8
   react-router: ^8.3.0
-  react-router-devtools: ^6.2.3
   tailwindcss: ^4.3.3
   tinybench: ^6.1.3
   tsdown: ^0.22.14

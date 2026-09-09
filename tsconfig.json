@@ -35,7 +35,7 @@
     "skipLibCheck": true,
     "allowUnusedLabels": false,
     "allowUnreachableCode": false,
-    "types": ["node", "bun", "vitest", "./packages/vitest/src/extensions.d.ts"],
+    "types": ["node", "bun", "vitest"],
     "paths": {
       "@schema-pack/benchmark/*": ["./packages/benchmark/src/*"],
       "@schema-pack/debugger/*": ["./packages/debugger/src/*"],

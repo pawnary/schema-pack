@@ -8,10 +8,12 @@
   "scripts": {
     "build": "tsdown",
     "build:docs": "pnpm --filter @schema-pack/website run build:prod",
-    "clean": "git clean -dfqX -- packages/**/dist packages/**/tsconfig*tsbuildinfo node_modules packages/**/node_modules",
+    "clean": "git clean -dfqX -- packages/**/tsconfig*tsbuildinfo node_modules packages/**/node_modules && pnpm run clean:dist",
+    "clean:dist": "git clean -dfqX -- packages/**/dist",
     "docs": "pnpm --filter @schema-pack/website run dev",
     "fmt": "oxfmt --check",
     "fmt:fix": "oxfmt --write",
+    "knip": "knip",
     "lint": "oxlint",
     "lint-staged": "lint-staged",
     "lint:fix": "oxlint --fix",
@@ -30,6 +32,8 @@
     "@types/node": "catalog:",
     "husky": "catalog:",
     "jsdom": "catalog:",
+    "knip": "catalog:",
+    "lint-staged": "catalog:",
     "oxfmt": "catalog:",
     "oxlint": "catalog:",
     "oxlint-tsgolint": "catalog:",
@@ -42,7 +46,7 @@
   "devEngines": {
     "packageManager": {
       "name": "pnpm",
-      "version": "^11.22.0",
+      "version": "^12.3.4",
       "onFail": "download"
     }
   }
