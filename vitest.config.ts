@@ -6,7 +6,7 @@ export default defineConfig({
   },
   test: {
     environment: 'jsdom',
-    exclude: ['./packages/schema-pack/**'],
+    exclude: ['./packages/schema-pack/**', '**/node_modules/**'],
     include: ['./packages/**/__tests__/**/*.spec.ts'],
     setupFiles: ['./vitest.setup.ts'],
   },
