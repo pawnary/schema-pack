@@ -1,0 +1,445 @@
+---
+title: Error
+description: Handle JavaScript Error objects
+---
+
+## About
+
+The built-in `Error` extension allows you to encode and decode JavaScript
+[`Error`][Error] objects, preserving the error's class, message, stack, name and
+cause. Without it, errors are encoded as plain maps, and since the properties of
+an `Error` are not enumerable, that map ends up empty.
+
+Out of the box it handles [`Error`][Error], [`AggregateError`][AggregateError],
+[`EvalError`][EvalError], [`RangeError`][RangeError],
+[`ReferenceError`][ReferenceError], [`SyntaxError`][SyntaxError],
+[`TypeError`][TypeError] and [`URIError`][URIError]. Any other error class has
+to be registered, see [Custom errors](#custom-errors).
+
+By default, the `Error` extension is enabled in the encoder and decoder,
+allowing you to seamlessly work with errors without any additional
+configuration.
+
+Usage example:
+
+```ts
+import { Decoder, Encoder } from '@schema-pack/message-pack';
+
+const encoder = new Encoder();
+const decoder = new Decoder();
+
+const error = new TypeError('invalid input');
+
+const buffer = encoder.writeError(error).flush();
+
+decoder.decode(buffer); // TypeError: invalid input
+```
+
+<GithubSource
+  label='View full example on GitHub'
+  link='/packages/message-pack/examples/src/extensions/error/error.ts'
+/>
+
+## Configuration
+
+### Disable
+
+If you need to disable the extension, you can do so by providing the appropriate
+configuration when creating the encoder/decoder.
+
+{/* prettier-ignore */}
+<Tabs items={['Implicit decoder', 'Explicit decoder']}>
+  <Tab value='Implicit decoder'>
+    ```ts
+    import { Decoder, Encoder } from '@schema-pack/message-pack';
+
+    const encoder = new Encoder({
+      extensions: {
+        error: {
+          enabled: false,
+        },
+      },
+    });
+
+    const decoder = Decoder.fromEncoder(encoder);
+    ```
+
+  </Tab>
+  <Tab value='Explicit decoder'>
+    ```ts
+    import { Decoder, Encoder } from '@schema-pack/message-pack';
+
+    const encoder = new Encoder({
+      extensions: {
+        error: {
+          enabled: false,
+        },
+      },
+    });
+
+    const decoder = new Decoder({
+      extensions: {
+        error: {
+          enabled: false,
+        },
+      },
+    });
+    ```
+
+  </Tab>
+</Tabs>
+
+<GithubSource
+  label='View full example on GitHub'
+  link='/packages/message-pack/examples/src/extensions/error/disabledExtension.ts'
+/>
+
+### Extension type
+
+By default, the `Error` extension is assigned to extension type `1`. You can
+change this by providing a different `type` value in the `error` extension
+configuration when creating the encoder/decoder.
+
+{/* prettier-ignore */}
+<Tabs items={['Implicit decoder', 'Explicit decoder']}>
+  <Tab value='Implicit decoder'>
+    ```ts
+    import { Decoder, Encoder } from '@schema-pack/message-pack';
+
+    const encoder = new Encoder({
+      extensions: {
+        error: {
+          type: 10,
+        },
+      },
+    });
+
+    const decoder = Decoder.fromEncoder(encoder);
+    ```
+
+  </Tab>
+  <Tab value='Explicit decoder'>
+    ```ts
+    import { Decoder, Encoder } from '@schema-pack/message-pack';
+
+    const encoder = new Encoder({
+      extensions: {
+        error: {
+          type: 10,
+        },
+      },
+    });
+
+    const decoder = new Decoder({
+      extensions: {
+        error: {
+          type: 10,
+        },
+      },
+    });
+    ```
+
+  </Tab>
+</Tabs>
+
+## Custom errors
+
+An error class that is not one of the built-in ones has to be registered through
+the `factories` option, on both the encoder and the decoder. A factory receives
+the decoded `message`, `options` (carrying the `cause`) and `errors`, and
+returns a new instance of your class.
+
+{/* prettier-ignore */}
+<Tabs items={['Implicit decoder', 'Explicit decoder']}>
+  <Tab value='Implicit decoder'>
+    ```ts
+    import { Decoder, Encoder } from '@schema-pack/message-pack';
+
+    class HttpError extends Error {
+      statusCode: number;
+
+      constructor(statusCode: number, message: string) {
+        super(message);
+
+        this.statusCode = statusCode;
+      }
+    }
+
+    const encoder = new Encoder({
+      extensions: {
+        error: {
+          factories: [
+            [
+              HttpError,
+              (input) => new HttpError(Number(input.properties.statusCode), input.message),
+            ],
+          ],
+        },
+      },
+    });
+
+    const decoder = Decoder.fromEncoder(encoder);
+
+    const buffer = encoder.writeError(new HttpError(404, 'not found')).flush();
+
+    decoder.decode(buffer); // HttpError: not found
+    ```
+
+  </Tab>
+  <Tab value='Explicit decoder'>
+    ```ts
+    import { Decoder, Encoder } from '@schema-pack/message-pack';
+
+    class HttpError extends Error {
+      statusCode: number;
+
+      constructor(statusCode: number, message: string) {
+        super(message);
+
+        this.statusCode = statusCode;
+      }
+    }
+
+    const encoder = new Encoder({
+      extensions: {
+        error: {
+          factories: [
+            [HttpError, (input) => new HttpError(Number(input.properties.statusCode), input.message)],
+          ],
+        },
+      },
+    });
+
+    const decoder = new Decoder({
+      extensions: {
+        error: {
+          factories: [
+            [HttpError, (input) => new HttpError(Number(input.properties.statusCode), input.message)],
+          ],
+        },
+      },
+    });
+
+    const buffer = encoder.writeError(new HttpError(404, 'not found')).flush();
+
+    decoder.decode(buffer); // HttpError: not found
+    ```
+
+  </Tab>
+</Tabs>
+
+<GithubSource
+  label='View full example on GitHub'
+  link='/packages/message-pack/examples/src/extensions/error/customError.ts'
+/>
+
+Both registrations are needed: the encoder one is what makes the class encodable
+at all, and the decoder one is what allows it to be reconstructed. Encoding an
+unregistered error class falls back to a plain map, and decoding a class the
+decoder doesn't know about throws.
+
+### Factory `input` type:
+
+<TypeTable
+  type={{
+    message: {
+      description: 'The error message',
+      type: 'string',
+      default: '',
+      required: true,
+    },
+    options: {
+      description: (
+        <div>
+          The{' '}
+          <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error/Error#options'>
+            JavaScript `ErrorOptions`
+          </a>
+          , carrying the cause
+        </div>
+      ),
+      type: 'ErrorOptions',
+      default: 'undefined',
+    },
+    errors: {
+      description: (
+        <div>
+          The aggregated errors, if the error is an{' '}
+          <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/AggregateError'>
+            `AggregateError`
+          </a>
+        </div>
+      ),
+      type: 'Error[]',
+      default: 'undefined',
+    },
+    properties: {
+      description:
+        'An object containing any additional public properties of the error instance',
+      type: 'Record<string, unknown>',
+      default: '{}',
+      required: true,
+    },
+  }}
+/>
+
+Additional `Error` properties like `stack` or `name` are not included in factory
+`input`, since they are already handled by the extension. The `properties`
+object is meant for any additional public properties that your custom error
+class may define.
+
+---
+
+## Specification
+
+The `Error` extension is assigned to extension type `1` by default
+(configurable). Its payload is a sequence of fields, each one written as a
+single byte identifying the field followed by the field's value encoded as a
+regular MessagePack value. Every field is optional except the constructor name.
+
+Also, as a dynamic extension, its payload length depends on the error being
+encoded, so it is encoded as an `ext8`, `ext16` or `ext32` MessagePack
+extension, depending on the resulting payload length — or as a `fixext8` /
+`fixext16` in the rare case the payload measures exactly 8 or 16 bytes.
+
+Pseudo code for serialization:
+
+```
+buffer = []
+
+for each present field in [stack, message, name, cause, errors]:
+  buffer.append(the field symbol as a single byte)
+  buffer.append(the field value as a MessagePack value)
+
+buffer.append(5)
+buffer.append(the constructor name as a MessagePack str)
+```
+
+### Formats (symbols)
+
+| Format name      | First byte (in binary) | First byte (in hex) |
+| ---------------- | ---------------------- | ------------------- |
+| stack            | 00000001               | 0x01                |
+| message          | 00000010               | 0x02                |
+| name             | 00000011               | 0x03                |
+| cause            | 00000100               | 0x04                |
+| constructor name | 00000101               | 0x05                |
+| errors           | 00000110               | 0x06                |
+| properties       | 00000111               | 0x07                |
+
+### Notation diagrams
+
+<Callout type='info'>
+  How to read the MessagePack notation diagrams?, take a look at the
+  [MessagePack specification](./../../specification#notation-in-diagrams).
+</Callout>
+
+```
++-------+--------+~~~~~~~~~~~~~~~~~+
+|  ext  |   1    |      data       |
++-------+--------+~~~~~~~~~~~~~~~~~+
+
+where:
+
+* ext is the MessagePack extension type (ext8, ext16 or ext32)
+* 1 is the default extension type id for the Error extension
+* data is the payload of the extension, containing the serialized error
+```
+
+**data** is the sequence of error extension's symbols, each one written as a
+single byte identifying the field followed by the field's value encoded as a
+regular MessagePack value:
+
+```
++--------+========+========+========+
+|  0x01  |  str   |AAAAAAAA| stack  |
++--------+========+========+========+
+
+where:
+
+* 0x01 is the symbol for the stack field
+* str is the MessagePack str type (fixstr, str8, str16 or str32)
+* AAAAAAAA is the length of the stack string in bytes
+* stack is the stack string of the error, written only when the error has a stack
+
++--------+========+========+========+
+|  0x02  |  str   |BBBBBBBB|message |
++--------+========+========+========+
+
+where:
+
+* 0x02 is the symbol for the message field
+* str is the MessagePack str type (fixstr, str8, str16 or str32)
+* BBBBBBBB is the length of the message string in bytes
+* message is the message string of the error, written only when the message is not empty
+
++--------+========+========+========+
+|  0x03  |  str   |CCCCCCCC|  name  |
++--------+========+========+========+
+
+where:
+
+* 0x03 is the symbol for the name field
+* str is the MessagePack str type (fixstr, str8, str16 or str32)
+* CCCCCCCC is the length of the name string in bytes
+* name is the name string of the error, written only when the name is an own property of the error
+
++-------+-------+--------+~~~~~~~~~~~~~~~~~+
+|  0x04 |  ext  |   1    |      cause      |
++-------+-------+--------+~~~~~~~~~~~~~~~~~+
+
+where:
+
+* 0x04 is the symbol for the cause field
+* ext is the MessagePack extension type (ext8, ext16 or ext32)
+* 1 is the default extension type id for the Error extension
+* cause is the cause of the error, written only when the error has a cause
+
++--------+========+========+========+
+|  0x05  |  str   |DDDDDDDD| cname  |
++--------+========+========+========+
+
+where:
+
+* 0x05 is the symbol for the constructor name field
+* str is the MessagePack str type (fixstr, str8, str16 or str32)
+* DDDDDDDD is the length of the constructor name string in bytes
+* cname is the constructor name string of the error, written only when the constructor name is an own property of the error
+
++-------+========+~~~~~~~~~~~~~~~~~+
+|  0x06 | array  |     errors      |
++-------+========+~~~~~~~~~~~~~~~~~+
+
+where:
+
+* 0x06 is the symbol for the errors field
+* array is the MessagePack array type (fixarray, array16 or array32)
+* errors is the array of errors, written only when there are errors
+
++-------+========+~~~~~~~~~~~~~~~~~+
+|  0x07 |  map   |   properties    |
++-------+========+~~~~~~~~~~~~~~~~~+
+
+where:
+
+* 0x07 is the symbol for the properties field
+* map is the MessagePack map type (fixmap, map16 or map32)
+* properties is the map of properties, written only when there are properties
+```
+
+[Error]:
+  https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error
+[AggregateError]:
+  https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/AggregateError
+[EvalError]:
+  https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/EvalError
+[RangeError]:
+  https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RangeError
+[ReferenceError]:
+  https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ReferenceError
+[SyntaxError]:
+  https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/SyntaxError
+[TypeError]:
+  https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypeError
+[URIError]:
+  https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/URIError

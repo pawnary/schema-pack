@@ -1,4 +1,3 @@
-// oxlint-disable unicorn/prefer-code-point
 import BufferWithExtensions from '../bufferWithExtensions.ts';
 import {
   DEFAULT_ALLOCATION_SIZE,
@@ -7,7 +6,9 @@ import {
   UINT64_MAX,
 } from '../constants.ts';
 import defaultNewBufferFn from '../defaultNewBufferFn.ts';
+import type MessagePackBuiltInExtension from '../extensions/interfaces/messagePackBuiltInExtension.ts';
 import type MessagePackExtension from '../extensions/interfaces/messagePackExtension.ts';
+import type { Constructor } from '../extensions/interfaces/types.ts';
 import Symbols from '../symbols.ts';
 import type { BufferFactory } from '../types.ts';
 import fitIn7Bits from '../utils/fitIn7Bits.ts';
@@ -27,9 +28,6 @@ class Encoder<TBuffer extends Uint8Array = Uint8Array>
   extends BufferWithExtensions<TBuffer>
   implements MessagePackEncoder<TBuffer>
 {
-  /** The current offset in the buffer where the next write operation will occur. */
-  offset: number;
-
   /**
    * Shared buffer is used to encode strings, to avoid allocating a new buffer
    * for each string. The shared buffer is resized if the string is larger than
@@ -37,6 +35,19 @@ class Encoder<TBuffer extends Uint8Array = Uint8Array>
    * reducing memory allocations and garbage collection overhead.
    */
   protected sharedBuffer: TBuffer;
+
+  protected extensionsByConstructors = new Map<
+    Constructor<object>,
+    MessagePackExtension<object, TBuffer>
+  >();
+
+  protected builtInExtensionsByConstructors = new Map<
+    Constructor<object>,
+    MessagePackBuiltInExtension<object, TBuffer>
+  >();
+
+  /** The current offset in the buffer where the next write operation will occur. */
+  offset: number;
 
   /**
    * Determines whether the keys of a map should be sorted before encoding.
@@ -56,12 +67,27 @@ class Encoder<TBuffer extends Uint8Array = Uint8Array>
   readonly forceFloat32: boolean;
 
   /**
+   * The initial size of the main buffer. This determines how much memory is
+   * allocated for the buffer when the encoder is first created. If the buffer
+   * needs to grow beyond this size, it will be reallocated with a larger size.
+   */
+  readonly initialBufferSize: number;
+
+  /**
+   * The initial size of the shared buffer used for encoding strings. This
+   * determines how much memory is allocated for the shared buffer when the
+   * encoder is first created. If the shared buffer needs to grow beyond this
+   * size, it will be reallocated with a larger size.
+   */
+  readonly initialSharedBufferSize: number;
+
+  /**
    * A function that creates a new buffer of the specified size. This function
    * is used to allocate new buffers when the current buffer is not large enough
    * to accommodate the data being written. The function should return a new
    * instance of TBuffer with the specified size.
    */
-  protected bufferFactory: BufferFactory<TBuffer>;
+  readonly bufferFactory: BufferFactory<TBuffer>;
 
   readonly textEncoder: MessagePackTextEncoder<TBuffer>;
 
@@ -85,15 +111,17 @@ class Encoder<TBuffer extends Uint8Array = Uint8Array>
 
     this.offset = 0;
     this.textEncoder = options?.textEncoder ?? new DefaultTextEncoder();
+    this.initialBufferSize =
+      options?.initialBufferSize ?? DEFAULT_ALLOCATION_SIZE;
+    this.initialSharedBufferSize =
+      options?.initialSharedBufferSize ?? DEFAULT_ALLOCATION_SIZE;
 
-    this.bufferFactory = options?.bufferFactory ?? defaultNewBufferFn<TBuffer>;
+    this.bufferFactory =
+      // oxlint-disable-next-line typescript/no-unsafe-type-assertion
+      options?.bufferFactory ?? (defaultNewBufferFn as BufferFactory<TBuffer>);
 
-    this.buffer = this.bufferFactory(
-      options?.initialBufferSize ?? DEFAULT_ALLOCATION_SIZE,
-    );
-    this.sharedBuffer = this.bufferFactory(
-      options?.initialSharedBufferSize ?? DEFAULT_ALLOCATION_SIZE,
-    );
+    this.buffer = this.bufferFactory(this.initialBufferSize);
+    this.sharedBuffer = this.bufferFactory(this.initialSharedBufferSize);
     this.view = new DataView(
       this.buffer.buffer,
       this.buffer.byteOffset,
@@ -102,17 +130,63 @@ class Encoder<TBuffer extends Uint8Array = Uint8Array>
 
     this.sortKeys = options?.sortKeys ?? false;
     this.forceFloat32 = options?.forceFloat32 ?? false;
+
+    if (this.errorExtension) {
+      for (const constructor of this.errorExtension.constructors) {
+        this.builtInExtensionsByConstructors.set(
+          constructor,
+          this.errorExtension,
+        );
+      }
+    }
+
+    if (this.timestampDateExtension) {
+      for (const constructor of this.timestampDateExtension.constructors) {
+        this.builtInExtensionsByConstructors.set(
+          constructor,
+          this.timestampDateExtension,
+        );
+      }
+    }
+  }
+
+  override addExtension<TValue extends object>(
+    extension: MessagePackExtension<TValue, TBuffer>,
+  ): this {
+    super.addExtension(extension);
+
+    if (Array.isArray(extension.constructors)) {
+      for (const constructor of extension.constructors) {
+        this.extensionsByConstructors.set(constructor, extension);
+      }
+    } else {
+      this.extensionsByConstructors.set(extension.constructors, extension);
+    }
+
+    return this;
   }
 
   getExtensionEncoder(): Encoder<TBuffer> {
     if (!this.#extensionEncoder) {
-      this.#extensionEncoder = new Encoder<TBuffer>({
+      const extensionEncoder = new Encoder<TBuffer>({
         bufferFactory: this.bufferFactory,
-        initialBufferSize: this.sharedBuffer.byteLength,
-        initialSharedBufferSize: 0,
+        extensions: {
+          bigInt: this.bigIntExtension,
+          error: this.errorExtension,
+          timestampDate: this.timestampDateExtension,
+        },
+        forceFloat32: this.forceFloat32,
+        initialBufferSize: this.initialBufferSize,
+        initialSharedBufferSize: this.initialSharedBufferSize,
         sortKeys: this.sortKeys,
         textEncoder: this.textEncoder,
       });
+
+      for (const extension of this.extensions.values()) {
+        extensionEncoder.addExtension(extension);
+      }
+
+      this.#extensionEncoder = extensionEncoder;
     }
 
     return this.#extensionEncoder;
@@ -792,8 +866,8 @@ class Encoder<TBuffer extends Uint8Array = Uint8Array>
     return this.writeBin(value);
   }
 
-  writeExtension(
-    extension: MessagePackExtension,
+  writeExtension<TValue extends object = object>(
+    extension: MessagePackExtension<TValue, TBuffer>,
     encoder: ExtensionEncoder<TBuffer>,
   ): this {
     const writtenBytes = encoder.offset;
@@ -843,29 +917,8 @@ class Encoder<TBuffer extends Uint8Array = Uint8Array>
     return this;
   }
 
-  tryToWriteExtensionValue(value: object): number {
-    if (this.extensions.size > 0) {
-      const iterator = this.extensions.values();
-      const extensionEncoder = this.getExtensionEncoder();
-
-      for (const extension of iterator) {
-        extensionEncoder.resetBuffer();
-
-        extension.encode(value, extensionEncoder);
-
-        if (extensionEncoder.offset > 0) {
-          this.writeExtension(extension, extensionEncoder);
-
-          return extensionEncoder.offset;
-        }
-      }
-    }
-
-    return 0;
-  }
-
   writeBigInt(value: bigint): this {
-    if (!this.bigIntExtensionEnabled) {
+    if (!this.bigIntExtension) {
       throw new Error(`BigInt extension is disabled, cannot encode BigInt.`);
     }
 
@@ -882,17 +935,17 @@ class Encoder<TBuffer extends Uint8Array = Uint8Array>
 
     if (magnitude >> 64n === 0n) {
       this.ensureCapacity(2);
-      this.writeFixExt8Symbol(this.bigIntExtensionType);
+      this.writeFixExt8Symbol(this.bigIntExtension.type);
     } else if (magnitude >> 128n === 0n) {
       this.ensureCapacity(2);
-      this.writeFixExt16Symbol(this.bigIntExtensionType);
+      this.writeFixExt16Symbol(this.bigIntExtension.type);
     } else if (magnitude >> 1984n === 0n) {
       this.ensureCapacity(3);
       this.buffer[this.offset++] = Symbols.EXT8;
 
       sizeOffset = this.offset++;
 
-      this.buffer[this.offset++] = this.bigIntExtensionType;
+      this.buffer[this.offset++] = this.bigIntExtension.type;
     } else if (magnitude >> 524_224n === 0n) {
       this.ensureCapacity(4);
       this.buffer[this.offset++] = Symbols.EXT16;
@@ -901,7 +954,7 @@ class Encoder<TBuffer extends Uint8Array = Uint8Array>
 
       this.offset += 2;
 
-      this.buffer[this.offset++] = this.bigIntExtensionType;
+      this.buffer[this.offset++] = this.bigIntExtension.type;
     } else {
       this.ensureCapacity(6);
       this.buffer[this.offset++] = Symbols.EXT32;
@@ -910,7 +963,7 @@ class Encoder<TBuffer extends Uint8Array = Uint8Array>
 
       this.offset += 4;
 
-      this.buffer[this.offset++] = this.bigIntExtensionType;
+      this.buffer[this.offset++] = this.bigIntExtension.type;
     }
 
     if (magnitude === 0n) {
@@ -942,19 +995,57 @@ class Encoder<TBuffer extends Uint8Array = Uint8Array>
     return this;
   }
 
+  writeError(error: Error): this {
+    if (!this.errorExtension) {
+      throw new Error(`Error extension is disabled, cannot encode Error.`);
+    }
+
+    this.errorExtension.encodeInto(error, this);
+
+    return this;
+  }
+
   writeObject(value: object): this {
     if (Array.isArray(value)) {
       return this.writeArray(value);
     }
 
-    const writtenBytes = this.tryToWriteExtensionValue(value);
+    if (value instanceof Uint8Array) {
+      return this.writeUint8Array(value);
+    }
 
-    if (writtenBytes > 0) {
+    // oxlint-disable-next-line typescript/no-unsafe-type-assertion
+    const valueConstructor = value.constructor as Constructor<object>;
+
+    const builtInExtension =
+      this.builtInExtensionsByConstructors.get(valueConstructor);
+
+    if (builtInExtension) {
+      if (
+        Array.isArray(builtInExtension.constructors) &&
+        !builtInExtension.constructors.includes(valueConstructor)
+      ) {
+        throw new Error(
+          `Constructor ${valueConstructor.name} is not registered for built-in extension type ${builtInExtension.type}.`,
+        );
+      }
+
+      builtInExtension.encodeInto(value, this);
+
       return this;
     }
 
-    if (value instanceof Uint8Array) {
-      return this.writeUint8Array(value);
+    const extension = this.extensionsByConstructors.get(valueConstructor);
+
+    if (extension) {
+      const extensionEncoder = this.getExtensionEncoder();
+      extensionEncoder.resetBuffer();
+
+      extension.encode(value, extensionEncoder);
+
+      if (extensionEncoder.offset > 0) {
+        return this.writeExtension(extension, extensionEncoder);
+      }
     }
 
     return this.writeMap(value);

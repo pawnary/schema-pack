@@ -1,4 +1,4 @@
-// oxlint-disable unicorn/prefer-code-point
+// oxlint-disable unicorn/prefer-code-point max-classes-per-file
 import { describe, expect, it, vi } from 'vitest';
 
 import {
@@ -16,10 +16,6 @@ describe('internal properties', () => {
     public getSharedBuffer(): Uint8Array {
       return this.sharedBuffer;
     }
-
-    public getSortKeys(): boolean {
-      return this.sortKeys;
-    }
   }
 
   it('default options', () => {
@@ -28,7 +24,7 @@ describe('internal properties', () => {
     expect(encoder.buffer).toHaveLength(DEFAULT_ALLOCATION_SIZE);
     expect(encoder.textEncoder).toBeInstanceOf(DefaultTextEncoder);
     expect(encoder.offset).toBe(0);
-    expect(encoder.getSortKeys()).toBe(false);
+    expect(encoder.sortKeys).toBe(false);
     expect(encoder.getSharedBuffer()).toHaveLength(DEFAULT_ALLOCATION_SIZE);
   });
 
@@ -949,9 +945,10 @@ describe('general writing', () => {
     describe('writes a bigint as fixext8', () => {
       it('write 0n', () => {
         const encoder = new Encoder({
-          bigIntExtension: {
-            enabled: true,
-            type: 123,
+          extensions: {
+            bigInt: {
+              type: 123,
+            },
           },
           initialBufferSize: 1,
         });
@@ -967,9 +964,10 @@ describe('general writing', () => {
 
       it('write a positive bigint', () => {
         const encoder = new Encoder({
-          bigIntExtension: {
-            enabled: true,
-            type: 123,
+          extensions: {
+            bigInt: {
+              type: 123,
+            },
           },
           initialBufferSize: 1,
         });
@@ -985,9 +983,10 @@ describe('general writing', () => {
 
       it('write a negative bigint', () => {
         const encoder = new Encoder({
-          bigIntExtension: {
-            enabled: true,
-            type: 123,
+          extensions: {
+            bigInt: {
+              type: 123,
+            },
           },
           initialBufferSize: 1,
         });
@@ -1006,9 +1005,10 @@ describe('general writing', () => {
     describe('writes a bigint as fixext16', () => {
       it('write a positive bigint', () => {
         const encoder = new Encoder({
-          bigIntExtension: {
-            enabled: true,
-            type: 123,
+          extensions: {
+            bigInt: {
+              type: 123,
+            },
           },
           initialBufferSize: 1,
         });
@@ -1027,9 +1027,10 @@ describe('general writing', () => {
 
       it('write a negative bigint', () => {
         const encoder = new Encoder({
-          bigIntExtension: {
-            enabled: true,
-            type: 123,
+          extensions: {
+            bigInt: {
+              type: 123,
+            },
           },
           initialBufferSize: 1,
         });
@@ -1052,9 +1053,10 @@ describe('general writing', () => {
     describe('writes a bigint as ext8', () => {
       it('write a positive bigint', () => {
         const encoder = new Encoder({
-          bigIntExtension: {
-            enabled: true,
-            type: 123,
+          extensions: {
+            bigInt: {
+              type: 123,
+            },
           },
           initialBufferSize: 1,
         });
@@ -1074,9 +1076,10 @@ describe('general writing', () => {
 
       it('write a negative bigint', () => {
         const encoder = new Encoder({
-          bigIntExtension: {
-            enabled: true,
-            type: 123,
+          extensions: {
+            bigInt: {
+              type: 123,
+            },
           },
           initialBufferSize: 1,
         });
@@ -1100,9 +1103,10 @@ describe('general writing', () => {
     describe('write a bigint as ext16', () => {
       it('write a positive bigint', () => {
         const encoder = new Encoder({
-          bigIntExtension: {
-            enabled: true,
-            type: 123,
+          extensions: {
+            bigInt: {
+              type: 123,
+            },
           },
           initialBufferSize: 1,
         });
@@ -1123,9 +1127,10 @@ describe('general writing', () => {
 
       it('write a negative bigint', () => {
         const encoder = new Encoder({
-          bigIntExtension: {
-            enabled: true,
-            type: 123,
+          extensions: {
+            bigInt: {
+              type: 123,
+            },
           },
           initialBufferSize: 1,
         });
@@ -1150,9 +1155,10 @@ describe('general writing', () => {
     describe('write a bigint as ext32', () => {
       it('write a positive bigint', () => {
         const encoder = new Encoder({
-          bigIntExtension: {
-            enabled: true,
-            type: 123,
+          extensions: {
+            bigInt: {
+              type: 123,
+            },
           },
           initialBufferSize: 1,
         });
@@ -1175,9 +1181,10 @@ describe('general writing', () => {
 
       it('write a negative bigint', () => {
         const encoder = new Encoder({
-          bigIntExtension: {
-            enabled: true,
-            type: 123,
+          extensions: {
+            bigInt: {
+              type: 123,
+            },
           },
           initialBufferSize: 1,
         });
@@ -1199,6 +1206,22 @@ describe('general writing', () => {
           1,
         ]);
       });
+    });
+
+    it('should fails when BigInt extension is disabled', () => {
+      const encoder = new Encoder({
+        extensions: {
+          bigInt: false,
+        },
+      });
+
+      expect(() => encoder.writeBigInt(1n)).toThrow(
+        'BigInt extension is disabled, cannot encode BigInt.',
+      );
+
+      expect(() => encoder.write(1n)).toThrow(
+        'BigInt extension is disabled, cannot encode BigInt.',
+      );
     });
   });
 
@@ -1611,7 +1634,8 @@ describe('general writing', () => {
       extensionBuffer.writeUint8(42);
 
       const extension: MessagePackExtension = {
-        decode: vi.fn<() => void>(),
+        constructors: [],
+        decode: vi.fn<() => object>(),
         encode: vi.fn<() => void>(),
         type: 1,
       };
@@ -1637,7 +1661,8 @@ describe('general writing', () => {
       extensionBuffer.writeBin(new Uint8Array(2).fill(42));
 
       const extension: MessagePackExtension = {
-        decode: vi.fn<() => void>(),
+        constructors: [],
+        decode: vi.fn<() => object>(),
         encode: vi.fn<() => void>(),
         type: 1,
       };
@@ -1663,7 +1688,8 @@ describe('general writing', () => {
       extensionBuffer.writeBin(new Uint8Array(4).fill(42));
 
       const extension: MessagePackExtension = {
-        decode: vi.fn<() => void>(),
+        constructors: [],
+        decode: vi.fn<() => object>(),
         encode: vi.fn<() => void>(),
         type: 1,
       };
@@ -1689,7 +1715,8 @@ describe('general writing', () => {
       extensionBuffer.writeBin(new Uint8Array(8).fill(42));
 
       const extension: MessagePackExtension = {
-        decode: vi.fn<() => void>(),
+        constructors: [],
+        decode: vi.fn<() => object>(),
         encode: vi.fn<() => void>(),
         type: 1,
       };
@@ -1715,7 +1742,8 @@ describe('general writing', () => {
       extensionBuffer.writeBin(new Uint8Array(16).fill(42));
 
       const extension: MessagePackExtension = {
-        decode: vi.fn<() => void>(),
+        constructors: [],
+        decode: vi.fn<() => object>(),
         encode: vi.fn<() => void>(),
         type: 1,
       };
@@ -1741,7 +1769,8 @@ describe('general writing', () => {
       extensionBuffer.writeBin(new Uint8Array(3).fill(42));
 
       const extension: MessagePackExtension = {
-        decode: vi.fn<() => void>(),
+        constructors: [],
+        decode: vi.fn<() => object>(),
         encode: vi.fn<() => void>(),
         type: 1,
       };
@@ -1768,7 +1797,8 @@ describe('general writing', () => {
       extensionBuffer.writeBin(new Uint8Array(256).fill(42));
 
       const extension: MessagePackExtension = {
-        decode: vi.fn<() => void>(),
+        constructors: [],
+        decode: vi.fn<() => object>(),
         encode: vi.fn<() => void>(),
         type: 1,
       };
@@ -1796,7 +1826,8 @@ describe('general writing', () => {
       extensionBuffer.writeBin(new Uint8Array(65_536).fill(42));
 
       const extension: MessagePackExtension = {
-        decode: vi.fn<() => void>(),
+        constructors: [],
+        decode: vi.fn<() => object>(),
         encode: vi.fn<() => void>(),
         type: 1,
       };
@@ -1828,7 +1859,8 @@ describe('general writing', () => {
       );
 
       const extension: MessagePackExtension = {
-        decode: vi.fn<() => void>(),
+        constructors: [],
+        decode: vi.fn<() => object>(),
         encode: vi.fn<() => void>(),
         type: 1,
       };
@@ -1853,14 +1885,29 @@ describe('general writing', () => {
       expect(writeArraySpy).toHaveBeenCalledWith(array);
     });
 
+    it('should call writeUint8Array', () => {
+      const encoder = new Encoder({
+        initialBufferSize: 1,
+      });
+
+      const array = new Uint8Array([1, 2, 3]);
+      const writeUint8ArraySpy = vi.spyOn(encoder, 'writeUint8Array');
+
+      encoder.writeObject(array);
+
+      expect(writeUint8ArraySpy).toHaveBeenCalledWith(array);
+    });
+
     it('should call writeExtension', () => {
       const encoder = new Encoder({
         initialBufferSize: 1,
       });
 
-      const value = {
-        foo: 'bar',
-      };
+      class Value {
+        foo = 'bar';
+      }
+
+      const value = new Value();
 
       const encodeFn = vi.fn<
         (value: unknown, extensionBuffer: Encoder) => void
@@ -1868,10 +1915,11 @@ describe('general writing', () => {
         extensionBuffer.writeUint8(42);
       });
 
-      const extension: MessagePackExtension = {
-        decode: vi.fn<() => void>(),
+      const extension: MessagePackExtension<Value> = {
+        constructors: [Value],
+        decode: vi.fn<() => Value>(),
         encode: encodeFn,
-        type: 1,
+        type: 127,
       };
 
       const writeExtensionSpy = vi.spyOn(encoder, 'writeExtension');
@@ -1884,19 +1932,6 @@ describe('general writing', () => {
         extension,
         expect.any(Encoder),
       );
-    });
-
-    it('should call writeUint8Array', () => {
-      const encoder = new Encoder({
-        initialBufferSize: 1,
-      });
-
-      const array = new Uint8Array([1, 2, 3]);
-      const writeUint8ArraySpy = vi.spyOn(encoder, 'writeUint8Array');
-
-      encoder.writeObject(array);
-
-      expect(writeUint8ArraySpy).toHaveBeenCalledWith(array);
     });
 
     it('should call writeMap', () => {
@@ -2043,122 +2078,69 @@ describe('extensions', () => {
   describe('addExtension', () => {
     it('should throw an error if the extension type is already registered', () => {
       const encoder = new Encoder({
+        extensions: false,
         initialBufferSize: 1,
       });
 
       const extension: MessagePackExtension = {
-        decode: vi.fn<() => void>(),
+        constructors: [],
+        decode: vi.fn<() => object>(),
         encode: vi.fn<() => void>(),
         type: 1,
       };
 
       encoder.addExtension(extension);
 
+      // Object is the default constructor name for plan objects ("{}").
       expect(() => encoder.addExtension(extension)).toThrow(
-        'Extension with type 1 already exists',
+        'Extension with type 1 already registered for Object',
       );
     });
 
-    it('should throw an error if the extension type has a value that is not between 0 and 127', () => {
+    it('should throw an error if the extension type has a value that is not between -128 and 127', () => {
       const encoder = new Encoder({
+        extensions: false,
         initialBufferSize: 1,
       });
 
-      const negativeExtension: MessagePackExtension = {
-        decode: vi.fn<() => void>(),
+      const tooSmallExtension: MessagePackExtension = {
+        constructors: [],
+        decode: vi.fn<() => object>(),
         encode: vi.fn<() => void>(),
-        type: -1,
+        type: -129,
       };
 
       const tooLargeExtension: MessagePackExtension = {
-        decode: vi.fn<() => void>(),
+        constructors: [],
+        decode: vi.fn<() => object>(),
         encode: vi.fn<() => void>(),
         type: 128,
       };
 
-      expect(() => encoder.addExtension(negativeExtension)).toThrow(
-        'Extension type must be a non-negative integer, got -1. Extensions between -128 and -1 are reserved for internal use. Use addInternalExtension() to register an internal extension.',
+      expect(() => encoder.addExtension(tooSmallExtension)).toThrow(
+        'Extension type must be in the range -128 to 127, got -129',
       );
 
       expect(() => encoder.addExtension(tooLargeExtension)).toThrow(
-        'Extension type must be in the range 0 to 127, got 128',
+        'Extension type must be in the range -128 to 127, got 128',
       );
     });
 
     it('should add an extension correctly', () => {
       const encoder = new Encoder({
+        extensions: false,
         initialBufferSize: 1,
       });
 
       const extension: MessagePackExtension = {
-        decode: vi.fn<() => void>(),
+        constructors: [],
+        decode: vi.fn<() => object>(),
         encode: vi.fn<() => void>(),
         type: 1,
       };
 
       expect(encoder.addExtension(extension)).toBe(encoder);
       expect(encoder.fetchExtension(1)).toBe(extension);
-    });
-  });
-
-  describe('addInternalExtension', () => {
-    it('should throw an error if the extension type is already registered', () => {
-      const encoder = new Encoder({
-        initialBufferSize: 1,
-      });
-
-      const extension: MessagePackExtension = {
-        decode: vi.fn<() => void>(),
-        encode: vi.fn<() => void>(),
-        type: -1,
-      };
-
-      encoder.addInternalExtension(extension);
-
-      expect(() => encoder.addInternalExtension(extension)).toThrow(
-        'Extension with type -1 already exists',
-      );
-    });
-
-    it('should throw an error if the extension type has a value that is not between -128 and -1', () => {
-      const encoder = new Encoder({
-        initialBufferSize: 1,
-      });
-
-      const nonNegativeExtension: MessagePackExtension = {
-        decode: vi.fn<() => void>(),
-        encode: vi.fn<() => void>(),
-        type: 0,
-      };
-
-      const tooSmallExtension: MessagePackExtension = {
-        decode: vi.fn<() => void>(),
-        encode: vi.fn<() => void>(),
-        type: -129,
-      };
-
-      expect(() => encoder.addInternalExtension(nonNegativeExtension)).toThrow(
-        'Internal extension type must be a negative integer, got 0. Use addExtension() to register a custom extension.',
-      );
-
-      expect(() => encoder.addInternalExtension(tooSmallExtension)).toThrow(
-        'Internal extension type must be in the range -128 to -1, got -129',
-      );
-    });
-
-    it('should add an internal extension correctly', () => {
-      const encoder = new Encoder({
-        initialBufferSize: 1,
-      });
-
-      const extension: MessagePackExtension = {
-        decode: vi.fn<() => void>(),
-        encode: vi.fn<() => void>(),
-        type: -1,
-      };
-
-      expect(encoder.addInternalExtension(extension)).toBe(encoder);
-      expect(encoder.fetchExtension(-1)).toBe(extension);
     });
   });
 });

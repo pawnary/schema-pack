@@ -10,5 +10,15 @@ export default interface MessagePackBufferWithExtensions<
    *
    * @returns The current instance for chaining.
    */
-  addExtension(extension: MessagePackExtension<unknown, TBuffer>): this;
+  addExtension<TValue extends object = object>(
+    extension: MessagePackExtension<TValue, TBuffer>,
+  ): this;
+
+  /**
+   * Gets the registered MessagePack extensions.
+   *
+   * @returns A read-only map of the registered extensions, where the key is the
+   *   extension type and the value is the extension instance.
+   */
+  getExtensions(): ReadonlyMap<number, MessagePackExtension<object, TBuffer>>;
 }

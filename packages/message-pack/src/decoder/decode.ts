@@ -1,9 +1,9 @@
-import DecoderBuffer from './decoderBuffer.ts';
+import Decoder from './decoder.ts';
 
-const sharedDecoderBuffer = new DecoderBuffer();
+const sharedDecoder = new Decoder();
 
 export default function decode<TValue = unknown>(buffer: Uint8Array): TValue {
-  sharedDecoderBuffer.setBuffer(buffer);
+  sharedDecoder.setBuffer(buffer);
 
-  return sharedDecoderBuffer.nextValue<TValue>();
+  return sharedDecoder.nextValue<TValue>();
 }

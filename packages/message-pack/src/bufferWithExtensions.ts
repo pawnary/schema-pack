@@ -1,60 +1,125 @@
+// oxlint-disable complexity
+import ErrorExtension from './extensions/error/error.ts';
+import type MessagePackBuiltInExtension from './extensions/interfaces/messagePackBuiltInExtension.ts';
 import type MessagePackExtension from './extensions/interfaces/messagePackExtension.ts';
+import TimestampDateExtension from './extensions/timestampDate/timestampDate.ts';
 import type MessagePackBufferWithExtensions from './interfaces/messagePackBufferWithExtensions.ts';
-import type { BufferWithExtensionsOptions } from './types.ts';
+import type {
+  BigIntExtensionOptions,
+  BufferWithExtensionsOptions,
+} from './types.ts';
 
 abstract class BufferWithExtensions<
   TBuffer extends Uint8Array = Uint8Array,
 > implements MessagePackBufferWithExtensions<TBuffer> {
-  protected extensions: Map<number, MessagePackExtension<unknown, TBuffer>>;
+  /**
+   * Default extension type for `BigInt` values. This is used when the user does
+   * not provide a custom extension type for `BigInt` values.
+   */
+  static readonly DEFAULT_BIG_INT_EXTENSION_TYPE = 0;
 
-  readonly bigIntExtensionEnabled: boolean;
-  readonly bigIntExtensionType: number;
+  /**
+   * The extensions map is used to store the registered extensions. The key is
+   * the extension type, and the value is the extension instance.
+   */
+  protected extensions = new Map<
+    number,
+    MessagePackExtension<object, TBuffer>
+  >();
+
+  /**
+   * The built-in extensions map is used to store the built-in extensions. The
+   * key is the extension type, and the value is the extension instance.
+   */
+  protected builtInExtensions = new Map<
+    number,
+    MessagePackBuiltInExtension<object, TBuffer>
+  >();
+
+  /**
+   * The timestamp date extension is used to encode and decode `Date` values. It
+   * is optional and can be disabled by setting the `extensions.timestampDate`
+   * option to `false`.
+   */
+  readonly timestampDateExtension?: TimestampDateExtension<TBuffer> = undefined;
+
+  /**
+   * The big integer extension is used to encode and decode `BigInt` values. It
+   * is optional and can be disabled by setting the `extensions.bigInt` option
+   * to `false`.
+   *
+   * If enabled, the user can provide a custom extension type for `BigInt`
+   * values by setting the `extensions.bigInt.type` option.
+   */
+  readonly bigIntExtension?: BigIntExtensionOptions = undefined;
+
+  /**
+   * The error extension is used to encode and decode `Error` values. It is
+   * optional and can be disabled by setting the `extensions.error` option to
+   * `false`.
+   *
+   * If enabled, the user can provide a custom extension for `Error` values by
+   * setting the `extensions.error` option to an instance of `ErrorExtension`.
+   */
+  readonly errorExtension?: ErrorExtension<TBuffer> = undefined;
 
   constructor(options?: BufferWithExtensionsOptions) {
-    this.extensions = new Map();
+    if (options?.extensions !== false) {
+      if (options?.extensions?.bigInt !== false) {
+        this.bigIntExtension = options?.extensions?.bigInt ?? {
+          type: BufferWithExtensions.DEFAULT_BIG_INT_EXTENSION_TYPE,
+        };
+      }
 
-    this.bigIntExtensionEnabled = options?.bigIntExtension?.enabled ?? true;
-    this.bigIntExtensionType = options?.bigIntExtension?.type ?? 0;
+      if (options?.extensions?.error !== false) {
+        if (options?.extensions?.error instanceof ErrorExtension) {
+          this.errorExtension = options.extensions.error;
+        } else {
+          this.errorExtension = new ErrorExtension(options?.extensions?.error);
+        }
+
+        this.builtInExtensions.set(
+          this.errorExtension.type,
+          this.errorExtension,
+        );
+      }
+
+      if (options?.extensions?.timestampDate !== false) {
+        if (
+          options?.extensions?.timestampDate instanceof TimestampDateExtension
+        ) {
+          this.timestampDateExtension = options.extensions.timestampDate;
+        } else {
+          this.timestampDateExtension = new TimestampDateExtension();
+        }
+
+        this.builtInExtensions.set(
+          this.timestampDateExtension.type,
+          this.timestampDateExtension,
+        );
+      }
+    }
   }
 
-  addExtension(extension: MessagePackExtension<unknown, TBuffer>): this {
-    if (this.extensions.has(extension.type)) {
-      throw new Error(`Extension with type ${extension.type} already exists`);
-    }
-
-    if (extension.type < 0) {
-      throw new Error(
-        `Extension type must be a non-negative integer, got ${extension.type}. Extensions between -128 and -1 are reserved for internal use. Use addInternalExtension() to register an internal extension.`,
-      );
-    }
-
-    if (extension.type > 127) {
-      throw new Error(
-        `Extension type must be in the range 0 to 127, got ${extension.type}`,
-      );
-    }
-
-    this.extensions.set(extension.type, extension);
-
-    return this;
+  getExtensions(): ReadonlyMap<number, MessagePackExtension<object, TBuffer>> {
+    return this.extensions;
   }
 
-  addInternalExtension(
-    extension: MessagePackExtension<unknown, TBuffer>,
+  addExtension<TValue extends object>(
+    extension: MessagePackExtension<TValue, TBuffer>,
   ): this {
     if (this.extensions.has(extension.type)) {
-      throw new Error(`Extension with type ${extension.type} already exists`);
-    }
+      // oxlint-disable-next-line typescript/no-non-null-assertion - Already checked that the extension exists
+      const existent = this.extensions.get(extension.type)!;
 
-    if (extension.type >= 0) {
       throw new Error(
-        `Internal extension type must be a negative integer, got ${extension.type}. Use addExtension() to register a custom extension.`,
+        `Extension with type ${extension.type} already registered for ${existent.constructor.name}`,
       );
     }
 
-    if (extension.type < -128) {
+    if (extension.type < -128 || extension.type > 127) {
       throw new Error(
-        `Internal extension type must be in the range -128 to -1, got ${extension.type}`,
+        `Extension type must be in the range -128 to 127, got ${extension.type}`,
       );
     }
 
@@ -63,7 +128,7 @@ abstract class BufferWithExtensions<
     return this;
   }
 
-  fetchExtension(type: number): MessagePackExtension<unknown, TBuffer> {
+  fetchExtension(type: number): MessagePackExtension<object, TBuffer> {
     const extension = this.extensions.get(type);
 
     if (!extension) {

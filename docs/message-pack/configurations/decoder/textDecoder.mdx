@@ -13,9 +13,9 @@ for faster string decoding on Node.
 Example:
 
 ```ts
-import { DecoderBuffer, NodeTextDecoder } from '@schema-pack/message-pack';
+import { Decoder, NodeTextDecoder } from '@schema-pack/message-pack';
 
-const decoder = new DecoderBuffer({
+const decoder = new Decoder({
   textDecoder: new NodeTextDecoder(),
 });
 ```

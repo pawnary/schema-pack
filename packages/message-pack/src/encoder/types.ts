@@ -2,6 +2,10 @@ import type { BufferOptions } from '../types.ts';
 import type MessagePackEncoder from './interfaces/messagePackEncoder.ts';
 import type MessagePackTextEncoder from './interfaces/messagePackTextEncoder.ts';
 
+type OmitByPattern<TRecord, Pattern extends string> = {
+  [TKey in keyof TRecord as TKey extends Pattern ? never : TKey]: TRecord[TKey];
+};
+
 export interface EncoderOptions<
   TBuffer extends Uint8Array = Uint8Array,
 > extends BufferOptions<TBuffer> {
@@ -43,10 +47,6 @@ export interface EncoderOptions<
    */
   forceFloat32?: boolean;
 }
-
-export type OmitByPattern<TRecord, Pattern extends string> = {
-  [TKey in keyof TRecord as TKey extends Pattern ? never : TKey]: TRecord[TKey];
-};
 
 export type ExtensionEncoder<TBuffer extends Uint8Array = Uint8Array> =
   OmitByPattern<

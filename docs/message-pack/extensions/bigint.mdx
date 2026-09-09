@@ -37,42 +37,75 @@ If you need to disable the extension, you can do so by providing the appropriate
 configuration when creating the encoder/decoder.
 
 ```ts
-import { Decoder, Encoder } from '@schema-pack/message-pack';
+import { Encoder } from '@schema-pack/message-pack';
 
 const encoder = new Encoder({
-  bigIntExtension: {
-    enabled: false,
+  extensions: {
+    bigInt: false,
   },
 });
 
-const decoder = new Decoder({
-  bigIntExtension: {
-    enabled: false,
-  },
-});
+encoder.writeBigInt(1n);
 ```
+
+This will fails with an error like:
+
+```
+Error: BigInt extension is disabled, cannot encode BigInt.
+```
+
+<GithubSource
+  label='View full example on GitHub'
+  link='/packages/message-pack/examples/src/extensions/bigint/disabled.ts'
+/>
 
 ### Extension type
 
 By default, the `BigInt` extension is assigned to extension type `0`. You can
-change this by providing a different `type` value in the `bigIntExtension`
+change this by providing a different `type` value in the `bigInt` extension
 configuration when creating the encoder/decoder.
 
-```ts
-import { Decoder, Encoder } from '@schema-pack/message-pack';
+{/* prettier-ignore */}
+<Tabs items={['Implicit decoder', 'Explicit decoder']}>
+  <Tab value='Implicit decoder'>
+    ```ts
+    import { Decoder, Encoder } from '@schema-pack/message-pack';
 
-const encoder = new Encoder({
-  bigIntExtension: {
-    type: 1,
-  },
-});
+    const encoder = new Encoder({
+      extensions: {
+        bigInt: {
+          type: 1,
+        },
+      },
+    });
 
-const decoder = new Decoder({
-  bigIntExtension: {
-    type: 1,
-  },
-});
-```
+    const decoder = Decoder.fromEncoder(encoder);
+    ```
+
+  </Tab>
+  <Tab value='Explicit decoder'>
+    ```ts
+    import { Decoder, Encoder } from '@schema-pack/message-pack';
+
+    const encoder = new Encoder({
+      extensions: {
+        bigInt: {
+          type: 1,
+        },
+      },
+    });
+
+    const decoder = new Decoder({
+      extensions: {
+        bigInt: {
+          type: 1,
+        },
+      },
+    });
+    ```
+
+  </Tab>
+</Tabs>
 
 ---
 

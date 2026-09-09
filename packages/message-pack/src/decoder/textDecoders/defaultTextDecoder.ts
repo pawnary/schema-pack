@@ -1,13 +1,15 @@
 import type MessagePackTextDecoder from '../interfaces/messagePackTextDecoder.ts';
 
-class DefaultTextDecoder implements MessagePackTextDecoder {
+class DefaultTextDecoder<
+  TBuffer extends Uint8Array = Uint8Array,
+> implements MessagePackTextDecoder<TBuffer> {
   protected textDecoder: TextDecoder;
 
   constructor() {
     this.textDecoder = new TextDecoder();
   }
 
-  decode(buffer: Uint8Array, start: number, end: number): string {
+  decode(buffer: TBuffer, start: number, end: number): string {
     return this.textDecoder.decode(buffer.subarray(start, end));
   }
 }

@@ -1,18 +1,20 @@
-import { beforeAll, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 
 import Decoder from '../../../src/decoder/decoder.ts';
 import Encoder from '../../../src/encoder/encoder.ts';
-import TimestampDateExtension from '../../../src/extensions/timestampDate/timestampDate.ts';
-import FLAG from '../../../src/symbols.ts';
+import Symbols from '../../../src/symbols.ts';
 
 describe('encode and decode Date', () => {
-  const extension = new TimestampDateExtension();
-  const encoder = new Encoder();
-  const decoder = new Decoder();
+  let encoder: Encoder;
+  let decoder: Decoder;
 
-  beforeAll(() => {
-    encoder.addInternalExtension(extension);
-    decoder.addInternalExtension(extension);
+  beforeEach(() => {
+    // By default timestampDate extension is enabled in encoder and decoder
+    encoder = new Encoder({
+      initialBufferSize: 1,
+    });
+
+    decoder = Decoder.fromEncoder(encoder);
   });
 
   it('encode 32 bits date', () => {
@@ -20,7 +22,7 @@ describe('encode and decode Date', () => {
 
     const encoded = encoder.write(date).flush();
 
-    expect(encoded).toBeBytes([FLAG.FIXEXT4, 255, 58, 123, 131, 114]);
+    expect(encoded).toBeBytes([Symbols.FIXEXT4, 255, 58, 123, 131, 114]);
 
     const decoded = decoder.decode(encoded);
 
@@ -34,7 +36,7 @@ describe('encode and decode Date', () => {
 
     // @see https://github.com/msgpack/msgpack-javascript/issues/216
     expect(encoded).toBeBytes([
-      FLAG.EXT8,
+      Symbols.EXT8,
       12,
       255,
       45,
@@ -63,7 +65,7 @@ describe('encode and decode Date', () => {
 
     // @see https://github.com/msgpack/msgpack-javascript/issues/216
     expect(encoded).toBeBytes([
-      FLAG.EXT8,
+      Symbols.EXT8,
       12,
       255,
       59,

@@ -1,6 +1,8 @@
-import type MessagePackDecoderBuffer from '../../decoder/interfaces/messagePackDecoderBuffer.ts';
-import type { ExtensionEncoder } from '../../encoder/types.ts';
-import type MessagePackExtension from '../interfaces/messagePackExtension.ts';
+import type MessagePackDecoder from '../../decoder/interfaces/messagePackDecoder.ts';
+import type MessagePackEncoder from '../../encoder/interfaces/messagePackEncoder.ts';
+import Symbols from '../../symbols.ts';
+import type MessagePackBuiltInExtension from '../interfaces/messagePackBuiltInExtension.ts';
+import type { Constructor } from '../interfaces/types.ts';
 import type { MessagePackTime } from './types.ts';
 
 const TIMESTAMP32_MAX_SEC = 0x1_00_00_00_00 - 1; // 32-bit unsigned int // 4_294_967_295
@@ -28,8 +30,9 @@ const TIMESTAMP64_MAX_SEC = 0x4_00_00_00_00 - 1; // 34-bit unsigned int // 17_17
  */
 class TimestampDateExtension<
   TBuffer extends Uint8Array = Uint8Array,
-> implements MessagePackExtension<Date, TBuffer> {
+> implements MessagePackBuiltInExtension<Date, TBuffer> {
   readonly type = -1;
+  readonly constructors: Constructor<Date>[] = [Date];
 
   parseToMessagePackTime(date: Date): MessagePackTime {
     const msec = date.getTime();
@@ -45,60 +48,76 @@ class TimestampDateExtension<
     };
   }
 
-  encode(value: object, encoder: ExtensionEncoder<TBuffer>): void {
-    if (value instanceof Date) {
-      const time = this.parseToMessagePackTime(value);
+  encodeInto(value: Date, encoder: MessagePackEncoder<TBuffer>): void {
+    const time = this.parseToMessagePackTime(value);
 
-      if (time.sec >= 0 && time.nsec >= 0 && time.sec <= TIMESTAMP64_MAX_SEC) {
-        // Here sec >= 0 && nsec >= 0
-        if (time.nsec === 0 && time.sec <= TIMESTAMP32_MAX_SEC) {
-          encoder.writeUint32(time.sec);
-        } else {
-          // timestamp 64 = { nsec30 (unsigned), sec34 (unsigned) }
-          const secHigh = time.sec / 0x1_00_00_00_00;
-          const secLow = time.sec & 0xff_ff_ff_ff;
-          encoder.writeUint32((time.nsec << 2) | (secHigh & 0x3));
-          encoder.writeUint32(secLow);
-        }
+    if (time.sec >= 0 && time.nsec >= 0 && time.sec <= TIMESTAMP64_MAX_SEC) {
+      // Here sec >= 0 && nsec >= 0
+      if (time.nsec === 0 && time.sec <= TIMESTAMP32_MAX_SEC) {
+        encoder.ensureCapacity(6);
+
+        encoder.buffer[encoder.offset++] = Symbols.FIXEXT4;
+        encoder.buffer[encoder.offset++] = this.type;
+
+        encoder.writeUint32(time.sec);
       } else {
-        encoder.writeUint32(time.nsec);
-        encoder.writeInt64(time.sec);
+        // timestamp 64 = { nsec30 (unsigned), sec34 (unsigned) }
+        const secHigh = time.sec / 0x1_00_00_00_00;
+        const secLow = time.sec & 0xff_ff_ff_ff;
+
+        encoder.ensureCapacity(10);
+
+        encoder.buffer[encoder.offset++] = Symbols.EXT8;
+        encoder.buffer[encoder.offset++] = 8;
+        encoder.buffer[encoder.offset++] = this.type;
+
+        encoder.writeUint32((time.nsec << 2) | (secHigh & 0x3));
+        encoder.writeUint32(secLow);
       }
+    } else {
+      encoder.ensureCapacity(15);
+
+      encoder.buffer[encoder.offset++] = Symbols.EXT8;
+      encoder.buffer[encoder.offset++] = 12;
+      encoder.buffer[encoder.offset++] = this.type;
+
+      encoder.writeUint32(time.nsec);
+      encoder.writeInt64(time.sec);
     }
   }
 
-  decode(decoderBuffer: MessagePackDecoderBuffer<TBuffer>, size: number): Date {
-    const byteOffset = decoderBuffer.offset;
+  decode(decoder: MessagePackDecoder<TBuffer>, size: number): Date {
+    const byteOffset = decoder.offset;
 
     switch (size) {
       case 4: {
         // timestamp 32 = { sec32 }
-        const sec = decoderBuffer.view.getUint32(byteOffset);
+        const sec = decoder.view.getUint32(byteOffset);
         const nsec = 0;
         // return { sec, nsec };
         return new Date(sec * 1e3 + nsec / 1e6);
       }
       case 8: {
         // timestamp 64 = { nsec30, sec34 }
-        const nsec30AndSecHigh2 = decoderBuffer.view.getUint32(byteOffset);
-        const secLow32 = decoderBuffer.view.getUint32(byteOffset + 4);
+        const nsec30AndSecHigh2 = decoder.view.getUint32(byteOffset);
+        const secLow32 = decoder.view.getUint32(byteOffset + 4);
         const sec = (nsec30AndSecHigh2 & 0x3) * 0x1_00_00_00_00 + secLow32;
         const nsec = nsec30AndSecHigh2 >>> 2;
         return new Date(sec * 1e3 + nsec / 1e6);
       }
       case 12: {
         // timestamp 96 = { nsec32 (unsigned), sec64 (signed) }
-        const high = decoderBuffer.view.getInt32(byteOffset + 4);
-        const low = decoderBuffer.view.getUint32(byteOffset + 8);
+        const high = decoder.view.getInt32(byteOffset + 4);
+        const low = decoder.view.getUint32(byteOffset + 8);
 
         // const sec = getInt64(view, 4);
         const sec = high * 0x1_00_00_00_00 + low;
-        const nsec = decoderBuffer.view.getUint32(byteOffset);
+        const nsec = decoder.view.getUint32(byteOffset);
         return new Date(sec * 1e3 + nsec / 1e6);
       }
       default: {
         throw new Error(
-          `Unrecognized data size for timestamp (expected 4, 8, or 12): ${decoderBuffer.view.byteLength}`,
+          `Unrecognized data size for timestamp (expected 4, 8, or 12): ${decoder.view.byteLength}`,
         );
       }
     }

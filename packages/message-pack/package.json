@@ -54,17 +54,13 @@
       "import": "./dist/esm/decoder/decoder.mjs",
       "require": "./dist/cjs/decoder/decoder.cjs"
     },
-    "./decoder/decoderBuffer": {
-      "import": "./dist/esm/decoder/decoderBuffer.mjs",
-      "require": "./dist/cjs/decoder/decoderBuffer.cjs"
-    },
     "./decoder/interfaces": {
       "import": "./dist/esm/decoder/interfaces/index.mjs",
       "require": "./dist/cjs/decoder/interfaces/index.cjs"
     },
-    "./decoder/interfaces/messagePackDecoderBuffer": {
-      "import": "./dist/esm/decoder/interfaces/messagePackDecoderBuffer.mjs",
-      "require": "./dist/cjs/decoder/interfaces/messagePackDecoderBuffer.cjs"
+    "./decoder/interfaces/messagePackDecoder": {
+      "import": "./dist/esm/decoder/interfaces/messagePackDecoder.mjs",
+      "require": "./dist/cjs/decoder/interfaces/messagePackDecoder.cjs"
     },
     "./decoder/interfaces/messagePackTextDecoder": {
       "import": "./dist/esm/decoder/interfaces/messagePackTextDecoder.mjs",
@@ -134,17 +130,53 @@
       "import": "./dist/esm/extensions/index.mjs",
       "require": "./dist/cjs/extensions/index.cjs"
     },
+    "./extensions/error": {
+      "import": "./dist/esm/extensions/error/index.mjs",
+      "require": "./dist/cjs/extensions/error/index.cjs"
+    },
+    "./extensions/error/defaultFactories": {
+      "import": "./dist/esm/extensions/error/defaultFactories.mjs",
+      "require": "./dist/cjs/extensions/error/defaultFactories.cjs"
+    },
     "./extensions/error/error": {
       "import": "./dist/esm/extensions/error/error.mjs",
       "require": "./dist/cjs/extensions/error/error.cjs"
     },
-    "./extensions/interfaces": {
-      "import": "./dist/esm/extensions/interfaces/index.mjs",
-      "require": "./dist/cjs/extensions/interfaces/index.cjs"
+    "./extensions/error/symbols": {
+      "import": "./dist/esm/extensions/error/symbols.mjs",
+      "require": "./dist/cjs/extensions/error/symbols.cjs"
+    },
+    "./extensions/error/types": {
+      "import": "./dist/esm/extensions/error/types.mjs",
+      "require": "./dist/cjs/extensions/error/types.cjs"
+    },
+    "./extensions/interfaces/messagePackBuiltInExtension": {
+      "import": "./dist/esm/extensions/interfaces/messagePackBuiltInExtension.mjs",
+      "require": "./dist/cjs/extensions/interfaces/messagePackBuiltInExtension.cjs"
     },
     "./extensions/interfaces/messagePackExtension": {
       "import": "./dist/esm/extensions/interfaces/messagePackExtension.mjs",
       "require": "./dist/cjs/extensions/interfaces/messagePackExtension.cjs"
+    },
+    "./extensions/interfaces/messagePackExtensionBase": {
+      "import": "./dist/esm/extensions/interfaces/messagePackExtensionBase.mjs",
+      "require": "./dist/cjs/extensions/interfaces/messagePackExtensionBase.cjs"
+    },
+    "./extensions/interfaces/types": {
+      "import": "./dist/esm/extensions/interfaces/types.mjs",
+      "require": "./dist/cjs/extensions/interfaces/types.cjs"
+    },
+    "./extensions/serializer": {
+      "import": "./dist/esm/extensions/serializer/index.mjs",
+      "require": "./dist/cjs/extensions/serializer/index.cjs"
+    },
+    "./extensions/serializer/serializer": {
+      "import": "./dist/esm/extensions/serializer/serializer.mjs",
+      "require": "./dist/cjs/extensions/serializer/serializer.cjs"
+    },
+    "./extensions/serializer/types": {
+      "import": "./dist/esm/extensions/serializer/types.mjs",
+      "require": "./dist/cjs/extensions/serializer/types.cjs"
     },
     "./extensions/timestampDate": {
       "import": "./dist/esm/extensions/timestampDate/index.mjs",
@@ -158,10 +190,6 @@
       "import": "./dist/esm/extensions/timestampDate/types.mjs",
       "require": "./dist/cjs/extensions/timestampDate/types.cjs"
     },
-    "./interfaces": {
-      "import": "./dist/esm/interfaces/index.mjs",
-      "require": "./dist/cjs/interfaces/index.cjs"
-    },
     "./interfaces/messagePackBufferWithExtensions": {
       "import": "./dist/esm/interfaces/messagePackBufferWithExtensions.mjs",
       "require": "./dist/cjs/interfaces/messagePackBufferWithExtensions.cjs"
@@ -173,14 +201,6 @@
     "./types": {
       "import": "./dist/esm/types.mjs",
       "require": "./dist/cjs/types.cjs"
-    },
-    "./untypedExtension": {
-      "import": "./dist/esm/untypedExtension.mjs",
-      "require": "./dist/cjs/untypedExtension.cjs"
-    },
-    "./utils": {
-      "import": "./dist/esm/utils/index.mjs",
-      "require": "./dist/cjs/utils/index.cjs"
     },
     "./utils/fitIn16Bits": {
       "import": "./dist/esm/utils/fitIn16Bits.mjs",
@@ -198,15 +218,12 @@
       "import": "./dist/esm/utils/fitIn8Bits.mjs",
       "require": "./dist/cjs/utils/fitIn8Bits.cjs"
     },
-    "./utils/fitInt64Bits": {
-      "import": "./dist/esm/utils/fitInt64Bits.mjs",
-      "require": "./dist/cjs/utils/fitInt64Bits.cjs"
-    },
     "./package.json": "./package.json"
   },
   "devDependencies": {
     "@jsonjoy.com/json-pack": "catalog:",
     "@msgpack/msgpack": "catalog:",
+    "@schema-pack/benchmark": "catalog:",
     "msgpackr": "catalog:"
   }
 }

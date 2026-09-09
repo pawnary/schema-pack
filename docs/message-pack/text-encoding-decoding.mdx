@@ -44,9 +44,9 @@ This implementation uses under the hood the built-in JavaScript
 class.
 
 ```ts
-import { DefaultTextDecoder, DecoderBuffer } from '@schema-pack/message-pack';
+import { DefaultTextDecoder, Decoder } from '@schema-pack/message-pack';
 
-const decoder = new DecoderBuffer({
+const decoder = new Decoder({
   textDecoder: new DefaultTextDecoder(),
 });
 ```
@@ -57,9 +57,9 @@ This implementation uses under the hood the built-in NodeJS
 [`Buffer`](https://nodejs.org/api/buffer.html) class.
 
 ```ts
-import { NodeTextDecoder, DecoderBuffer } from '@schema-pack/message-pack';
+import { NodeTextDecoder, Decoder } from '@schema-pack/message-pack';
 
-const decoder = new DecoderBuffer({
+const decoder = new Decoder({
   textDecoder: new NodeTextDecoder(),
 });
 ```

@@ -1,4 +1,4 @@
 {
   "title": "Extensions",
-  "pages": ["index", "bigint", "timestamp-date"]
+  "pages": ["index", "timestamp-date", "bigint", "error"]
 }
