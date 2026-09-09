@@ -28,7 +28,7 @@ class PointExtension<
     encoder.write(value.x).write(value.y);
   }
 
-  decode(decoder: MessagePackDecoder<TBuffer>): Point {
+  decode(decoder: MessagePackDecoder<TBuffer>, _size: number): Point {
     const x = decoder.nextValue<number>();
     const y = decoder.nextValue<number>();
 
