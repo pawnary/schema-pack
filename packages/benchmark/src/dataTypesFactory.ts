@@ -1,5 +1,7 @@
 // oxlint-disable sort-keys unicorn/no-array-fill-with-reference-type
 
+import type { RecordLike } from './types.ts';
+
 const dataTypesFactory = {
   // MessagePack types, without extensions
   positiveFixint: () => 0,
@@ -92,8 +94,10 @@ const dataTypesFactory = {
   bigUint96: (): bigint => (1n << 96n) - 1n,
   bigUint128: (): bigint => (1n << 128n) - 1n,
   bigUint256: (): bigint => (1n << 256n) - 1n,
+  date32: (): Date => new Date('2001-02-03T04:05:06.000Z'),
+  date64: (): Date => new Date('2654-03-02T01:09:08.765Z'),
+  date96: (): Date => new Date('+275760-09-11T23:59:59.9999Z'),
+  error: (): Error => new Error('oops!'),
 } as const;
-
-export type RecordLike = Record<string | number, unknown>;
 
 export default dataTypesFactory;
