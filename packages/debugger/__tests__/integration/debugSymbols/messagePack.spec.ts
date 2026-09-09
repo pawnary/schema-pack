@@ -237,16 +237,18 @@ test('bin32', () => {
 });
 
 test('ext 8', () => {
-  const encoderWithExtension = new Encoder();
-  encoderWithExtension.addExtension({
-    decode: vi.fn<() => void>(),
+  const encoderWithoutExtensions = new Encoder({ extensions: false });
+
+  encoderWithoutExtensions.addExtension({
+    constructors: [Object],
+    decode: vi.fn<() => object>(),
     encode: (_value, buffer) => {
       buffer.writeBin(new Uint8Array(17).fill(123));
     },
     type: 1,
   });
 
-  const encoded = encoderWithExtension.write({}).flush();
+  const encoded = encoderWithoutExtensions.write({}).flush();
 
   const chunks = serializerDebugger.debug(encoded);
 
@@ -274,9 +276,11 @@ test('ext 8', () => {
 });
 
 test('ext 16', () => {
-  const encoderWithExtension = new Encoder();
+  const encoderWithExtension = new Encoder({ extensions: false });
+
   encoderWithExtension.addExtension({
-    decode: vi.fn<() => void>(),
+    constructors: [Object],
+    decode: vi.fn<() => object>(),
     encode: (_value, buffer) => {
       buffer.writeBin(new Uint8Array(256).fill(123));
     },
@@ -314,12 +318,14 @@ test('ext 32', () => {
   const requiredSize = 65_536 + 1 + 4 + 1; // 1 byte for flag + 4 bytes for length + 1 byte for extension type + 65536 bytes for data
 
   const encoderWithExtension = new Encoder({
+    extensions: false,
     initialBufferSize: requiredSize,
     initialSharedBufferSize: requiredSize,
   });
 
   encoderWithExtension.addExtension({
-    decode: vi.fn<() => void>(),
+    constructors: [Object],
+    decode: vi.fn<() => object>(),
     encode: (_value, buffer) => {
       buffer.writeBin(new Uint8Array(65_536).fill(123));
     },
@@ -529,9 +535,10 @@ test('int 64', () => {
 });
 
 test('fixext 1', () => {
-  const encoderWithExtension = new Encoder();
+  const encoderWithExtension = new Encoder({ extensions: false });
   encoderWithExtension.addExtension({
-    decode: vi.fn<() => void>(),
+    constructors: [Object],
+    decode: vi.fn<() => object>(),
     encode: (_value, buffer) => {
       buffer.writeBin(new Uint8Array(1).fill(123));
     },
@@ -561,9 +568,10 @@ test('fixext 1', () => {
 });
 
 test('fixext 2', () => {
-  const encoderWithExtension = new Encoder();
+  const encoderWithExtension = new Encoder({ extensions: false });
   encoderWithExtension.addExtension({
-    decode: vi.fn<() => void>(),
+    constructors: [Object],
+    decode: vi.fn<() => object>(),
     encode: (_value, buffer) => {
       buffer.writeBin(new Uint8Array(2).fill(123));
     },
@@ -593,9 +601,10 @@ test('fixext 2', () => {
 });
 
 test('fixext 4', () => {
-  const encoderWithExtension = new Encoder();
+  const encoderWithExtension = new Encoder({ extensions: false });
   encoderWithExtension.addExtension({
-    decode: vi.fn<() => void>(),
+    constructors: [Object],
+    decode: vi.fn<() => object>(),
     encode: (_value, buffer) => {
       buffer.writeBin(new Uint8Array(4).fill(123));
     },
@@ -625,9 +634,10 @@ test('fixext 4', () => {
 });
 
 test('fixext 8', () => {
-  const encoderWithExtension = new Encoder();
+  const encoderWithExtension = new Encoder({ extensions: false });
   encoderWithExtension.addExtension({
-    decode: vi.fn<() => void>(),
+    constructors: [Object],
+    decode: vi.fn<() => object>(),
     encode: (_value, buffer) => {
       buffer.writeBin(new Uint8Array(8).fill(123));
     },
@@ -657,9 +667,10 @@ test('fixext 8', () => {
 });
 
 test('fixext 16', () => {
-  const encoderWithExtension = new Encoder();
+  const encoderWithExtension = new Encoder({ extensions: false });
   encoderWithExtension.addExtension({
-    decode: vi.fn<() => void>(),
+    constructors: [Object],
+    decode: vi.fn<() => object>(),
     encode: (_value, buffer) => {
       buffer.writeBin(new Uint8Array(16).fill(123));
     },
