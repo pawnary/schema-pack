@@ -13,7 +13,7 @@ import {
 } from 'fumadocs-ui/layouts/docs/page';
 import { type ReactNode, use } from 'react';
 
-import { useMDXComponents } from '@/components/mdx.tsx';
+import getMDXComponents from '@/components/getMDXComponents.tsx';
 import { baseOptions } from '@/lib/layout.shared.tsx';
 import { getPageImagePath, gitConfig } from '@/lib/shared.ts';
 import { docs, source } from '@/lib/source.ts';
@@ -62,7 +62,7 @@ function Content({
           This is a Work In Progress, and the API is not stable yet. Breaking
           changes may be introduced at any time.
         </Callout>
-        <Mdx components={useMDXComponents()} />
+        <Mdx components={getMDXComponents()} />
       </DocsBody>
     </DocsPage>
   );

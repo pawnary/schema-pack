@@ -26,7 +26,6 @@
   "dependencies": {
     "@react-router/node": "catalog:",
     "@react-router/serve": "catalog:",
-    "cnfast": "catalog:",
     "fumadocs-core": "catalog:",
     "fumadocs-mdx": "catalog:",
     "fumadocs-ui": "catalog:",
@@ -41,8 +40,6 @@
     "@tailwindcss/vite": "catalog:",
     "@types/mdx": "catalog:",
     "@types/react": "catalog:",
-    "oxc-transform-react": "catalog:",
-    "react-router-devtools": "catalog:",
     "tailwindcss": "catalog:",
     "vite": "catalog:",
     "vite-tsconfig-paths": "catalog:"

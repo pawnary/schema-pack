@@ -1,9 +1,27 @@
-export { default as BufferWithExtensions } from './bufferWithExtensions.ts';
-export { default as Symbols } from './symbols.ts';
-export { default as UntypedExtension } from './untypedExtension.ts';
-export * from './constants.ts';
-export * from './decoder/index.ts';
-export * from './encoder/index.ts';
-export * from './extensions/index.ts';
-export type * from './interfaces/index.ts';
-export * from './utils/index.ts';
+export {
+  Encoder,
+  type EncoderOptions,
+  type MessagePackEncoder,
+  type MessagePackTextEncoder,
+  type ExtensionEncoder,
+  DefaultTextEncoder,
+  NodeTextEncoder,
+  encode,
+} from './encoder/index.ts';
+
+export {
+  Decoder,
+  DefaultTextDecoder,
+  type MessagePackDecoder,
+  type MessagePackTextDecoder,
+  NodeTextDecoder,
+  decode,
+} from './decoder/index.ts';
+
+export {
+  type MessagePackExtension,
+  type ErrorExtensionOptions,
+  ErrorExtension,
+  TimestampDateExtension,
+  SerializerExtension,
+} from './extensions/index.ts';

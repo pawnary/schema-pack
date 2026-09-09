@@ -56,3 +56,5 @@ export interface SerializersBenchSuiteOptions<
   dataTypesFactory: TDataTypesFactory;
   adapter?: BenchAdapter;
 }
+
+export type RecordLike = Record<string | number, unknown>;
