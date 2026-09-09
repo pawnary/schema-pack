@@ -1,4 +1,4 @@
-import { describe, expect, it, test } from 'vitest';
+import { beforeEach, describe, expect, it, test } from 'vitest';
 
 import {
   INT32_MIN,
@@ -10,9 +10,12 @@ import Decoder from '../../src/decoder/decoder.ts';
 import Encoder from '../../src/encoder/encoder.ts';
 import type MessagePackExtension from '../../src/extensions/interfaces/messagePackExtension.ts';
 import Symbols from '../../src/symbols.ts';
+import type { BufferWithExtensionsOptions } from '../../src/types.ts';
 
 function encode(value: unknown): Uint8Array {
-  const encoder = new Encoder();
+  const encoder = new Encoder({
+    initialBufferSize: 1,
+  });
 
   return encoder.write(value).flush();
 }
@@ -323,8 +326,13 @@ describe('bin', () => {
 });
 
 describe('ext', () => {
+  const options: BufferWithExtensionsOptions = {
+    extensions: false,
+  };
+
   it('ext 8', () => {
     const extension: MessagePackExtension = {
+      constructors: [Object],
       decode: () => ({}),
       encode: (_value, buffer) => {
         for (let index = 0; index < 255; index++) {
@@ -334,10 +342,10 @@ describe('ext', () => {
       type: 1,
     };
 
-    const encoder = new Encoder();
+    const encoder = new Encoder(options);
     encoder.addExtension(extension);
 
-    const decoder = new Decoder();
+    const decoder = new Decoder(options);
     decoder.addExtension(extension);
 
     const encoded = encoder.write({}).flush();
@@ -348,6 +356,7 @@ describe('ext', () => {
 
   it('ext 16', () => {
     const extension: MessagePackExtension = {
+      constructors: [Object],
       decode: () => ({}),
       encode: (_value, buffer) => {
         for (let index = 0; index < 65_535; index++) {
@@ -357,10 +366,10 @@ describe('ext', () => {
       type: 1,
     };
 
-    const encoder = new Encoder();
+    const encoder = new Encoder(options);
     encoder.addExtension(extension);
 
-    const decoder = new Decoder();
+    const decoder = new Decoder(options);
     decoder.addExtension(extension);
 
     const encoded = encoder.write({}).flush();
@@ -371,6 +380,7 @@ describe('ext', () => {
 
   it('ext 32', () => {
     const extension: MessagePackExtension = {
+      constructors: [Object],
       decode: () => ({}),
       encode: (_value, buffer) => {
         for (let index = 0; index < 65_536; index++) {
@@ -380,10 +390,10 @@ describe('ext', () => {
       type: 1,
     };
 
-    const encoder = new Encoder();
+    const encoder = new Encoder(options);
     encoder.addExtension(extension);
 
-    const decoder = new Decoder();
+    const decoder = new Decoder(options);
     decoder.addExtension(extension);
 
     const encoded = encoder.write({}).flush();
@@ -394,6 +404,7 @@ describe('ext', () => {
 
   it('fixext 1', () => {
     const extension: MessagePackExtension = {
+      constructors: [Object],
       decode: () => ({}),
       encode: (_value, buffer) => {
         buffer.writeUint8(123);
@@ -401,10 +412,10 @@ describe('ext', () => {
       type: 1,
     };
 
-    const encoder = new Encoder();
+    const encoder = new Encoder(options);
     encoder.addExtension(extension);
 
-    const decoder = new Decoder();
+    const decoder = new Decoder(options);
     decoder.addExtension(extension);
 
     const encoded = encoder.write({}).flush();
@@ -415,6 +426,7 @@ describe('ext', () => {
 
   it('fixext 2', () => {
     const extension: MessagePackExtension = {
+      constructors: [Object],
       decode: () => ({}),
       encode: (_value, buffer) => {
         buffer.writeUint8(123);
@@ -423,10 +435,10 @@ describe('ext', () => {
       type: 1,
     };
 
-    const encoder = new Encoder();
+    const encoder = new Encoder(options);
     encoder.addExtension(extension);
 
-    const decoder = new Decoder();
+    const decoder = new Decoder(options);
     decoder.addExtension(extension);
 
     const encoded = encoder.write({}).flush();
@@ -437,6 +449,7 @@ describe('ext', () => {
 
   it('fixext 4', () => {
     const extension: MessagePackExtension = {
+      constructors: [Object],
       decode: () => ({}),
       encode: (_value, buffer) => {
         buffer.writeUint8(123);
@@ -447,10 +460,10 @@ describe('ext', () => {
       type: 1,
     };
 
-    const encoder = new Encoder();
+    const encoder = new Encoder(options);
     encoder.addExtension(extension);
 
-    const decoder = new Decoder();
+    const decoder = new Decoder(options);
     decoder.addExtension(extension);
 
     const encoded = encoder.write({}).flush();
@@ -461,6 +474,7 @@ describe('ext', () => {
 
   it('fixext 8', () => {
     const extension: MessagePackExtension = {
+      constructors: [Object],
       decode: () => ({}),
       encode: (_value, buffer) => {
         for (let index = 0; index < 8; index++) {
@@ -470,10 +484,10 @@ describe('ext', () => {
       type: 1,
     };
 
-    const encoder = new Encoder();
+    const encoder = new Encoder(options);
     encoder.addExtension(extension);
 
-    const decoder = new Decoder();
+    const decoder = new Decoder(options);
     decoder.addExtension(extension);
 
     const encoded = encoder.write({}).flush();
@@ -484,6 +498,7 @@ describe('ext', () => {
 
   it('fixext 16', () => {
     const extension: MessagePackExtension = {
+      constructors: [Object],
       decode: () => ({}),
       encode: (_value, buffer) => {
         for (let index = 0; index < 16; index++) {
@@ -493,10 +508,10 @@ describe('ext', () => {
       type: 1,
     };
 
-    const encoder = new Encoder();
+    const encoder = new Encoder(options);
     encoder.addExtension(extension);
 
-    const decoder = new Decoder();
+    const decoder = new Decoder(options);
     decoder.addExtension(extension);
 
     const encoded = encoder.write({}).flush();
@@ -536,7 +551,11 @@ describe('float', () => {
   it('float 64', () => {
     const float64 = -12_345.67891;
 
-    const encoded = new Encoder().write(float64).flush();
+    const encoded = new Encoder({
+      initialBufferSize: 1,
+    })
+      .write(float64)
+      .flush();
 
     expect(encoded).toBeByteAt(0, Symbols.FLOAT64);
     expect(decode(encoded)).toBe(float64);
@@ -544,145 +563,147 @@ describe('float', () => {
 });
 
 describe('bigint', () => {
+  let encoder: Encoder;
+  let decoder: Decoder;
+
+  beforeEach(() => {
+    encoder = new Encoder({
+      extensions: {
+        bigInt: {
+          type: 123,
+        },
+      },
+      initialBufferSize: 1,
+    });
+
+    decoder = Decoder.fromEncoder(encoder);
+  });
+
   it('big int8', () => {
     const value = -(1n << 7n);
 
-    const encoded = encode(value);
-
-    expect(decode(encoded)).toBe(value);
+    expect(decoder.decode(encoder.writeBigInt(value).flush())).toBe(value);
+    expect(decoder.decode(encoder.write(value).flush())).toBe(value);
   });
 
   it('big int16', () => {
     const value = -(1n << 15n);
 
-    const encoded = encode(value);
-
-    expect(decode(encoded)).toBe(value);
+    expect(decoder.decode(encoder.writeBigInt(value).flush())).toBe(value);
+    expect(decoder.decode(encoder.write(value).flush())).toBe(value);
   });
 
   it('big int32', () => {
     const value = -(1n << 31n);
 
-    const encoded = encode(value);
-
-    expect(decode(encoded)).toBe(value);
+    expect(decoder.decode(encoder.writeBigInt(value).flush())).toBe(value);
+    expect(decoder.decode(encoder.write(value).flush())).toBe(value);
   });
 
   it('big int64', () => {
     const value = -(1n << 63n);
 
-    const encoded = encode(value);
-
-    expect(decode(encoded)).toBe(value);
+    expect(decoder.decode(encoder.writeBigInt(value).flush())).toBe(value);
+    expect(decoder.decode(encoder.write(value).flush())).toBe(value);
   });
 
   it('big int96', () => {
     const value = -(1n << 95n);
 
-    const encoded = encode(value);
-
-    expect(decode(encoded)).toBe(value);
+    expect(decoder.decode(encoder.writeBigInt(value).flush())).toBe(value);
+    expect(decoder.decode(encoder.write(value).flush())).toBe(value);
   });
 
   it('big int128', () => {
     const value = -(1n << 127n);
 
-    const encoded = encode(value);
-
-    expect(decode(encoded)).toBe(value);
+    expect(decoder.decode(encoder.writeBigInt(value).flush())).toBe(value);
+    expect(decoder.decode(encoder.write(value).flush())).toBe(value);
   });
 
   it('big int256', () => {
     const value = -(1n << 255n);
 
-    const encoded = encode(value);
-
-    expect(decode(encoded)).toBe(value);
+    expect(decoder.decode(encoder.writeBigInt(value).flush())).toBe(value);
+    expect(decoder.decode(encoder.write(value).flush())).toBe(value);
   });
 
   it('big int512', () => {
     const value = -(1n << 511n);
 
-    const encoded = encode(value);
-
-    expect(decode(encoded)).toBe(value);
+    expect(decoder.decode(encoder.writeBigInt(value).flush())).toBe(value);
+    expect(decoder.decode(encoder.write(value).flush())).toBe(value);
   });
 
   it('big uint8', () => {
     const value = (1n << 8n) - 1n;
 
-    const encoded = encode(value);
-
-    expect(decode(encoded)).toBe(value);
+    expect(decoder.decode(encoder.writeBigInt(value).flush())).toBe(value);
+    expect(decoder.decode(encoder.write(value).flush())).toBe(value);
   });
 
   it('big uint16', () => {
     const value = (1n << 16n) - 1n;
 
-    const encoded = encode(value);
-
-    expect(decode(encoded)).toBe(value);
+    expect(decoder.decode(encoder.writeBigInt(value).flush())).toBe(value);
+    expect(decoder.decode(encoder.write(value).flush())).toBe(value);
   });
 
   it('big uint32', () => {
     const value = (1n << 32n) - 1n;
 
-    const encoded = encode(value);
-
-    expect(decode(encoded)).toBe(value);
+    expect(decoder.decode(encoder.writeBigInt(value).flush())).toBe(value);
+    expect(decoder.decode(encoder.write(value).flush())).toBe(value);
   });
 
   it('big uint64', () => {
     const value = (1n << 64n) - 1n;
 
-    const encoded = encode(value);
-
-    expect(decode(encoded)).toBe(value);
+    expect(decoder.decode(encoder.writeBigInt(value).flush())).toBe(value);
+    expect(decoder.decode(encoder.write(value).flush())).toBe(value);
   });
 
   it('big uint96', () => {
     const value = (1n << 96n) - 1n;
 
-    const encoded = encode(value);
-
-    expect(decode(encoded)).toBe(value);
+    expect(decoder.decode(encoder.writeBigInt(value).flush())).toBe(value);
+    expect(decoder.decode(encoder.write(value).flush())).toBe(value);
   });
 
   it('big uint128', () => {
     const value = (1n << 128n) - 1n;
 
-    const encoded = encode(value);
-
-    expect(decode(encoded)).toBe(value);
+    expect(decoder.decode(encoder.writeBigInt(value).flush())).toBe(value);
+    expect(decoder.decode(encoder.write(value).flush())).toBe(value);
   });
 
   it('big uint256', () => {
     const value = (1n << 256n) - 1n;
 
-    const encoded = encode(value);
-
-    expect(decode(encoded)).toBe(value);
+    expect(decoder.decode(encoder.writeBigInt(value).flush())).toBe(value);
+    expect(decoder.decode(encoder.write(value).flush())).toBe(value);
   });
 
   it('big uint512', () => {
     const value = (1n << 512n) - 1n;
 
-    const encoded = encode(value);
-
-    expect(decode(encoded)).toBe(value);
+    expect(decoder.decode(encoder.writeBigInt(value).flush())).toBe(value);
+    expect(decoder.decode(encoder.write(value).flush())).toBe(value);
   });
 
   it('should write a bigint (`0n`) with default options', () => {
     const value = 0n;
-    const encoded = encode(value);
 
-    expect(decode(encoded)).toBe(value);
+    expect(decoder.decode(encoder.writeBigInt(value).flush())).toBe(value);
+    expect(decoder.decode(encoder.write(value).flush())).toBe(value);
   });
 });
 
 describe('decode with encoder chaining', () => {
   it('openArray', () => {
-    const encoder = new Encoder();
+    const encoder = new Encoder({
+      initialBufferSize: 1,
+    });
 
     const encoded = encoder
       .openArray(6)
@@ -698,7 +719,9 @@ describe('decode with encoder chaining', () => {
   });
 
   it('openMap', () => {
-    const encoder = new Encoder();
+    const encoder = new Encoder({
+      initialBufferSize: 1,
+    });
 
     const encoded = encoder
       .openMap(4)

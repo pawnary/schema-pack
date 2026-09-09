@@ -1,54 +1,201 @@
 ---
-title: Available extensions
+title: About extensions
 description: Extensions for @schema-pack/message-pack
 ---
 
+## About
+
+Extensions allows MessagePack to handle custom data types beyond the built-in
+ones.
+
+<Callout type='info'>
+  Read more about [MessagePack extension types][MessagePack extension types].
+</Callout>
+
 ## Built-in extensions
 
-- [BigInt](./bigint)
-- [TimestampDateExtension](./timestamp-date)
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Default type</th>
+      <th>Configurable type</th>
+      <th>Handles</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>[TimestampDate](./timestamp-date)</td>
+      <td>-1</td>
+      <td>❌</td>
+      <td>[Date][Date]</td>
+    </tr>
+    <tr>
+      <td>[BigInt](./bigint)</td>
+      <td>0</td>
+      <td>✅</td>
+      <td>[bigint][bigint]</td>
+    </tr>
+    <tr>
+      <td>[Error](./error)</td>
+      <td>1</td>
+      <td>✅</td>
+      <td>
+        <ul>
+          <li>[Error][Error]</li>
+          <li>[AggregateError][AggregateError]</li>
+          <li>[EvalError][EvalError]</li>
+          <li>[RangeError][RangeError]</li>
+          <li>[ReferenceError][ReferenceError]</li>
+          <li>[SyntaxError][SyntaxError]</li>
+          <li>[TypeError][TypeError]</li>
+          <li>[URIError][URIError]</li>
+          <li>[Custom errors](./error#custom-errors)</li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
 
 ## Writing your own extensions
 
-To handle [MessagePack extension types](./../specification#extension-types),
-this library provides a simple interface for creating custom extensions:
+Beyond the built-in ones, you can teach the encoder and the decoder how to
+handle your own types by implementing the `MessagePackExtension` interface.
+
+Take a class that MessagePack knows nothing about:
 
 ```ts
+class Point {
+  readonly x: number;
+  readonly y: number;
+
+  constructor(x: number, y: number) {
+    this.x = x;
+    this.y = y;
+  }
+}
+```
+
+Encoding it without an extension would produce a plain map, and decoding it back
+would return a plain object instead of a `Point`. An extension fixes that:
+
+{/* prettier-ignore */}
+```ts
 import {
-  MessagePackExtension,
-  ExtensionEncoder,
-  MessagePackDecoderBuffer,
+  type ExtensionEncoder,
+  type MessagePackDecoder,
+  type MessagePackExtension,
 } from '@schema-pack/message-pack';
 
-class CustomExtension<
+class PointExtension<
   TBuffer extends Uint8Array = Uint8Array,
-> implements MessagePackExtension<string, TBuffer> {
-  readonly type = 123; // extension type (0-127)
+> implements MessagePackExtension<Point, TBuffer> {
+  readonly type = 10;
+  readonly constructors = Point;
 
-  encode(value: object, encoder: ExtensionEncoder<TBuffer>): void {
-    // encode the value into the encoder buffer
+  encode(value: Point, encoder: ExtensionEncoder<TBuffer>): void {
+    encoder
+      .writeNumber(value.x)
+      .writeNumber(value.y);
   }
 
-  decode(decoderBuffer: MessagePackDecoderBuffer, size: number): string {
-    // decode the value from the encoder buffer
+  decode(decoder: MessagePackDecoder<TBuffer>): Point {
+    const x = decoder.nextValue<number>();
+    const y = decoder.nextValue<number>();
+
+    return new Point(x, y);
   }
 }
 ```
 
 Where:
 
-- `CustomExtension` is your custom extension class
-- `string` is the type it handles.
-- `TBuffer` is not needed unless you want to customize the buffer type, but is
-  recommended to include it for consistency.
+- `TBuffer` is the buffer type used by the encoder and decoder. It defaults to
+  `Uint8Array`, but you can use a custom type if you need to.
+- `type` is the extension type id. It must be an integer between `0` and `127`,
+  and unique among the extensions registered on the same encoder/decoder
+  (`addExtension` throws otherwise). Negative types (`-1` to `-128`) are
+  reserved by the [MessagePack extension types][MessagePack extension types]
+  specification.
+- `constructors` is the class or classes this extension handles (can be an
+  array, like `readonly constructors = [Point]`). The encoder resolves the
+  extension from the value's own constructor, so a subclass is not covered by
+  its parent's entry: list it explicitly if you want it handled.
+- `encode` writes the payload of the extension. Everything written here becomes
+  the extension body, and the library takes care of the extension header (type
+  and payload length) for you.
+- `decode` reads that payload back, in the same order it was written.
 
-Then register it on both the encoder and the decoder:
+`encode` receives an `ExtensionEncoder`, which exposes the same writing API as
+the encoder itself (including `write`, which accepts any value the encoder
+supports). That means an extension can nest arbitrary values (arrays, maps, or
+values handled by other extensions), and `nextValue` reads them back one at a
+time on the decoding side.
+
+`decode` also receives the payload byte length as its second argument. The
+example above doesn't need it, because it always reads exactly two values, but
+it is what lets you decode variable-length payloads: keep reading while
+`decoder.offset` is below the limit you computed from that size.
+
+<Callout type='info'>
+  Both `MessagePackExtension` and `ExtensionEncoder` accept a second generic
+  parameter for the buffer type (`MessagePackExtension<Point, TBuffer>`). You
+  only need it if you are working with a custom buffer type.
+</Callout>
+
+Then register the extension on both the encoder and the decoder:
 
 ```ts
-import { Encoder, Decoder } from '@schema-pack/message-pack';
+import { Decoder, Encoder } from '@schema-pack/message-pack';
 
-const myExtension = new CustomExtension();
+const pointExtension = new PointExtension();
 
-const encoder = new Encoder().addExtension(myExtension);
-const decoder = new Decoder().addExtension(myExtension);
+const encoder = new Encoder().addExtension(pointExtension);
+const decoder = new Decoder().addExtension(pointExtension);
+
+const buffer = encoder.write(new Point(1, 2)).flush();
+
+decoder.decode(buffer); // Point { x: 1, y: 2 }
 ```
+
+Registering it only on the encoder produces a buffer nobody can read back, and
+registering it only on the decoder leaves the value encoded as a plain map.
+
+### Extensions only handle objects
+
+The encoder looks up an extension from the constructor of the value being
+encoded, and only object values have one it can use. Primitives (`number`,
+`string`, `boolean`, `bigint`, `symbol`) never go through that lookup, so an
+extension can't be used to change how they are encoded.
+
+In practice, an extension handles values created with `new`: class instances,
+including subclasses, as long as each constructor is listed in `constructors`.
+
+<Callout type='info'>
+  The [BigInt](./bigint) extension is the exception that proves the rule: it
+  does handle a primitive, but only because it is implemented inside the encoder
+  and the decoder themselves, not through the extension interface described
+  here.
+</Callout>
+
+[Date]:
+  https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date
+[bigint]:
+  https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/BigInt
+[Error]:
+  https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error
+[AggregateError]:
+  https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/AggregateError
+[EvalError]:
+  https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/EvalError
+[RangeError]:
+  https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RangeError
+[ReferenceError]:
+  https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ReferenceError
+[SyntaxError]:
+  https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/SyntaxError
+[TypeError]:
+  https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypeError
+[URIError]:
+  https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/URIError
+[MessagePack extension types]: ./../specification#extension-types

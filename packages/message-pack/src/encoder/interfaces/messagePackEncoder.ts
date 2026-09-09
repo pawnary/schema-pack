@@ -1,3 +1,4 @@
+import type MessagePackBuiltInExtension from '../../extensions/interfaces/messagePackBuiltInExtension.ts';
 import type MessagePackExtension from '../../extensions/interfaces/messagePackExtension.ts';
 import type MessagePackBufferWithExtensions from '../../interfaces/messagePackBufferWithExtensions.ts';
 import type { ExtensionEncoder } from '../types.ts';
@@ -941,21 +942,6 @@ export default interface MessagePackEncoder<
   writeObject(value: object): this;
 
   /**
-   * Encode a bigint value into the buffer. This method handles the encoding of
-   * signed 64-bit integers, ensuring that they are correctly represented in the
-   * MessagePack format.
-   *
-   * Maximum int64.
-   *
-   * @param value - The bigint value to be encoded and written to the buffer.
-   *   The method will determine the appropriate encoding based on the value's
-   *   size and sign.
-   */
-  // writeBigInt64(value: bigint): this;
-
-  // writeBigUint64(value: bigint): this;
-
-  /**
    * Writes a Uint8Array using the MessagePack bin format family.
    *
    * ```
@@ -1034,8 +1020,18 @@ export default interface MessagePackEncoder<
    * type is a signed 8-bit integer.
    * ```
    */
-  writeExtension(
-    extension: MessagePackExtension,
-    buffer: ExtensionEncoder<TBuffer>,
+  writeExtension<TValue extends object = object>(
+    extension:
+      | MessagePackExtension<TValue, TBuffer>
+      | MessagePackBuiltInExtension<TValue, TBuffer>,
+    extensionEncoder: ExtensionEncoder<TBuffer>,
   ): this;
+
+  /**
+   * Get the current extension encoder.
+   *
+   * Extension encoder is used to provide an empty encoder buffer for
+   * extensions.
+   */
+  getExtensionEncoder(): MessagePackEncoder<TBuffer>;
 }
