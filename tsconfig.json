@@ -40,6 +40,7 @@
       "@schema-pack/benchmark/*": ["./packages/benchmark/src/*"],
       "@schema-pack/debugger/*": ["./packages/debugger/src/*"],
       "@schema-pack/message-pack/*": ["./packages/message-pack/src/*"],
+      "@schema-pack/message-pack": ["./packages/message-pack/src/index.ts"],
       "@schema-pack/vitest/*": ["./packages/vitest/src/*"]
     }
   }
