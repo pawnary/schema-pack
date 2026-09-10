@@ -1,9 +1,13 @@
 import type { SerializerExtensionFactories } from '../serializer/types.ts';
-import type { ErrorExtensionFactoryInput } from './types.ts';
+import type {
+  ErrorExtensionFactory,
+  ErrorExtensionFactoryInput,
+} from './types.ts';
 
 export default function defaultFactories(): SerializerExtensionFactories<
   globalThis.Error,
-  ErrorExtensionFactoryInput
+  ErrorExtensionFactoryInput,
+  ErrorExtensionFactory
 > {
   return [
     [Error, (input): Error => new Error(input.message, input.options)],
