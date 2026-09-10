@@ -1,7 +1,5 @@
 import { describe, expect, it, test } from 'vitest';
 
-import type MessagePackDecoder from '../../../../src/decoder/interfaces/messagePackDecoder.ts';
-import type { ExtensionEncoder } from '../../../../src/encoder/types.ts';
 import type { Constructor } from '../../../../src/extensions/interfaces/types.ts';
 import SerializerExtension from '../../../../src/extensions/serializer/serializer.ts';
 import type { SerializerExtensionFactory } from '../../../../src/extensions/serializer/types.ts';

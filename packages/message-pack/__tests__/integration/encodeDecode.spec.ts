@@ -10,7 +10,6 @@ import Decoder from '../../src/decoder/decoder.ts';
 import Encoder from '../../src/encoder/encoder.ts';
 import type MessagePackExtension from '../../src/extensions/interfaces/messagePackExtension.ts';
 import Symbols from '../../src/symbols.ts';
-import type { BufferWithExtensionsOptions } from '../../src/types.ts';
 
 function encode(value: unknown): Uint8Array {
   const encoder = new Encoder({
