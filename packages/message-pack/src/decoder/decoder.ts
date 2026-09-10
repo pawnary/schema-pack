@@ -38,9 +38,9 @@ class Decoder<TBuffer extends Uint8Array = Uint8Array>
     const decoder = new Decoder<TBuffer>({
       bufferFactory: encoder.bufferFactory,
       extensions: {
-        bigInt: encoder.bigIntExtension,
-        error: encoder.errorExtension,
-        timestampDate: encoder.timestampDateExtension,
+        bigInt: encoder.bigIntExtension ?? false,
+        error: encoder.errorExtension ?? false,
+        timestampDate: encoder.timestampDateExtension ?? false,
       },
       textDecoder: options?.textDecoder,
     });

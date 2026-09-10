@@ -123,7 +123,7 @@ class ErrorExtension<
    * extension format. The method returns the decoded Error value.
    */
   decode(decoder: MessagePackDecoder<TBuffer>, size: number): Error {
-    let stack = '';
+    let stack: string | undefined;
     let message = '';
     let name: string | undefined;
     let cause: unknown;

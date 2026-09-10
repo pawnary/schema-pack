@@ -8,6 +8,7 @@ import {
 } from '../../../src/constants.ts';
 import Encoder from '../../../src/encoder/encoder.ts';
 import DefaultTextEncoder from '../../../src/encoder/textEncoders/defaultTextEncoder.ts';
+import NodeTextEncoder from '../../../src/encoder/textEncoders/nodeTextEncoder.ts';
 import type MessagePackExtension from '../../../src/extensions/interfaces/messagePackExtension.ts';
 import Symbols from '../../../src/symbols.ts';
 
@@ -28,14 +29,88 @@ describe('internal properties', () => {
     expect(encoder.getSharedBuffer()).toHaveLength(DEFAULT_ALLOCATION_SIZE);
   });
 
-  it('getExtensionEncoder', () => {
-    const encoder = new EncoderMock();
+  describe('getExtensionEncoder', () => {
+    it('check that create an extension encoder with default options', () => {
+      const encoder = new Encoder();
 
-    const extensionBuffer = encoder.getExtensionEncoder();
+      const extensionEncoder = encoder.getExtensionEncoder();
 
-    expect(extensionBuffer).not.toBe(encoder);
-    expect(extensionBuffer.buffer).not.toBe(encoder.buffer);
-    expect(extensionBuffer.textEncoder).toBe(encoder.textEncoder);
+      expect(extensionEncoder).not.toBe(encoder);
+      expect(extensionEncoder.buffer).not.toBe(encoder.buffer);
+      expect(extensionEncoder.textEncoder).toBe(encoder.textEncoder);
+      expect(extensionEncoder.bigIntExtension).toBe(encoder.bigIntExtension);
+      expect(extensionEncoder.errorExtension).toBe(encoder.errorExtension);
+      expect(extensionEncoder.timestampDateExtension).toBe(
+        encoder.timestampDateExtension,
+      );
+      expect(extensionEncoder.buffer).toBeInstanceOf(Uint8Array);
+      expect(extensionEncoder.sortKeys).toBe(false);
+      expect(extensionEncoder.textEncoder).toBeInstanceOf(DefaultTextEncoder);
+    });
+
+    it('check that create an extension encoder with custom extensions', () => {
+      const extension: MessagePackExtension = {
+        constructors: [],
+        decode: vi.fn<() => object>(),
+        encode: vi.fn<() => void>(),
+        type: 123,
+      };
+
+      const encoder = new Encoder();
+
+      encoder.addExtension(extension);
+
+      const extensionEncoder = encoder.getExtensionEncoder();
+
+      expect(extensionEncoder.getExtensions().get(123)).toBe(extension);
+    });
+
+    it('check that create an extension encoder with disabled built-in extensions', () => {
+      const encoder = new Encoder({
+        extensions: false,
+      });
+
+      const extensionEncoder = encoder.getExtensionEncoder();
+
+      expect(extensionEncoder.bigIntExtension).toBeUndefined();
+      expect(extensionEncoder.errorExtension).toBeUndefined();
+      expect(extensionEncoder.timestampDateExtension).toBeUndefined();
+    });
+
+    it('check that create an extension encoder with a custom buffers', () => {
+      const textEncoder = new NodeTextEncoder();
+
+      const encoder = new Encoder({
+        bufferFactory: (size: number): Buffer => Buffer.alloc(size),
+        textEncoder,
+      });
+
+      const extensionEncoder = encoder.getExtensionEncoder();
+
+      expect(extensionEncoder.buffer).toBeInstanceOf(Buffer);
+      expect(extensionEncoder.textEncoder).toBe(textEncoder);
+    });
+
+    it('check that new extensions are being added to the extension encoder', () => {
+      const extension: MessagePackExtension = {
+        constructors: [],
+        decode: vi.fn<() => object>(),
+        encode: vi.fn<() => void>(),
+        type: 123,
+      };
+
+      const encoder = new Encoder();
+
+      const extensionEncoderBefore = encoder.getExtensionEncoder();
+
+      expect(extensionEncoderBefore.getExtensions().get(123)).toBeUndefined();
+
+      encoder.addExtension(extension);
+
+      const extensionEncoderAfter = encoder.getExtensionEncoder();
+
+      expect(extensionEncoderAfter.getExtensions().get(123)).toBe(extension);
+    });
   });
 
   it('resizeBuffer', () => {
@@ -1627,11 +1702,11 @@ describe('general writing', () => {
         initialBufferSize: 1,
       });
 
-      const extensionBuffer = new Encoder({
+      const extensionEncoder = new Encoder({
         initialBufferSize: 1,
       });
 
-      extensionBuffer.writeUint8(42);
+      extensionEncoder.writeUint8(42);
 
       const extension: MessagePackExtension = {
         constructors: [],
@@ -1640,7 +1715,7 @@ describe('general writing', () => {
         type: 1,
       };
 
-      encoder.writeExtension(extension, extensionBuffer);
+      encoder.writeExtension(extension, extensionEncoder);
 
       expect(encoder.buffer.slice(0, encoder.offset)).toBeBytes([
         Symbols.FIXEXT1,
@@ -1654,11 +1729,11 @@ describe('general writing', () => {
         initialBufferSize: 1,
       });
 
-      const extensionBuffer = new Encoder({
+      const extensionEncoder = new Encoder({
         initialBufferSize: 2,
       });
 
-      extensionBuffer.writeBin(new Uint8Array(2).fill(42));
+      extensionEncoder.writeBin(new Uint8Array(2).fill(42));
 
       const extension: MessagePackExtension = {
         constructors: [],
@@ -1667,7 +1742,7 @@ describe('general writing', () => {
         type: 1,
       };
 
-      encoder.writeExtension(extension, extensionBuffer);
+      encoder.writeExtension(extension, extensionEncoder);
 
       expect(encoder.buffer.slice(0, encoder.offset)).toBeBytes([
         Symbols.FIXEXT2,
@@ -1681,11 +1756,11 @@ describe('general writing', () => {
         initialBufferSize: 1,
       });
 
-      const extensionBuffer = new Encoder({
+      const extensionEncoder = new Encoder({
         initialBufferSize: 4,
       });
 
-      extensionBuffer.writeBin(new Uint8Array(4).fill(42));
+      extensionEncoder.writeBin(new Uint8Array(4).fill(42));
 
       const extension: MessagePackExtension = {
         constructors: [],
@@ -1694,7 +1769,7 @@ describe('general writing', () => {
         type: 1,
       };
 
-      encoder.writeExtension(extension, extensionBuffer);
+      encoder.writeExtension(extension, extensionEncoder);
 
       expect(encoder.buffer.slice(0, encoder.offset)).toBeBytes([
         Symbols.FIXEXT4,
@@ -1708,11 +1783,11 @@ describe('general writing', () => {
         initialBufferSize: 1,
       });
 
-      const extensionBuffer = new Encoder({
+      const extensionEncoder = new Encoder({
         initialBufferSize: 8,
       });
 
-      extensionBuffer.writeBin(new Uint8Array(8).fill(42));
+      extensionEncoder.writeBin(new Uint8Array(8).fill(42));
 
       const extension: MessagePackExtension = {
         constructors: [],
@@ -1721,7 +1796,7 @@ describe('general writing', () => {
         type: 1,
       };
 
-      encoder.writeExtension(extension, extensionBuffer);
+      encoder.writeExtension(extension, extensionEncoder);
 
       expect(encoder.buffer.slice(0, encoder.offset)).toBeBytes([
         Symbols.FIXEXT8,
@@ -1735,11 +1810,11 @@ describe('general writing', () => {
         initialBufferSize: 1,
       });
 
-      const extensionBuffer = new Encoder({
+      const extensionEncoder = new Encoder({
         initialBufferSize: 16,
       });
 
-      extensionBuffer.writeBin(new Uint8Array(16).fill(42));
+      extensionEncoder.writeBin(new Uint8Array(16).fill(42));
 
       const extension: MessagePackExtension = {
         constructors: [],
@@ -1748,7 +1823,7 @@ describe('general writing', () => {
         type: 1,
       };
 
-      encoder.writeExtension(extension, extensionBuffer);
+      encoder.writeExtension(extension, extensionEncoder);
 
       expect(encoder.buffer.slice(0, encoder.offset)).toBeBytes([
         Symbols.FIXEXT16,
@@ -1762,11 +1837,11 @@ describe('general writing', () => {
         initialBufferSize: 1,
       });
 
-      const extensionBuffer = new Encoder({
+      const extensionEncoder = new Encoder({
         initialBufferSize: 3,
       });
 
-      extensionBuffer.writeBin(new Uint8Array(3).fill(42));
+      extensionEncoder.writeBin(new Uint8Array(3).fill(42));
 
       const extension: MessagePackExtension = {
         constructors: [],
@@ -1775,7 +1850,7 @@ describe('general writing', () => {
         type: 1,
       };
 
-      encoder.writeExtension(extension, extensionBuffer);
+      encoder.writeExtension(extension, extensionEncoder);
 
       expect(encoder.buffer.slice(0, encoder.offset)).toBeBytes([
         Symbols.EXT8,
@@ -1790,11 +1865,11 @@ describe('general writing', () => {
         initialBufferSize: 1,
       });
 
-      const extensionBuffer = new Encoder({
+      const extensionEncoder = new Encoder({
         initialBufferSize: 256,
       });
 
-      extensionBuffer.writeBin(new Uint8Array(256).fill(42));
+      extensionEncoder.writeBin(new Uint8Array(256).fill(42));
 
       const extension: MessagePackExtension = {
         constructors: [],
@@ -1803,7 +1878,7 @@ describe('general writing', () => {
         type: 1,
       };
 
-      encoder.writeExtension(extension, extensionBuffer);
+      encoder.writeExtension(extension, extensionEncoder);
 
       expect(encoder.buffer.slice(0, encoder.offset)).toBeBytes([
         Symbols.EXT16,
@@ -1819,11 +1894,11 @@ describe('general writing', () => {
         initialBufferSize: 1,
       });
 
-      const extensionBuffer = new Encoder({
+      const extensionEncoder = new Encoder({
         initialBufferSize: 65_536,
       });
 
-      extensionBuffer.writeBin(new Uint8Array(65_536).fill(42));
+      extensionEncoder.writeBin(new Uint8Array(65_536).fill(42));
 
       const extension: MessagePackExtension = {
         constructors: [],
@@ -1832,7 +1907,7 @@ describe('general writing', () => {
         type: 1,
       };
 
-      encoder.writeExtension(extension, extensionBuffer);
+      encoder.writeExtension(extension, extensionEncoder);
 
       expect(encoder.buffer.slice(0, encoder.offset)).toBeBytes([
         Symbols.EXT32,
@@ -1850,11 +1925,11 @@ describe('general writing', () => {
         initialBufferSize: 1,
       });
 
-      const extensionBuffer = new Encoder({
+      const extensionEncoder = new Encoder({
         initialBufferSize: 1,
       });
 
-      vi.spyOn(extensionBuffer, 'offset', 'get').mockReturnValueOnce(
+      vi.spyOn(extensionEncoder, 'offset', 'get').mockReturnValueOnce(
         4_294_967_296,
       );
 
@@ -1865,7 +1940,7 @@ describe('general writing', () => {
         type: 1,
       };
 
-      expect(() => encoder.writeExtension(extension, extensionBuffer)).toThrow(
+      expect(() => encoder.writeExtension(extension, extensionEncoder)).toThrow(
         'Extension data too large to encode: 4294967296',
       );
     });
@@ -1910,9 +1985,9 @@ describe('general writing', () => {
       const value = new Value();
 
       const encodeFn = vi.fn<
-        (value: unknown, extensionBuffer: Encoder) => void
-      >((_value, extensionBuffer: Encoder) => {
-        extensionBuffer.writeUint8(42);
+        (value: unknown, extensionEncoder: Encoder) => void
+      >((_value, extensionEncoder: Encoder) => {
+        extensionEncoder.writeUint8(42);
       });
 
       const extension: MessagePackExtension<Value> = {
