@@ -8,41 +8,42 @@ import type {
 } from './types.ts';
 
 abstract class SerializerExtension<
-  TValue extends object = object,
-  TInput = unknown,
+  TValue extends object,
+  TInput,
+  TFactory extends SerializerExtensionFactory<TValue, TInput>,
   TBuffer extends Uint8Array = Uint8Array,
 > implements MessagePackBuiltInExtension<TValue, TBuffer> {
   abstract readonly type: number;
   readonly constructors: Constructor<TValue>[] = [];
 
-  readonly factories = new Map<
-    Constructor<TValue>,
-    SerializerExtensionFactory<TValue, TInput>
-  >();
+  readonly factories = new Map<Constructor<TValue>, TFactory>();
 
-  protected readonly factoriesByConstructorName = new Map<
-    string,
-    SerializerExtensionFactory<TValue, TInput>
-  >();
+  protected readonly factoriesByConstructorName = new Map<string, TFactory>();
 
-  constructor(factories: SerializerExtensionFactories<TValue, TInput>) {
+  constructor(
+    factories: SerializerExtensionFactories<TValue, TInput, TFactory>,
+  ) {
     for (const [constructor, factory] of factories) {
       this.registerFactory(constructor, factory);
     }
   }
 
-  registerFactory(
+  protected registerFactory(
     construct: Constructor<TValue>,
-    factory: SerializerExtensionFactory<TValue, TInput>,
+    factory: TFactory,
   ): void {
+    if (this.factories.has(construct)) {
+      throw new Error(
+        `Factory already registered for constructor: "${construct.name}"`,
+      );
+    }
+
     this.factories.set(construct, factory);
     this.constructors.push(construct);
     this.factoriesByConstructorName.set(construct.name, factory);
   }
 
-  fetchFactoryByConstructor(
-    constructor: Constructor<TValue>,
-  ): SerializerExtensionFactory<TValue, TInput> {
+  fetchFactoryByConstructor(constructor: Constructor<TValue>): TFactory {
     const factory = this.factories.get(constructor);
 
     if (!factory) {
@@ -54,9 +55,7 @@ abstract class SerializerExtension<
     return factory;
   }
 
-  fetchFactoryByConstructorName(
-    constructorName: string,
-  ): SerializerExtensionFactory<TValue, TInput> {
+  fetchFactoryByConstructorName(constructorName: string): TFactory {
     const factory = this.factoriesByConstructorName.get(constructorName);
 
     if (!factory) {
