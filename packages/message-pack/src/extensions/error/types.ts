@@ -1,4 +1,7 @@
-import type { SerializerExtensionFactories } from '../serializer/types.ts';
+import type {
+  SerializerExtensionFactories,
+  SerializerExtensionFactory,
+} from '../serializer/types.ts';
 
 export interface ErrorExtensionFactoryInput {
   message: string;
@@ -6,6 +9,17 @@ export interface ErrorExtensionFactoryInput {
   errors?: globalThis.Error[];
   properties: Record<string, unknown>;
 }
+
+export type ErrorExtensionFactory = SerializerExtensionFactory<
+  Error,
+  ErrorExtensionFactoryInput
+>;
+
+export type ErrorExtensionFactories = SerializerExtensionFactories<
+  Error,
+  ErrorExtensionFactoryInput,
+  ErrorExtensionFactory
+>;
 
 export interface ErrorExtensionOptions {
   /**
@@ -15,5 +29,5 @@ export interface ErrorExtensionOptions {
    */
   type?: number;
 
-  factories?: SerializerExtensionFactories<Error, ErrorExtensionFactoryInput>;
+  factories?: ErrorExtensionFactories;
 }
