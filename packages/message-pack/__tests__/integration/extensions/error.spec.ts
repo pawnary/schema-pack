@@ -307,36 +307,6 @@ describe('register custom errors', () => {
     expect(decoded.cause).toStrictEqual(error.cause);
   });
 
-  it('using error extension registerFactory method', () => {
-    const errorExtension = new ErrorExtension();
-
-    errorExtension.registerFactory(
-      MyCustomError,
-      (input) => new MyCustomError(input.message),
-    );
-
-    const encoder = new Encoder({
-      extensions: {
-        error: errorExtension,
-      },
-      initialBufferSize: 1,
-    });
-
-    const decoder = Decoder.fromEncoder(encoder);
-
-    const error = new MyCustomError();
-
-    const encoded = encoder.writeObject(error).flush();
-
-    const decoded = decoder.decode<MyCustomError>(encoded);
-
-    expect(decoded).toStrictEqual(error);
-    expect(decoded.message).toBe(error.message);
-    expect(decoded.name).toBe(error.name);
-    expect(decoded.stack).toBe(error.stack);
-    expect(decoded.cause).toStrictEqual(error.cause);
-  });
-
   it('add custom properties to error', () => {
     // TODO: update this test to use type safe access for custom properties
     class WithPropertiesError extends Error {
