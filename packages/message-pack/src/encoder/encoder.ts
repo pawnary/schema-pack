@@ -592,7 +592,7 @@ class Encoder<TBuffer extends Uint8Array = Uint8Array>
 
     // optimization for short strings, to avoid the overhead of using
     // a text encoder for small strings
-    if (valueLength < 51) {
+    if (valueLength < 64) {
       this.ensureCapacity(1 + requiredSize);
 
       const initialoffset = this.offset;
