@@ -31,7 +31,9 @@ const TIMESTAMP64_MAX_SEC = 0x4_00_00_00_00 - 1; // 34-bit unsigned int // 17_17
 class TimestampDateExtension<
   TBuffer extends Uint8Array = Uint8Array,
 > implements MessagePackBuiltInExtension<Date, TBuffer> {
-  readonly type = -1;
+  static readonly DEFAULT_TYPE = -1;
+
+  readonly type = TimestampDateExtension.DEFAULT_TYPE;
   readonly constructors: Constructor<Date>[] = [Date];
 
   parseToMessagePackTime(date: Date): MessagePackTime {
@@ -86,32 +88,38 @@ class TimestampDateExtension<
   }
 
   decode(decoder: MessagePackDecoder<TBuffer>, size: number): Date {
-    const byteOffset = decoder.offset;
-
     switch (size) {
       case 4: {
         // timestamp 32 = { sec32 }
-        const sec = decoder.view.getUint32(byteOffset);
+        const sec = decoder.view.getUint32(decoder.offset);
+        decoder.offset += 4;
         const nsec = 0;
         // return { sec, nsec };
         return new Date(sec * 1e3 + nsec / 1e6);
       }
       case 8: {
         // timestamp 64 = { nsec30, sec34 }
-        const nsec30AndSecHigh2 = decoder.view.getUint32(byteOffset);
-        const secLow32 = decoder.view.getUint32(byteOffset + 4);
+        const nsec30AndSecHigh2 = decoder.view.getUint32(decoder.offset);
+        decoder.offset += 4;
+        const secLow32 = decoder.view.getUint32(decoder.offset);
+        decoder.offset += 4;
         const sec = (nsec30AndSecHigh2 & 0x3) * 0x1_00_00_00_00 + secLow32;
         const nsec = nsec30AndSecHigh2 >>> 2;
         return new Date(sec * 1e3 + nsec / 1e6);
       }
       case 12: {
         // timestamp 96 = { nsec32 (unsigned), sec64 (signed) }
-        const high = decoder.view.getInt32(byteOffset + 4);
-        const low = decoder.view.getUint32(byteOffset + 8);
+        const nsec = decoder.view.getUint32(decoder.offset);
+        decoder.offset += 4;
+
+        const high = decoder.view.getInt32(decoder.offset);
+        decoder.offset += 4;
+
+        const low = decoder.view.getUint32(decoder.offset);
+        decoder.offset += 4;
 
         // const sec = getInt64(view, 4);
         const sec = high * 0x1_00_00_00_00 + low;
-        const nsec = decoder.view.getUint32(byteOffset);
         return new Date(sec * 1e3 + nsec / 1e6);
       }
       default: {
