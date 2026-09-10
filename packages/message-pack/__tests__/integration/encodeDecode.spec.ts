@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, test } from 'vitest';
+import { beforeAll, beforeEach, describe, expect, it, test } from 'vitest';
 
 import {
   INT32_MIN,
@@ -326,26 +326,44 @@ describe('bin', () => {
 });
 
 describe('ext', () => {
-  const options: BufferWithExtensionsOptions = {
-    extensions: false,
-  };
+  let encoder: Encoder;
+  let decoder: Decoder;
+  let decodeExtensionMock: MessagePackExtension['decode'];
+
+  beforeAll(() => {
+    decodeExtensionMock = (extensionDecoder, size): object => {
+      extensionDecoder.offset += size;
+
+      return {};
+    };
+  });
+
+  beforeEach(() => {
+    encoder = new Encoder({
+      extensions: false,
+      initialBufferSize: 1,
+    });
+
+    decoder = Decoder.fromEncoder(encoder);
+  });
 
   it('ext 8', () => {
     const extension: MessagePackExtension = {
       constructors: [Object],
-      decode: () => ({}),
-      encode: (_value, buffer) => {
-        for (let index = 0; index < 255; index++) {
-          buffer.writeUint8(index);
+      decode: decodeExtensionMock,
+      encode: (_value, extensionEncoder) => {
+        let counter = 0;
+
+        while (extensionEncoder.offset < 254) {
+          extensionEncoder.writeUint8(counter++);
+
+          extensionEncoder.offset++;
         }
       },
       type: 1,
     };
 
-    const encoder = new Encoder(options);
     encoder.addExtension(extension);
-
-    const decoder = new Decoder(options);
     decoder.addExtension(extension);
 
     const encoded = encoder.write({}).flush();
@@ -357,19 +375,20 @@ describe('ext', () => {
   it('ext 16', () => {
     const extension: MessagePackExtension = {
       constructors: [Object],
-      decode: () => ({}),
-      encode: (_value, buffer) => {
-        for (let index = 0; index < 65_535; index++) {
-          buffer.writeUint8(index % 255);
+      decode: decodeExtensionMock,
+      encode: (_value, extensionEncoder) => {
+        let counter = 0;
+
+        while (extensionEncoder.offset < 65_534) {
+          extensionEncoder.writeUint8(counter++);
+
+          extensionEncoder.offset++;
         }
       },
       type: 1,
     };
 
-    const encoder = new Encoder(options);
     encoder.addExtension(extension);
-
-    const decoder = new Decoder(options);
     decoder.addExtension(extension);
 
     const encoded = encoder.write({}).flush();
@@ -381,19 +400,20 @@ describe('ext', () => {
   it('ext 32', () => {
     const extension: MessagePackExtension = {
       constructors: [Object],
-      decode: () => ({}),
-      encode: (_value, buffer) => {
-        for (let index = 0; index < 65_536; index++) {
-          buffer.writeUint8(index % 255);
+      decode: decodeExtensionMock,
+      encode: (_value, extensionEncoder) => {
+        let counter = 0;
+
+        while (extensionEncoder.offset < 65_535) {
+          extensionEncoder.writeUint8(counter++);
+
+          extensionEncoder.offset++;
         }
       },
       type: 1,
     };
 
-    const encoder = new Encoder(options);
     encoder.addExtension(extension);
-
-    const decoder = new Decoder(options);
     decoder.addExtension(extension);
 
     const encoded = encoder.write({}).flush();
@@ -405,17 +425,14 @@ describe('ext', () => {
   it('fixext 1', () => {
     const extension: MessagePackExtension = {
       constructors: [Object],
-      decode: () => ({}),
+      decode: decodeExtensionMock,
       encode: (_value, buffer) => {
         buffer.writeUint8(123);
       },
       type: 1,
     };
 
-    const encoder = new Encoder(options);
     encoder.addExtension(extension);
-
-    const decoder = new Decoder(options);
     decoder.addExtension(extension);
 
     const encoded = encoder.write({}).flush();
@@ -427,7 +444,7 @@ describe('ext', () => {
   it('fixext 2', () => {
     const extension: MessagePackExtension = {
       constructors: [Object],
-      decode: () => ({}),
+      decode: decodeExtensionMock,
       encode: (_value, buffer) => {
         buffer.writeUint8(123);
         buffer.writeUint8(123);
@@ -435,10 +452,7 @@ describe('ext', () => {
       type: 1,
     };
 
-    const encoder = new Encoder(options);
     encoder.addExtension(extension);
-
-    const decoder = new Decoder(options);
     decoder.addExtension(extension);
 
     const encoded = encoder.write({}).flush();
@@ -450,7 +464,7 @@ describe('ext', () => {
   it('fixext 4', () => {
     const extension: MessagePackExtension = {
       constructors: [Object],
-      decode: () => ({}),
+      decode: decodeExtensionMock,
       encode: (_value, buffer) => {
         buffer.writeUint8(123);
         buffer.writeUint8(123);
@@ -460,10 +474,7 @@ describe('ext', () => {
       type: 1,
     };
 
-    const encoder = new Encoder(options);
     encoder.addExtension(extension);
-
-    const decoder = new Decoder(options);
     decoder.addExtension(extension);
 
     const encoded = encoder.write({}).flush();
@@ -475,7 +486,7 @@ describe('ext', () => {
   it('fixext 8', () => {
     const extension: MessagePackExtension = {
       constructors: [Object],
-      decode: () => ({}),
+      decode: decodeExtensionMock,
       encode: (_value, buffer) => {
         for (let index = 0; index < 8; index++) {
           buffer.writeUint8(123);
@@ -484,10 +495,7 @@ describe('ext', () => {
       type: 1,
     };
 
-    const encoder = new Encoder(options);
     encoder.addExtension(extension);
-
-    const decoder = new Decoder(options);
     decoder.addExtension(extension);
 
     const encoded = encoder.write({}).flush();
@@ -499,7 +507,7 @@ describe('ext', () => {
   it('fixext 16', () => {
     const extension: MessagePackExtension = {
       constructors: [Object],
-      decode: () => ({}),
+      decode: decodeExtensionMock,
       encode: (_value, buffer) => {
         for (let index = 0; index < 16; index++) {
           buffer.writeUint8(123);
@@ -508,10 +516,7 @@ describe('ext', () => {
       type: 1,
     };
 
-    const encoder = new Encoder(options);
     encoder.addExtension(extension);
-
-    const decoder = new Decoder(options);
     decoder.addExtension(extension);
 
     const encoded = encoder.write({}).flush();
