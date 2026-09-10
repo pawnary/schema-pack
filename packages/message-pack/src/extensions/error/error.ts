@@ -1,18 +1,26 @@
 import type MessagePackDecoder from '../../decoder/interfaces/messagePackDecoder.ts';
 import type MessagePackEncoder from '../../encoder/interfaces/messagePackEncoder.ts';
+import type MessagePackBuiltInExtension from '../interfaces/messagePackBuiltInExtension.ts';
 import SerializerExtension from '../serializer/serializer.ts';
 import defaultFactories from './defaultFactories.ts';
 import errorExtensionSymbols from './symbols.ts';
 import type {
+  ErrorExtensionFactory,
   ErrorExtensionFactoryInput,
   ErrorExtensionOptions,
 } from './types.ts';
 
-const excludedKeys = new Set(['stack', 'message', 'name', 'cause', 'errors']);
+const excludedKeys = new Set(['stack', 'message', 'name', 'cause']);
 
-class ErrorExtension<
-  TBuffer extends Uint8Array = Uint8Array,
-> extends SerializerExtension<Error, ErrorExtensionFactoryInput, TBuffer> {
+class ErrorExtension<TBuffer extends Uint8Array = Uint8Array>
+  extends SerializerExtension<
+    Error,
+    ErrorExtensionFactoryInput,
+    ErrorExtensionFactory,
+    TBuffer
+  >
+  implements MessagePackBuiltInExtension<Error, TBuffer>
+{
   /**
    * The default type value for the error extension. This is used when no
    * specific type is provided during instantiation.
@@ -203,7 +211,9 @@ class ErrorExtension<
 
     const error = factory(input);
 
-    error.stack = stack;
+    if (stack !== undefined) {
+      error.stack = stack;
+    }
 
     if (name !== undefined) {
       error.name = name;
