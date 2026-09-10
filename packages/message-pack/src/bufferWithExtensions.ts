@@ -8,6 +8,7 @@ import type {
   BigIntExtensionOptions,
   BufferWithExtensionsOptions,
 } from './types.ts';
+import assertValidExtensionType from './utils/assertValidExtensionType.ts';
 
 type MessagePackExtensionLike<TBuffer extends Uint8Array> =
   | MessagePackExtension<object, TBuffer>
@@ -73,6 +74,8 @@ abstract class BufferWithExtensions<
         this.bigIntExtension = options?.extensions?.bigInt ?? {
           type: BufferWithExtensions.DEFAULT_BIG_INT_EXTENSION_TYPE,
         };
+
+        assertValidExtensionType(this.bigIntExtension.type);
       }
 
       if (options?.extensions?.error !== false) {
@@ -81,6 +84,8 @@ abstract class BufferWithExtensions<
         } else {
           this.errorExtension = new ErrorExtension(options?.extensions?.error);
         }
+
+        assertValidExtensionType(this.errorExtension.type);
 
         this.builtInExtensions.set(
           this.errorExtension.type,
@@ -98,7 +103,7 @@ abstract class BufferWithExtensions<
         }
 
         this.builtInExtensions.set(
-          this.timestampDateExtension.type,
+          TimestampDateExtension.DEFAULT_TYPE,
           this.timestampDateExtension,
         );
       }
@@ -121,11 +126,7 @@ abstract class BufferWithExtensions<
       );
     }
 
-    if (extension.type < -128 || extension.type > 127) {
-      throw new Error(
-        `Extension type must be in the range -128 to 127, got ${extension.type}`,
-      );
-    }
+    assertValidExtensionType(extension.type);
 
     if (this.builtInExtensions.has(extension.type)) {
       // oxlint-disable-next-line typescript/no-non-null-assertion - Already checked that the extension exists
