@@ -67,8 +67,7 @@ class TimestampDateExtension<
 
         encoder.ensureCapacity(10);
 
-        encoder.buffer[encoder.offset++] = Symbols.EXT8;
-        encoder.buffer[encoder.offset++] = 8;
+        encoder.buffer[encoder.offset++] = Symbols.FIXEXT8;
         encoder.buffer[encoder.offset++] = this.type;
 
         encoder.writeUint32((time.nsec << 2) | (secHigh & 0x3));
