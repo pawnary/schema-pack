@@ -24,5 +24,3 @@ export default function getMDXComponents(
     GithubSource,
   };
 }
-
-// export const useMDXComponents = getMDXComponents;
