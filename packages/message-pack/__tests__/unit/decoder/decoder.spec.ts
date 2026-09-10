@@ -1,118 +1,250 @@
-import Symbols from '@schema-pack/message-pack/symbols.ts';
 import { describe, expect, it, vi } from 'vitest';
 
 import Decoder from '../../../src/decoder/decoder.ts';
+import type MessagePackExtension from '../../../src/extensions/interfaces/messagePackExtension.ts';
+import Symbols from '../../../src/symbols.ts';
 
-describe('ext16', () => {
-  it('read positive extension id', () => {
-    const informationBytes = new Uint8Array(256).fill(42);
+class PublicDecoder extends Decoder {
+  public override decodeBigInt(length: number): bigint {
+    return super.decodeBigInt(length);
+  }
 
-    const bufferWithExtension = new Uint8Array([
-      Symbols.EXT16,
-      1,
-      0,
-      127,
-      ...informationBytes,
-    ]);
+  public override decodeExtension(
+    extensionId: number,
+    length: number,
+  ): unknown {
+    return super.decodeExtension(extensionId, length);
+  }
+}
 
-    const decoder = new Decoder();
+describe('decodeBigInt', () => {
+  // 1n encoded using zigzag encoding
+  const bigIntBuffer = new Uint8Array([0, 0, 0, 0, 0, 0, 0, 2]);
 
-    decoder.addExtension({
-      constructors: [],
-      decode: vi.fn<() => Uint8Array>(() => Uint8Array.from(informationBytes)),
-      encode: vi.fn<() => void>(),
-      type: 127,
+  it('should fails when BigInt extension is disabled', () => {
+    const decoder = new PublicDecoder({
+      extensions: {
+        bigInt: false,
+      },
     });
 
-    decoder.setBuffer(bufferWithExtension);
+    decoder.setBuffer(new Uint8Array(bigIntBuffer));
 
-    const decoded = decoder.nextValue();
-
-    expect(decoded).toBeBytes(informationBytes);
+    expect(() => decoder.decodeBigInt(8)).toThrow(
+      'BigInt extension is disabled, cannot decode BigInt.',
+    );
   });
 
-  it('read negative extension id', () => {
-    const informationBytes = new Uint8Array(256).fill(42);
+  it('should decode correctly', () => {
+    const decoder = new PublicDecoder();
 
-    const bufferWithExtension = new Uint8Array([
-      Symbols.EXT16,
-      1,
-      0,
-      129,
-      ...informationBytes,
-    ]);
+    decoder.setBuffer(new Uint8Array(bigIntBuffer));
 
-    const decoder = new Decoder();
+    const result = decoder.decodeBigInt(8);
 
-    decoder.addExtension({
-      constructors: [],
-      decode: vi.fn<() => Uint8Array>(() => Uint8Array.from(informationBytes)),
-      encode: vi.fn<() => void>(),
-      type: -127,
-    });
-
-    decoder.setBuffer(bufferWithExtension);
-
-    const decoded = decoder.nextValue();
-
-    expect(decoded).toBeBytes(informationBytes);
+    expect(result).toBe(1n);
+    expect(decoder.offset).toBe(8);
   });
 });
 
-describe('ext32', () => {
-  const informationBytes = new Uint8Array(65_536).fill(42);
-
-  it('read positive extension id', () => {
-    const bufferWithExtension = new Uint8Array([
-      Symbols.EXT32,
-      0,
-      1,
-      0,
-      0,
-      127,
-      ...informationBytes,
-    ]);
-
-    const decoder = new Decoder();
-
-    decoder.addExtension({
-      constructors: [],
-      decode: vi.fn<() => Uint8Array>(() => Uint8Array.from(informationBytes)),
-      encode: vi.fn<() => void>(),
-      type: 127,
+describe('decodeExtension', () => {
+  it('should call decodeBigInt', () => {
+    const decoder = new PublicDecoder({
+      extensions: {
+        bigInt: {
+          type: 123,
+        },
+      },
     });
 
-    decoder.setBuffer(bufferWithExtension);
+    const decodeBigIntSpy = vi
+      .spyOn(decoder, 'decodeBigInt')
+      .mockReturnValueOnce(456n);
 
-    const decoded = decoder.nextValue();
+    const result = decoder.decodeExtension(123, 12);
 
-    expect(decoded).toBeBytes(informationBytes);
+    expect(result).toBe(456n);
+    expect(decodeBigIntSpy).toHaveBeenCalledWith(12);
   });
 
-  it('read negative extension id', () => {
-    const bufferWithExtension = new Uint8Array([
-      Symbols.EXT32,
-      0,
-      1,
-      0,
-      0,
-      129,
-      ...informationBytes,
-    ]);
+  it('should fails when extension does not advance the decoder offset', () => {
+    const decoder = new PublicDecoder({
+      extensions: false,
+    });
 
-    const decoder = new Decoder();
+    const decodeFn = vi.fn<MessagePackExtension['decode']>(
+      () => new Uint8Array(0),
+    );
 
     decoder.addExtension({
       constructors: [],
-      decode: vi.fn<() => Uint8Array>(() => Uint8Array.from(informationBytes)),
+      decode: decodeFn,
       encode: vi.fn<() => void>(),
-      type: -127,
+      type: 123,
     });
 
-    decoder.setBuffer(bufferWithExtension);
+    expect(() => decoder.decodeExtension(123, 12)).toThrow(
+      'Extension decoder did not consume the expected number of bytes for extensionId 123 and length 12.',
+    );
 
-    const decoded = decoder.nextValue();
+    expect(decodeFn).toHaveBeenCalledWith(decoder, 12);
+  });
 
-    expect(decoded).toBeBytes(informationBytes);
+  it('should decode correctly', () => {
+    const decoder = new PublicDecoder();
+
+    const value = new Uint8Array(11);
+
+    const decodeFn = vi.fn<MessagePackExtension['decode']>(
+      (extensionDecoder) => {
+        extensionDecoder.offset += value.length;
+
+        return value;
+      },
+    );
+
+    decoder.addExtension({
+      constructors: [],
+      decode: decodeFn,
+      encode: vi.fn<() => void>(),
+      type: 123,
+    });
+
+    const result = decoder.decodeExtension(123, 11);
+
+    expect(result).toBe(value);
+    expect(decodeFn).toHaveBeenCalledWith(decoder, 11);
+  });
+});
+
+describe('message pack types', () => {
+  describe('extensions', () => {
+    describe('ext16', () => {
+      const ext16Bytes = new Uint8Array(256).fill(42);
+
+      it('read positive extension id', () => {
+        const bufferWithExtension = new Uint8Array([
+          Symbols.EXT16,
+          1,
+          0,
+          127,
+          ...ext16Bytes,
+        ]);
+
+        const decoder = new Decoder();
+
+        decoder.addExtension({
+          constructors: [],
+          decode: vi.fn<MessagePackExtension['decode']>((extensionDecoder) => {
+            extensionDecoder.offset += ext16Bytes.length;
+
+            return Uint8Array.from(ext16Bytes);
+          }),
+          encode: vi.fn<() => void>(),
+          type: 127,
+        });
+
+        decoder.setBuffer(bufferWithExtension);
+
+        const decoded = decoder.nextValue();
+
+        expect(decoded).toBeBytes(ext16Bytes);
+      });
+
+      it('read negative extension id', () => {
+        const bufferWithExtension = new Uint8Array([
+          Symbols.EXT16,
+          1,
+          0,
+          129,
+          ...ext16Bytes,
+        ]);
+
+        const decoder = new Decoder();
+
+        decoder.addExtension({
+          constructors: [],
+          decode: vi.fn<MessagePackExtension['decode']>((extensionDecoder) => {
+            extensionDecoder.offset += ext16Bytes.length;
+
+            return Uint8Array.from(ext16Bytes);
+          }),
+          encode: vi.fn<() => void>(),
+          type: -127,
+        });
+
+        decoder.setBuffer(bufferWithExtension);
+
+        const decoded = decoder.nextValue();
+
+        expect(decoded).toBeBytes(ext16Bytes);
+      });
+    });
+
+    describe('ext32', () => {
+      const ext32Bytes = new Uint8Array(65_536).fill(42);
+
+      it('read positive extension id', () => {
+        const bufferWithExtension = new Uint8Array([
+          Symbols.EXT32,
+          0,
+          1,
+          0,
+          0,
+          127,
+          ...ext32Bytes,
+        ]);
+
+        const decoder = new Decoder();
+
+        decoder.addExtension({
+          constructors: [],
+          decode: vi.fn<MessagePackExtension['decode']>((extensionDecoder) => {
+            extensionDecoder.offset += ext32Bytes.length;
+
+            return Uint8Array.from(ext32Bytes);
+          }),
+          encode: vi.fn<() => void>(),
+          type: 127,
+        });
+
+        decoder.setBuffer(bufferWithExtension);
+
+        const decoded = decoder.nextValue();
+
+        expect(decoded).toBeBytes(ext32Bytes);
+      });
+
+      it('read negative extension id', () => {
+        const bufferWithExtension = new Uint8Array([
+          Symbols.EXT32,
+          0,
+          1,
+          0,
+          0,
+          129,
+          ...ext32Bytes,
+        ]);
+
+        const decoder = new Decoder();
+
+        decoder.addExtension({
+          constructors: [],
+          decode: vi.fn<MessagePackExtension['decode']>((extensionDecoder) => {
+            extensionDecoder.offset += ext32Bytes.length;
+
+            return Uint8Array.from(ext32Bytes);
+          }),
+          encode: vi.fn<() => void>(),
+          type: -127,
+        });
+
+        decoder.setBuffer(bufferWithExtension);
+
+        const decoded = decoder.nextValue();
+
+        expect(decoded).toBeBytes(ext32Bytes);
+      });
+    });
   });
 });
