@@ -163,6 +163,10 @@ class Encoder<TBuffer extends Uint8Array = Uint8Array>
       this.extensionsByConstructors.set(extension.constructors, extension);
     }
 
+    if (this.#extensionEncoder) {
+      this.#extensionEncoder.addExtension(extension);
+    }
+
     return this;
   }
 
@@ -171,9 +175,9 @@ class Encoder<TBuffer extends Uint8Array = Uint8Array>
       const extensionEncoder = new Encoder<TBuffer>({
         bufferFactory: this.bufferFactory,
         extensions: {
-          bigInt: this.bigIntExtension,
-          error: this.errorExtension,
-          timestampDate: this.timestampDateExtension,
+          bigInt: this.bigIntExtension ?? false,
+          error: this.errorExtension ?? false,
+          timestampDate: this.timestampDateExtension ?? false,
         },
         forceFloat32: this.forceFloat32,
         initialBufferSize: this.initialBufferSize,
@@ -867,7 +871,9 @@ class Encoder<TBuffer extends Uint8Array = Uint8Array>
   }
 
   writeExtension<TValue extends object = object>(
-    extension: MessagePackExtension<TValue, TBuffer>,
+    extension:
+      | MessagePackExtension<TValue, TBuffer>
+      | MessagePackBuiltInExtension<TValue, TBuffer>,
     encoder: ExtensionEncoder<TBuffer>,
   ): this {
     const writtenBytes = encoder.offset;
