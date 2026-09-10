@@ -9,6 +9,10 @@ import type {
   BufferWithExtensionsOptions,
 } from './types.ts';
 
+type MessagePackExtensionLike<TBuffer extends Uint8Array> =
+  | MessagePackExtension<object, TBuffer>
+  | MessagePackBuiltInExtension<object, TBuffer>;
+
 abstract class BufferWithExtensions<
   TBuffer extends Uint8Array = Uint8Array,
 > implements MessagePackBufferWithExtensions<TBuffer> {
@@ -123,16 +127,30 @@ abstract class BufferWithExtensions<
       );
     }
 
+    if (this.builtInExtensions.has(extension.type)) {
+      // oxlint-disable-next-line typescript/no-non-null-assertion - Already checked that the extension exists
+      const existent = this.builtInExtensions.get(extension.type)!;
+
+      throw new Error(
+        `Extension with type ${extension.type} conflicts with built-in extension ${existent.constructor.name}`,
+      );
+    }
+
     this.extensions.set(extension.type, extension);
 
     return this;
   }
 
-  fetchExtension(type: number): MessagePackExtension<object, TBuffer> {
-    const extension = this.extensions.get(type);
+  fetchExtension(type: number): MessagePackExtensionLike<TBuffer> {
+    let extension: MessagePackExtensionLike<TBuffer> | undefined =
+      this.builtInExtensions.get(type);
 
     if (!extension) {
-      throw new Error(`Extension with type ${type} not found`);
+      extension = this.extensions.get(type);
+
+      if (!extension) {
+        throw new Error(`Extension with type ${type} not found`);
+      }
     }
 
     return extension;
