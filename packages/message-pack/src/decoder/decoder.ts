@@ -66,7 +66,7 @@ class Decoder<TBuffer extends Uint8Array = Uint8Array>
     return this;
   }
 
-  readArray(elementCount: number): unknown[] {
+  protected readArray(elementCount: number): unknown[] {
     const decodedArray: unknown[] = new Array(elementCount);
 
     for (let index = 0; index < elementCount; index++) {
@@ -80,7 +80,7 @@ class Decoder<TBuffer extends Uint8Array = Uint8Array>
   // ASCII fast path avoids allocating a subarray view + handing off to TextDecoder
   // (both measurably show up in profiling) for the overwhelmingly common case of
   // short ASCII keys/values; falls back to TextDecoder only when non-ASCII bytes appear.
-  readStr(byteLength: number): string {
+  protected readStr(byteLength: number): string {
     if (byteLength === 0) {
       return '';
     }
@@ -130,11 +130,11 @@ class Decoder<TBuffer extends Uint8Array = Uint8Array>
   // Note: implements an efficient method to read map keys, avoiding the
   // overhead of nextValue() for the overwhelmingly common case of short ASCII
   // keys.
-  readMapKey(): string | number {
+  protected readMapKey(): string | number {
     return this.nextValue<string | number>();
   }
 
-  readMap(length: number): Record<string | number, unknown> {
+  protected readMap(length: number): Record<string | number, unknown> {
     const decodedMap: Record<string | number, unknown> = {};
 
     for (let index = 0; index < length; ++index) {
@@ -152,7 +152,7 @@ class Decoder<TBuffer extends Uint8Array = Uint8Array>
     return decodedMap;
   }
 
-  decodeBigInt(length: number): bigint {
+  protected decodeBigInt(length: number): bigint {
     if (!this.bigIntExtension) {
       throw new Error(`BigInt extension is disabled, cannot decode BigInt.`);
     }
@@ -161,8 +161,9 @@ class Decoder<TBuffer extends Uint8Array = Uint8Array>
     let shift = 0n;
     const endOffset = this.offset + length;
 
-    for (let offset = this.offset; offset < endOffset; offset += 8) {
-      encoded |= this.view.getBigUint64(offset, false) << shift;
+    while (this.offset < endOffset) {
+      encoded |= this.view.getBigUint64(this.offset, false) << shift;
+      this.offset += 8;
       shift += 64n;
     }
 
@@ -173,25 +174,28 @@ class Decoder<TBuffer extends Uint8Array = Uint8Array>
     return encoded >> 1n;
   }
 
-  decodeExtension(extensionId: number, length: number): unknown {
+  protected decodeExtension(extensionId: number, length: number): unknown {
     if (extensionId === this.bigIntExtension?.type) {
       return this.decodeBigInt(length);
     }
 
-    const builtInExtension = this.builtInExtensions.get(extensionId);
+    const extension = this.fetchExtension(extensionId);
+    const expectedNewOffset = this.offset + length;
 
-    if (builtInExtension) {
-      return builtInExtension.decode(this, length);
+    const decoded = extension.decode(this, length);
+
+    if (this.offset !== expectedNewOffset) {
+      throw new Error(
+        `Extension decoder did not consume the expected number of bytes for extensionId ${extensionId} and length ${length}.`,
+      );
     }
 
-    const extension = this.fetchExtension(extensionId);
-
-    return extension.decode(this, length);
+    return decoded;
   }
 
   // Cold path: everything in the 0xc0-0xdf control-code range that isn't Symbols.NIL/Symbols.FALSE/Symbols.TRUE/Symbols.UINT8/16/32.
   // Kept out of nextValue() on purpose (see comment above) so the hot switch stays small.
-  decodeControlSlow(headerByte: number): unknown {
+  protected decodeControlSlow(headerByte: number): unknown {
     const { buffer } = this;
 
     switch (headerByte) {
