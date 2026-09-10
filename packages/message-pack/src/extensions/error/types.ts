@@ -3,6 +3,12 @@ import type {
   SerializerExtensionFactory,
 } from '../serializer/types.ts';
 
+type ErrorExtensionFactories = SerializerExtensionFactories<
+  Error,
+  ErrorExtensionFactoryInput,
+  ErrorExtensionFactory
+>;
+
 export interface ErrorExtensionFactoryInput {
   message: string;
   options?: globalThis.ErrorOptions;
@@ -13,12 +19,6 @@ export interface ErrorExtensionFactoryInput {
 export type ErrorExtensionFactory = SerializerExtensionFactory<
   Error,
   ErrorExtensionFactoryInput
->;
-
-export type ErrorExtensionFactories = SerializerExtensionFactories<
-  Error,
-  ErrorExtensionFactoryInput,
-  ErrorExtensionFactory
 >;
 
 export interface ErrorExtensionOptions {
