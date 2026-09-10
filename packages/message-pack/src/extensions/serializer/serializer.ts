@@ -1,6 +1,5 @@
 import type MessagePackDecoder from '../../decoder/interfaces/messagePackDecoder.ts';
-import type { ExtensionEncoder } from '../../encoder/types.ts';
-import type MessagePackBuiltInExtension from '../interfaces/messagePackBuiltInExtension.ts';
+import type MessagePackExtensionBase from '../interfaces/messagePackExtensionBase.ts';
 import type { Constructor } from '../interfaces/types.ts';
 import type {
   SerializerExtensionFactories,
@@ -12,7 +11,7 @@ abstract class SerializerExtension<
   TInput,
   TFactory extends SerializerExtensionFactory<TValue, TInput>,
   TBuffer extends Uint8Array = Uint8Array,
-> implements MessagePackBuiltInExtension<TValue, TBuffer> {
+> implements MessagePackExtensionBase<TValue, TBuffer> {
   abstract readonly type: number;
   readonly constructors: Constructor<TValue>[] = [];
 
@@ -66,11 +65,6 @@ abstract class SerializerExtension<
 
     return factory;
   }
-
-  abstract encodeInto(
-    value: InstanceType<Constructor<TValue>>,
-    encoder: ExtensionEncoder<TBuffer>,
-  ): void;
 
   abstract decode(decoder: MessagePackDecoder<TBuffer>, size: number): TValue;
 }
