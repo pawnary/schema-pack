@@ -42,7 +42,20 @@ describe('constructor options', () => {
       expect(mock.timestampDateExtension).toBeDefined();
     });
 
-    it('should assign a new extension type', () => {
+    it('should fails when extension type is not between -128 and 127', () => {
+      expect(
+        () =>
+          new MockWithExtensions({
+            extensions: {
+              bigInt: {
+                type: 128,
+              },
+            },
+          }),
+      ).toThrow('Extension type must be in the range -128 to 127, got 128');
+    });
+
+    it('should assign correctly a new extension type', () => {
       const mock = new MockWithExtensions({
         extensions: {
           bigInt: {
@@ -81,20 +94,33 @@ describe('constructor options', () => {
         extensions: {
           error: {
             factories: [[NewError, factory]],
-            type: 456,
+            type: 123,
           },
         },
       });
 
       expect(mock.errorExtension).toBeDefined();
-      expect(mock.errorExtension?.type).toBe(456);
+      expect(mock.errorExtension?.type).toBe(123);
       expect(mock.errorExtension?.factories.get(NewError)).toBe(factory);
-      expect(mock.getBuiltInExtensions().get(456)).toBe(mock.errorExtension);
+      expect(mock.getBuiltInExtensions().get(123)).toBe(mock.errorExtension);
+    });
+
+    it('should fails when type config is not between -128 and 127', () => {
+      expect(
+        () =>
+          new MockWithExtensions({
+            extensions: {
+              error: {
+                type: 128,
+              },
+            },
+          }),
+      ).toThrow('Extension type must be in the range -128 to 127, got 128');
     });
 
     it('should use provided error extension', () => {
       const errorExtension = new ErrorExtension({
-        type: 789,
+        type: 123,
       });
 
       const mock = new MockWithExtensions({
@@ -104,7 +130,22 @@ describe('constructor options', () => {
       });
 
       expect(mock.errorExtension).toBe(errorExtension);
-      expect(mock.getBuiltInExtensions().get(789)).toBe(errorExtension);
+      expect(mock.getBuiltInExtensions().get(123)).toBe(errorExtension);
+    });
+
+    it('should fails when provided error extension type is not between -128 and 127', () => {
+      const errorExtension = new ErrorExtension({
+        type: 128,
+      });
+
+      expect(
+        () =>
+          new MockWithExtensions({
+            extensions: {
+              error: errorExtension,
+            },
+          }),
+      ).toThrow('Extension type must be in the range -128 to 127, got 128');
     });
   });
 
