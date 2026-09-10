@@ -202,6 +202,10 @@
       "import": "./dist/esm/types.mjs",
       "require": "./dist/cjs/types.cjs"
     },
+    "./utils/assertValidExtensionType": {
+      "import": "./dist/esm/utils/assertValidExtensionType.mjs",
+      "require": "./dist/cjs/utils/assertValidExtensionType.cjs"
+    },
     "./utils/fitIn16Bits": {
       "import": "./dist/esm/utils/fitIn16Bits.mjs",
       "require": "./dist/cjs/utils/fitIn16Bits.cjs"
