@@ -52,7 +52,7 @@ class ErrorExtension<
       name = value.name;
     }
 
-    const extensionEncoder = encoder.getExtensionEncoder();
+    const extensionEncoder = encoder.getExtensionEncoder().resetBuffer();
 
     if (stack !== undefined) {
       const capacity = 1 + stack.length * 4;

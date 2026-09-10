@@ -226,18 +226,18 @@ class Decoder<TBuffer extends Uint8Array = Uint8Array>
         return this.decodeExtension(extensionId, length);
       }
       case Symbols.EXT16: {
-        const length = this.view.getInt16(this.offset);
+        const length = this.view.getUint16(this.offset);
         this.offset += 2;
 
-        const extensionId = this.buffer[this.offset++];
+        const extensionId = this.view.getInt8(this.offset++);
 
         return this.decodeExtension(extensionId, length);
       }
       case Symbols.EXT32: {
-        const length = this.view.getInt32(this.offset);
+        const length = this.view.getUint32(this.offset);
         this.offset += 4;
 
-        const extensionId = this.buffer[this.offset++];
+        const extensionId = this.view.getInt8(this.offset++);
 
         return this.decodeExtension(extensionId, length);
       }

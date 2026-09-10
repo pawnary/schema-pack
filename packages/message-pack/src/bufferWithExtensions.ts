@@ -63,7 +63,7 @@ abstract class BufferWithExtensions<
    */
   readonly errorExtension?: ErrorExtension<TBuffer> = undefined;
 
-  constructor(options?: BufferWithExtensionsOptions) {
+  constructor(options?: BufferWithExtensionsOptions<TBuffer>) {
     if (options?.extensions !== false) {
       if (options?.extensions?.bigInt !== false) {
         this.bigIntExtension = options?.extensions?.bigInt ?? {
