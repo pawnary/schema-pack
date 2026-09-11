@@ -1027,15 +1027,6 @@ class Encoder<TBuffer extends Uint8Array = Uint8Array>
       this.builtInExtensionsByConstructors.get(valueConstructor);
 
     if (builtInExtension) {
-      if (
-        Array.isArray(builtInExtension.constructors) &&
-        !builtInExtension.constructors.includes(valueConstructor)
-      ) {
-        throw new Error(
-          `Constructor ${valueConstructor.name} is not registered for built-in extension type ${builtInExtension.type}.`,
-        );
-      }
-
       builtInExtension.encodeInto(value, this);
 
       return this;
