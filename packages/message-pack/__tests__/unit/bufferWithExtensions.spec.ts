@@ -246,6 +246,27 @@ describe('addExtension', () => {
     );
   });
 
+  it('should throw an error if the extension type conflicts with bigint extension', () => {
+    const mock = new MockWithExtensions({
+      extensions: {
+        bigInt: {
+          type: 123,
+        },
+      },
+    });
+
+    const conflictingExtension: MessagePackExtension = {
+      constructors: [],
+      decode: vi.fn<() => object>(),
+      encode: vi.fn<() => void>(),
+      type: 123,
+    };
+
+    expect(() => mock.addExtension(conflictingExtension)).toThrow(
+      'Extension with type 123 conflicts with built-in BigInt extension',
+    );
+  });
+
   it('should add an extension correctly', () => {
     const mock = new MockWithExtensions();
 

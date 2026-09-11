@@ -137,6 +137,12 @@ abstract class BufferWithExtensions<
       );
     }
 
+    if (extension.type === this.bigIntExtension?.type) {
+      throw new Error(
+        `Extension with type ${extension.type} conflicts with built-in BigInt extension`,
+      );
+    }
+
     this.extensions.set(extension.type, extension);
 
     return this;
