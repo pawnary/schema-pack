@@ -353,10 +353,8 @@ describe('ext', () => {
       encode: (_value, extensionEncoder) => {
         let counter = 0;
 
-        while (extensionEncoder.offset < 254) {
+        while (extensionEncoder.offset < 255) {
           extensionEncoder.writeUint8(counter++);
-
-          extensionEncoder.offset++;
         }
       },
       type: 1,
@@ -378,10 +376,8 @@ describe('ext', () => {
       encode: (_value, extensionEncoder) => {
         let counter = 0;
 
-        while (extensionEncoder.offset < 65_534) {
+        while (extensionEncoder.offset < 65_535) {
           extensionEncoder.writeUint8(counter++);
-
-          extensionEncoder.offset++;
         }
       },
       type: 1,
@@ -403,10 +399,8 @@ describe('ext', () => {
       encode: (_value, extensionEncoder) => {
         let counter = 0;
 
-        while (extensionEncoder.offset < 65_535) {
+        while (extensionEncoder.offset < 65_536) {
           extensionEncoder.writeUint8(counter++);
-
-          extensionEncoder.offset++;
         }
       },
       type: 1,
