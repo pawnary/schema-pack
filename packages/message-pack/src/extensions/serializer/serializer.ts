@@ -31,7 +31,10 @@ abstract class SerializerExtension<
     construct: Constructor<TValue>,
     factory: TFactory,
   ): void {
-    if (this.factories.has(construct)) {
+    if (
+      this.factories.has(construct) ||
+      this.factoriesByConstructorName.has(construct.name)
+    ) {
       throw new Error(
         `Factory already registered for constructor: "${construct.name}"`,
       );
