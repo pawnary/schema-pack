@@ -704,16 +704,27 @@ describe('decode with encoder chaining', () => {
     });
 
     const encoded = encoder
-      .openArray(6)
+      .openArray(8)
+      .write(new Date('2001-02-03T04:05:06.789Z'))
       .writeString('foo')
       .writeSignedInteger(-123)
       .writeUnsignedInteger(123)
+      .writeError(new Error('oops!'))
       .writeFloat(1.2)
       .writeNumber(1234)
       .writeBigInt(123n)
       .flush();
 
-    expect(decode(encoded)).toStrictEqual(['foo', -123, 123, 1.2, 1234, 123n]);
+    expect(decode(encoded)).toStrictEqual([
+      new Date('2001-02-03T04:05:06.789Z'),
+      'foo',
+      -123,
+      123,
+      new Error('oops!'),
+      1.2,
+      1234,
+      123n,
+    ]);
   });
 
   it('openMap', () => {
