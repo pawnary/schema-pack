@@ -692,6 +692,104 @@ describe('write symbols', () => {
     expect(encoder.buffer).toBeBytes([Symbols.EXT32, 0, 0, 0, 2, 1]);
     expect(encoder.offset).toBe(6);
   });
+
+  describe('writeExtensionSymbol', () => {
+    it('should call writeFixExt1Symbol', () => {
+      const encoder = new Encoder({
+        initialBufferSize: 1,
+      });
+
+      const spy = vi.spyOn(encoder, 'writeFixExt1Symbol');
+
+      encoder.writeExtensionSymbol(1, 1);
+
+      expect(spy).toHaveBeenCalledWith(1);
+    });
+
+    it('should call writeFixExt2Symbol', () => {
+      const encoder = new Encoder({
+        initialBufferSize: 1,
+      });
+
+      const spy = vi.spyOn(encoder, 'writeFixExt2Symbol');
+
+      encoder.writeExtensionSymbol(1, 2);
+
+      expect(spy).toHaveBeenCalledWith(1);
+    });
+
+    it('should call writeFixExt4Symbol', () => {
+      const encoder = new Encoder({
+        initialBufferSize: 1,
+      });
+
+      const spy = vi.spyOn(encoder, 'writeFixExt4Symbol');
+
+      encoder.writeExtensionSymbol(1, 4);
+
+      expect(spy).toHaveBeenCalledWith(1);
+    });
+
+    it('should call writeFixExt8Symbol', () => {
+      const encoder = new Encoder({
+        initialBufferSize: 1,
+      });
+
+      const spy = vi.spyOn(encoder, 'writeFixExt8Symbol');
+
+      encoder.writeExtensionSymbol(1, 8);
+
+      expect(spy).toHaveBeenCalledWith(1);
+    });
+
+    it('should call writeFixExt16Symbol', () => {
+      const encoder = new Encoder({
+        initialBufferSize: 1,
+      });
+
+      const spy = vi.spyOn(encoder, 'writeFixExt16Symbol');
+
+      encoder.writeExtensionSymbol(1, 16);
+
+      expect(spy).toHaveBeenCalledWith(1);
+    });
+
+    it('should call writeExt8Symbol', () => {
+      const encoder = new Encoder({
+        initialBufferSize: 1,
+      });
+
+      const spy = vi.spyOn(encoder, 'writeExt8Symbol');
+
+      encoder.writeExtensionSymbol(1, 17);
+
+      expect(spy).toHaveBeenCalledWith(1, 17);
+    });
+
+    it('should call writeExt16Symbol', () => {
+      const encoder = new Encoder({
+        initialBufferSize: 1,
+      });
+
+      const spy = vi.spyOn(encoder, 'writeExt16Symbol');
+
+      encoder.writeExtensionSymbol(1, 256);
+
+      expect(spy).toHaveBeenCalledWith(1, 256);
+    });
+
+    it('should call writeExt32Symbol', () => {
+      const encoder = new Encoder({
+        initialBufferSize: 1,
+      });
+
+      const spy = vi.spyOn(encoder, 'writeExt32Symbol');
+
+      encoder.writeExtensionSymbol(1, 65_537);
+
+      expect(spy).toHaveBeenCalledWith(1, 65_537);
+    });
+  });
 });
 
 describe('general writing', () => {

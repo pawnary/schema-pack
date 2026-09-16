@@ -15,6 +15,10 @@ class PublicDecoder extends Decoder {
   ): unknown {
     return super.decodeExtension(extensionId, length);
   }
+
+  public override decodeBin(length: number): Uint8Array {
+    return super.decodeBin(length);
+  }
 }
 
 describe('decodeBigInt', () => {
@@ -114,6 +118,42 @@ describe('decodeExtension', () => {
 
     expect(result).toBe(value);
     expect(decodeFn).toHaveBeenCalledWith(decoder, 11);
+  });
+});
+
+describe('decodeBin', () => {
+  const bin8Bytes = new Uint8Array(255).fill(1);
+
+  it('should decode using a view', () => {
+    const buffer = new Uint8Array(bin8Bytes);
+
+    const decoder = new PublicDecoder({
+      copyBuffers: false,
+    });
+
+    decoder.setBuffer(buffer);
+
+    const decoded = decoder.decodeBin(255);
+
+    buffer[0] = 123;
+
+    expect(decoded).toBeByteAt(0, 123);
+  });
+
+  it('should decode copying the content into a new buffer', () => {
+    const buffer = new Uint8Array(bin8Bytes);
+
+    const decoder = new PublicDecoder({
+      copyBuffers: true,
+    });
+
+    decoder.setBuffer(buffer);
+
+    const decoded = decoder.decodeBin(255);
+
+    buffer[0] = 123;
+
+    expect(decoded).toBeByteAt(0, 1);
   });
 });
 

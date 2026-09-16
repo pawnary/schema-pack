@@ -1,0 +1,90 @@
+---
+title: copyBuffers
+---
+
+- **Type:** `boolean`
+- **Default:** `false`
+
+By default, every value decoded as raw bytes is returned as a view over the
+source buffer instead of a copy. Nothing is allocated and nothing is copied,
+which keeps decoding fast, but the decoded value stays tied to the buffer you
+passed to `decode`.
+
+The `copyBuffers` configuration changes that behavior. When enabled, every
+decoded value gets its own memory and becomes fully independent from the source
+buffer.
+
+Sharing memory with the source buffer causes three problems, and all of them
+fail silently:
+
+- **The source buffer changes.** If the buffer is modified or reused after
+  decoding, for example when messages are read into a preallocated buffer, the
+  values you already decoded change with it.
+- **The source buffer is retained.** A view keeps the whole source buffer alive,
+  so a small decoded value can hold an entire message in memory for as long as
+  it is referenced.
+- **The `buffer` property exposes everything.** A view reports the whole source
+  buffer through its `buffer` property, not only its own bytes, so any API
+  reading that property receives more data than expected.
+
+Enable this configuration when a decoded value outlives the decode call: it is
+stored in a cache, kept in memory, sent to another thread, or handed to an API
+that reads its `buffer` property.
+
+Keep it disabled when decoded values are read and discarded right away, which is
+the common case, and when decoding large payloads, where copying every value is
+expensive.
+
+---
+
+Example:
+
+{/* prettier-ignore */}
+<Tabs items={['Default (disabled)', 'Enabled']}>
+  <Tab value='Default (disabled)'>
+    ```ts
+    import assert from 'node:assert';
+
+    import { Decoder, encode } from '@schema-pack/message-pack';
+
+    const encoded = encode(Uint8Array.from([0, 1, 2]));
+
+    const decoder = new Decoder();
+
+    const decoded = decoder.decode<Uint8Array>(encoded);
+
+    // The decoded value shares its memory with the source buffer.
+    assert.ok(decoded.buffer === encoded.buffer);
+
+    // Writing to the source buffer changes the decoded value.
+    encoded[2] = 0xff;
+
+    assert.ok(decoded[0] === 0xff);
+    ```
+
+  </Tab>
+  <Tab value='Enabled'>
+    ```ts
+    import assert from 'node:assert';
+
+    import { Decoder, encode } from '@schema-pack/message-pack';
+
+    const encoded = encode(Uint8Array.from([0, 1, 2]));
+
+    const decoder = new Decoder({
+      copyBuffers: true,
+    });
+
+    const decoded = decoder.decode<Uint8Array>(encoded);
+
+    // The decoded value owns its memory.
+    assert.ok(decoded.buffer !== encoded.buffer);
+
+    // Writing to the source buffer leaves the decoded value untouched.
+    encoded[2] = 0xff;
+
+    assert.ok(decoded[0] === 0xaa);
+    ```
+
+  </Tab>
+</Tabs>
