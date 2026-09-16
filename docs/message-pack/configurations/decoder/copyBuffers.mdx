@@ -57,9 +57,9 @@ Example:
     assert.ok(decoded.buffer === encoded.buffer);
 
     // Writing to the source buffer changes the decoded value.
-    encoded[2] = 0xff;
+    encoded[2] = 123;
 
-    assert.ok(decoded[0] === 0xff);
+    assert.ok(decoded[0] === 123);
     ```
 
   </Tab>
@@ -81,9 +81,9 @@ Example:
     assert.ok(decoded.buffer !== encoded.buffer);
 
     // Writing to the source buffer leaves the decoded value untouched.
-    encoded[2] = 0xff;
+    encoded[2] = 123;
 
-    assert.ok(decoded[0] === 0xaa);
+    assert.ok(decoded[0] === 0);
     ```
 
   </Tab>
