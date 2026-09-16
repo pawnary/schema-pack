@@ -36,7 +36,9 @@ class Decoder<TBuffer extends Uint8Array = Uint8Array>
 
   static fromEncoder<TBuffer extends Uint8Array = Uint8Array>(
     encoder: Encoder<TBuffer>,
-    options?: Omit<DecoderOptions, keyof EncoderOptions>,
+    options?: NoInfer<
+      Omit<DecoderOptions<TBuffer>, keyof EncoderOptions<TBuffer>>
+    >,
   ): Decoder<TBuffer> {
     const decoder = new Decoder<TBuffer>({
       bufferFactory: encoder.bufferFactory,

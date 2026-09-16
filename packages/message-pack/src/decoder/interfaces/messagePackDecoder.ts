@@ -5,7 +5,7 @@ export default interface MessagePackDecoder<
 > {
   view: DataView;
   buffer: TBuffer;
-  textDecoder: MessagePackTextDecoder;
+  textDecoder: MessagePackTextDecoder<TBuffer>;
   offset: number;
   nextValue<TValue = unknown>(): TValue;
 }

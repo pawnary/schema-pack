@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 
 import Decoder from '../../../src/decoder/decoder.ts';
+import NodeTextDecoder from '../../../src/decoder/textDecoders/nodeTextDecoder.ts';
 import Encoder from '../../../src/encoder/encoder.ts';
 import type MessagePackExtension from '../../../src/extensions/interfaces/messagePackExtension.ts';
 
@@ -52,5 +53,21 @@ describe('fromEncoder', () => {
     expect(decoder.bigIntExtension).toBeUndefined();
     expect(decoder.errorExtension).toBeUndefined();
     expect(decoder.timestampDateExtension).toBeUndefined();
+  });
+
+  it('should create a decoder from an encoder with new decoder options', () => {
+    const encoder = new Encoder({
+      bufferFactory: (): Buffer => Buffer.alloc(1),
+    });
+
+    const textDecoder = new NodeTextDecoder();
+
+    const decoder = Decoder.fromEncoder(encoder, {
+      copyBuffers: true,
+      textDecoder,
+    });
+
+    expect(decoder.textDecoder).toBe(textDecoder);
+    expect(decoder.copyBuffers).toBe(true);
   });
 });

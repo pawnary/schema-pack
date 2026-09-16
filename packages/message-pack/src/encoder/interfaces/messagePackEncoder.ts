@@ -38,7 +38,7 @@ export default interface MessagePackEncoder<
    * This encoder is responsible for converting strings into their corresponding
    * byte representations according to the MessagePack specification.
    */
-  readonly textEncoder: MessagePackTextEncoder;
+  readonly textEncoder: MessagePackTextEncoder<TBuffer>;
 
   /**
    * Ensures that the buffer has enough capacity to write the specified number
