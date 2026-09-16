@@ -155,6 +155,23 @@ describe('decodeBin', () => {
 
     expect(decoded).toBeByteAt(0, 1);
   });
+
+  it('should decode copying the content into a new buffer using different buffer than Uint8Array', () => {
+    const buffer = Buffer.from(bin8Bytes);
+
+    const decoder = new PublicDecoder({
+      copyBuffers: true,
+    });
+
+    decoder.setBuffer(buffer);
+
+    const decoded = decoder.decodeBin(255);
+
+    buffer[0] = 123;
+
+    expect(decoded).toBeByteAt(0, 1);
+    expect(decoded).toBeInstanceOf(Buffer);
+  });
 });
 
 describe('message pack types', () => {
