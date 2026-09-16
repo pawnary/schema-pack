@@ -116,7 +116,7 @@ export default interface MessagePackEncoder<
    * +========+
    * ```
    */
-  writeBin(bytes: Uint8Array): this;
+  writeBin<TBytes extends Uint8Array>(bytes: TBytes): this;
 
   /**
    * Writes a MessagePack float 32 stores a floating point number in IEEE 754
@@ -962,6 +962,62 @@ export default interface MessagePackEncoder<
    * ```
    */
   writeUint8Array(value: Uint8Array): this;
+
+  /**
+   * Writes a MessagePack extension symbols using fixext 1, fixext 2, fixext 4,
+   * fixext 8, fixext 16, ext 8, ext 16, or ext 32.
+   *
+   * ```
+   * fixext 1:
+   * +--------+--------+
+   * |  0xd4  |  type  |
+   * +--------+--------+
+   *
+   * fixext 2:
+   * +--------+--------+
+   * |  0xd5  |  type  |
+   * +--------+--------+
+   *
+   * fixext 4:
+   * +--------+--------+
+   * |  0xd6  |  type  |
+   * +--------+--------+
+   *
+   * fixext 8:
+   * +--------+--------+
+   * |  0xd7  |  type  |
+   * +--------+--------+
+   *
+   * fixext 16:
+   * +--------+--------+
+   * |  0xd8  |  type  |
+   * +--------+--------+
+   *
+   * ext 8:
+   * +--------+--------+--------+
+   * |  0xc7  |XXXXXXXX|  type  |
+   * +--------+--------+--------+
+   *
+   * ext 16:
+   * +--------+--------+--------+--------+
+   * |  0xc8  |YYYYYYYY|YYYYYYYY|  type  |
+   * +--------+--------+--------+--------+
+   *
+   * ext 32:
+   * +--------+--------+--------+--------+--------+--------+
+   * |  0xc9  |ZZZZZZZZ|ZZZZZZZZ|ZZZZZZZZ|ZZZZZZZZ|  type  |
+   * +--------+--------+--------+--------+--------+--------+
+   *
+   * XXXXXXXX is a 8-bit unsigned integer which represents N.
+   * YYYYYYYY_YYYYYYYY is a 16-bit big-endian unsigned integer which
+   * represents N.
+   * ZZZZZZZZ_ZZZZZZZZ_ZZZZZZZZ_ZZZZZZZZ is a big-endian 32-bit unsigned
+   * integer which represents N.
+   * N is the length of data.
+   * type is a signed 8-bit integer.
+   * ```
+   */
+  writeExtensionSymbol(type: number, size: number): this;
 
   /**
    * Writes a MessagePack extension using fixext 1, fixext 2, fixext 4, fixext

@@ -248,7 +248,7 @@ class Encoder<TBuffer extends Uint8Array = Uint8Array>
     return this;
   }
 
-  writeBin(bytes: Uint8Array): this {
+  writeBin<TBytes extends Uint8Array>(bytes: TBytes): this {
     this.buffer.set(bytes, this.offset);
 
     this.offset += bytes.length;
@@ -870,53 +870,60 @@ class Encoder<TBuffer extends Uint8Array = Uint8Array>
     return this.writeBin(value);
   }
 
+  writeExtensionSymbol(type: number, size: number): this {
+    if (size === 1) {
+      this.ensureCapacity(3);
+
+      this.writeFixExt1Symbol(type);
+    } else if (size === 2) {
+      this.ensureCapacity(4);
+
+      this.writeFixExt2Symbol(type);
+    } else if (size === 4) {
+      this.ensureCapacity(6);
+
+      this.writeFixExt4Symbol(type);
+    } else if (size === 8) {
+      this.ensureCapacity(10);
+
+      this.writeFixExt8Symbol(type);
+    } else if (size === 16) {
+      this.ensureCapacity(18);
+
+      this.writeFixExt16Symbol(type);
+    } else if (fitIn8Bits(size)) {
+      this.ensureCapacity(3 + size);
+
+      this.writeExt8Symbol(type, size);
+    } else if (fitIn16Bits(size)) {
+      this.ensureCapacity(4 + size);
+
+      this.writeExt16Symbol(type, size);
+    } else if (fitIn32Bits(size)) {
+      this.ensureCapacity(6 + size);
+
+      this.writeExt32Symbol(type, size);
+    } else {
+      throw new Error(`Extension data too large to encode: ${size} bytes`);
+    }
+
+    return this;
+  }
+
   writeExtension<TValue extends object = object>(
     extension:
       | MessagePackExtension<TValue, TBuffer>
       | MessagePackBuiltInExtension<TValue, TBuffer>,
-    encoder: ExtensionEncoder<TBuffer>,
+    extensionEncoder: ExtensionEncoder<TBuffer>,
   ): this {
-    const writtenBytes = encoder.offset;
+    const writtenBytes = extensionEncoder.offset;
 
-    if (writtenBytes === 1) {
-      this.ensureCapacity(3);
+    this.writeExtensionSymbol(extension.type, writtenBytes);
 
-      this.writeFixExt1Symbol(extension.type);
-    } else if (writtenBytes === 2) {
-      this.ensureCapacity(4);
-
-      this.writeFixExt2Symbol(extension.type);
-    } else if (writtenBytes === 4) {
-      this.ensureCapacity(6);
-
-      this.writeFixExt4Symbol(extension.type);
-    } else if (writtenBytes === 8) {
-      this.ensureCapacity(10);
-
-      this.writeFixExt8Symbol(extension.type);
-    } else if (writtenBytes === 16) {
-      this.ensureCapacity(18);
-
-      this.writeFixExt16Symbol(extension.type);
-    } else if (fitIn8Bits(writtenBytes)) {
-      this.ensureCapacity(3 + writtenBytes);
-
-      this.writeExt8Symbol(extension.type, writtenBytes);
-    } else if (fitIn16Bits(writtenBytes)) {
-      this.ensureCapacity(4 + writtenBytes);
-
-      this.writeExt16Symbol(extension.type, writtenBytes);
-    } else if (fitIn32Bits(writtenBytes)) {
-      this.ensureCapacity(6 + writtenBytes);
-
-      this.writeExt32Symbol(extension.type, writtenBytes);
-    } else {
-      throw new Error(
-        `Extension data too large to encode: ${writtenBytes} bytes`,
-      );
-    }
-
-    this.buffer.set(encoder.buffer.subarray(0, writtenBytes), this.offset);
+    this.buffer.set(
+      extensionEncoder.buffer.subarray(0, writtenBytes),
+      this.offset,
+    );
 
     this.offset += writtenBytes;
 

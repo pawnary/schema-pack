@@ -2,6 +2,7 @@
 import BufferWithExtensions from '../bufferWithExtensions.ts';
 import defaultNewBufferFn from '../defaultNewBufferFn.ts';
 import type Encoder from '../encoder/encoder.ts';
+import type { EncoderOptions } from '../encoder/types.ts';
 import Symbols from '../symbols.ts';
 import type { BufferFactory } from '../types.ts';
 import type MessagePackDecoder from './interfaces/messagePackDecoder.ts';
@@ -17,6 +18,7 @@ class Decoder<TBuffer extends Uint8Array = Uint8Array>
   offset: number;
   view: DataView;
   textDecoder: MessagePackTextDecoder<TBuffer>;
+  copyBuffers: boolean;
 
   constructor(options?: DecoderOptions<TBuffer>) {
     super(options);
@@ -29,11 +31,12 @@ class Decoder<TBuffer extends Uint8Array = Uint8Array>
     this.offset = 0;
     this.textDecoder =
       options?.textDecoder ?? new DefaultTextDecoder<TBuffer>();
+    this.copyBuffers = options?.copyBuffers ?? false;
   }
 
   static fromEncoder<TBuffer extends Uint8Array = Uint8Array>(
     encoder: Encoder<TBuffer>,
-    options?: Pick<DecoderOptions<TBuffer>, 'textDecoder'>,
+    options?: Omit<DecoderOptions, keyof EncoderOptions>,
   ): Decoder<TBuffer> {
     const decoder = new Decoder<TBuffer>({
       bufferFactory: encoder.bufferFactory,
@@ -42,7 +45,7 @@ class Decoder<TBuffer extends Uint8Array = Uint8Array>
         error: encoder.errorExtension ?? false,
         timestampDate: encoder.timestampDateExtension ?? false,
       },
-      textDecoder: options?.textDecoder,
+      ...options,
     });
 
     const extensions = encoder.getExtensions();
@@ -174,6 +177,22 @@ class Decoder<TBuffer extends Uint8Array = Uint8Array>
     return encoded >> 1n;
   }
 
+  protected decodeBin(length: number): TBuffer {
+    const startOffset = this.offset;
+
+    this.offset = startOffset + length;
+
+    if (this.copyBuffers) {
+      return Uint8Array.prototype.slice.call(
+        this.buffer,
+        startOffset,
+        this.offset,
+      ) as TBuffer;
+    }
+
+    return this.buffer.subarray(startOffset, this.offset) as TBuffer;
+  }
+
   protected decodeExtension(extensionId: number, length: number): unknown {
     if (extensionId === this.bigIntExtension?.type) {
       return this.decodeBigInt(length);
@@ -205,23 +224,20 @@ class Decoder<TBuffer extends Uint8Array = Uint8Array>
       }
       case Symbols.BIN8: {
         const byteLength = buffer[this.offset++];
-        const dataStartOffset = this.offset;
-        this.offset = dataStartOffset + byteLength;
-        return buffer.subarray(dataStartOffset, this.offset);
+
+        return this.decodeBin(byteLength);
       }
       case Symbols.BIN16: {
-        const valueStartOffset = this.offset;
-        const byteLength = this.view.getUint16(valueStartOffset);
-        const dataStartOffset = valueStartOffset + 2;
-        this.offset = dataStartOffset + byteLength;
-        return buffer.subarray(dataStartOffset, this.offset);
+        const byteLength = this.view.getUint16(this.offset);
+        this.offset += 2;
+
+        return this.decodeBin(byteLength);
       }
       case Symbols.BIN32: {
-        const valueStartOffset = this.offset;
-        const byteLength = this.view.getUint32(valueStartOffset);
-        const dataStartOffset = valueStartOffset + 4;
-        this.offset = dataStartOffset + byteLength;
-        return buffer.subarray(dataStartOffset, this.offset);
+        const byteLength = this.view.getUint32(this.offset);
+        this.offset += 4;
+
+        return this.decodeBin(byteLength);
       }
       case Symbols.EXT8: {
         const length = this.buffer[this.offset++];
@@ -385,10 +401,9 @@ class Decoder<TBuffer extends Uint8Array = Uint8Array>
           return buffer[this.offset++] as TValue;
         }
         case Symbols.UINT16: {
-          const valueStartOffset = this.offset;
-          const decodedUint16 =
-            (buffer[valueStartOffset] << 8) | buffer[valueStartOffset + 1];
-          this.offset = valueStartOffset + 2;
+          const decodedUint16 = this.view.getUint16(this.offset);
+          this.offset += 2;
+
           return decodedUint16 as TValue;
         }
         case Symbols.UINT32: {
