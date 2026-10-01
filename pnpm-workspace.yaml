@@ -13,7 +13,7 @@ catalog:
   '@pawnary/oxfmt-config': 0.0.0-commit.318423ba64b1a8c64bf99fdca89a13d8e482abba
   '@pawnary/oxlint-config': 0.0.0-commit.318423ba64b1a8c64bf99fdca89a13d8e482abba
   '@pawnary/tsdown-fix-exports': 0.0.1-next.ff1c982bcc87e5c8032af934ee04b0fedb4e3793
-  '@react-router/dev': ^8.3.0
+  '@react-router/dev': ^8.4.0
   '@react-router/node': ^8.3.0
   '@react-router/serve': ^8.3.0
   '@schema-pack/benchmark': workspace:*
