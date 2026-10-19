@@ -39,7 +39,7 @@ catalog:
   oxfmt: ^0.72.0
   oxlint: ^1.83.0
   oxlint-tsgolint: ^7.0.2001
-  publint: ^0.3.23
+  publint: ^0.3.25
   react: ^19.2.8
   react-dom: ^19.2.8
   react-router: ^8.4.0
