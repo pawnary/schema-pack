@@ -177,8 +177,8 @@ catalogs:
       specifier: 0.0.0-commit.318423ba64b1a8c64bf99fdca89a13d8e482abba
       version: 0.0.0-commit.318423ba64b1a8c64bf99fdca89a13d8e482abba
     '@pawnary/tsdown-fix-exports':
-      specifier: 0.0.1-next.ff1c982bcc87e5c8032af934ee04b0fedb4e3793
-      version: 0.0.1-next.ff1c982bcc87e5c8032af934ee04b0fedb4e3793
+      specifier: 0.0.1-next.0
+      version: 0.0.1-next.0
     '@react-router/dev':
       specifier: ^8.4.0
       version: 8.4.0
@@ -303,7 +303,7 @@ importers:
         version: 0.0.0-commit.318423ba64b1a8c64bf99fdca89a13d8e482abba
       '@pawnary/tsdown-fix-exports':
         specifier: 'catalog:'
-        version: 0.0.1-next.ff1c982bcc87e5c8032af934ee04b0fedb4e3793
+        version: 0.0.1-next.0
       '@types/bun':
         specifier: 'catalog:'
         version: 1.4.2
@@ -1595,8 +1595,8 @@ packages:
   '@pawnary/oxlint-config@0.0.0-commit.318423ba64b1a8c64bf99fdca89a13d8e482abba':
     resolution: {integrity: sha512-9VIGq212UmrFNHPo2orFLvMCJYd43PEdRQpednm8nsyJ2EhWhcLjMydtk9LX+Rm094zqZFAcp4WCmR/EvtdT3g==}
 
-  '@pawnary/tsdown-fix-exports@0.0.1-next.ff1c982bcc87e5c8032af934ee04b0fedb4e3793':
-    resolution: {integrity: sha512-s6xVmZqU+TWs4ctWjmHXpS5QED7RPLNEGY6bpbZQzibz865siKnuENGp1fO7yVWj8WsqxZSrJw/yI2Zmuwmpyg==}
+  '@pawnary/tsdown-fix-exports@0.0.1-next.0':
+    resolution: {integrity: sha512-YbWRMUWcfUBdXknNHXMcKAaOxVVcxcBSayXkrvbjAHkI999w/rEkcmTi4brgQVjDM0NzTqMIKOhLnBy61e7dtQ==}
 
   '@publint/pack@0.1.7':
     resolution: {integrity: sha512-4EDEmvxWtgsCnnVeBvtFIFZtUhPPt1+bA9JrSwU4Sa//6oKtzCSlGGXYJr44OD9aGISymbieJ4mCKHUygUDU+g==}
@@ -5468,7 +5468,7 @@ snapshots:
     transitivePeerDependencies:
       - vite-plus
 
-  '@pawnary/tsdown-fix-exports@0.0.1-next.ff1c982bcc87e5c8032af934ee04b0fedb4e3793': {}
+  '@pawnary/tsdown-fix-exports@0.0.1-next.0': {}
 
   '@publint/pack@0.1.7':
     dependencies:
