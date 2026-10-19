@@ -25,7 +25,7 @@ catalog:
   '@vitest/expect': ^4.1.11
   console-table-printer: ^2.16.1
   es-toolkit: ^1.52.0
-  fumadocs-core: ^16.15.1
+  fumadocs-core: ^16.17.5
   fumadocs-mdx: ^15.3.1
   fumadocs-ui: ^16.15.18
   husky: ^9.1.7
