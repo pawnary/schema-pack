@@ -255,8 +255,8 @@ catalogs:
       specifier: ^7.0.2001
       version: 7.0.2001
     publint:
-      specifier: ^0.3.23
-      version: 0.3.24
+      specifier: ^0.3.25
+      version: 0.3.25
     react:
       specifier: ^19.2.8
       version: 19.2.8
@@ -333,10 +333,10 @@ importers:
         version: 7.0.2001
       publint:
         specifier: 'catalog:'
-        version: 0.3.24
+        version: 0.3.25
       tsdown:
         specifier: 'catalog:'
-        version: 0.22.14(oxc-resolver@11.24.2)(publint@0.3.24)(tsx@4.23.13)(typescript@7.0.2)
+        version: 0.22.14(oxc-resolver@11.24.2)(publint@0.3.25)(tsx@4.23.13)(typescript@7.0.2)
       tsx:
         specifier: 'catalog:'
         version: 4.23.13
@@ -3978,8 +3978,8 @@ packages:
     resolution: {integrity: sha512-llQsMLSUDUPT44jdrU/O37qlnifitDP+ZwrmmZcoSKyLKvtZxpyV0n2/bD/N4tBAAZ/gJEdZU7KMraoK1+XYAg==}
     engines: {node: '>= 0.10'}
 
-  publint@0.3.24:
-    resolution: {integrity: sha512-9zS56KrKBoqi5Qt8h92uMP8TTM9AYZSgnmCo4u2priMqkOZvQnTsziZ2p5LJ2ywbYkAjoCDp2jda9u4cgFefIw==}
+  publint@0.3.25:
+    resolution: {integrity: sha512-WMMbn/d7JqRlfXQL/JUI4n5skC8cJ5WVr8/wT5mmiYWkUdENkZr1I5rgs2+dQPVRgoJd+JRYtB46MTsuDylw9g==}
     engines: {node: '>=18'}
     hasBin: true
 
@@ -7941,7 +7941,7 @@ snapshots:
       forwarded: 0.2.0
       ipaddr.js: 1.9.1
 
-  publint@0.3.24:
+  publint@0.3.25:
     dependencies:
       '@publint/pack': 0.1.7
       package-manager-detector: 1.8.0
@@ -8366,7 +8366,7 @@ snapshots:
     optionalDependencies:
       typescript: 7.0.2
 
-  tsdown@0.22.14(oxc-resolver@11.24.2)(publint@0.3.24)(tsx@4.23.13)(typescript@7.0.2):
+  tsdown@0.22.14(oxc-resolver@11.24.2)(publint@0.3.25)(tsx@4.23.13)(typescript@7.0.2):
     dependencies:
       ansis: 4.3.1
       cac: 7.0.0
@@ -8384,7 +8384,7 @@ snapshots:
       unconfig-core: 7.5.0
       verkit: 0.3.2
     optionalDependencies:
-      publint: 0.3.24
+      publint: 0.3.25
       tsx: 4.23.13
       typescript: 7.0.2
     transitivePeerDependencies:
